@@ -24,7 +24,7 @@ public interface Order {
 	 * by the maze factory (Eller needs to be implemented for P2)
 	 *
 	 */
-	enum Builder { DFS, Prim, Kruskal, Eller } ;
+	enum Builder { DFS, Prim, Kruskal, Eller, Test } ;
 	/**
 	 * Describes if the ordered maze should be perfect, i.e. there are 
 	 * no loops and no isolated areas, which also implies that 

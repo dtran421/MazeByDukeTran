@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -12,13 +13,15 @@ public class MazeFactoryTest {
 
 	// private variables
 	private MazeFactory mazeFactory; // setup makes this a MazeFactory object
-	
+	private Order order; // setup makes this a StubOrder object
+
 	/**
 	 * Instantiate a new MazeFactory object for each test
 	 */
 	@Before
 	public void setUp() {
 		mazeFactory = new MazeFactory();
+		order = new StubOrder();
 	}
 	
 	/**
@@ -27,13 +30,15 @@ public class MazeFactoryTest {
 	 * Method under test: own set up
 	 * <p>
 	 * Correct behavior:
-	 * it instantiates the mazeBuilder field and it is not null
+	 * the mazeFactory field is not null
 	 */
 	@Test
-	public final void testMazeBuilder() {
-		// check that mazeBuilder is not null
+	public final void testMazeFactory() {
+		// check that mazeFactory is not null
+		assertNotNull(mazeFactory);
 	}
 	
+	/**
 	/**
 	 * Test case: Correctness of the order method
 	 * <p>
@@ -46,12 +51,23 @@ public class MazeFactoryTest {
 	@Test
 	public final void testOrder() {
 		// test for if build thread already exists, call order and then
-		// call order again
+		// call order again (should return false)
+		mazeFactory.order(order);
+		assertFalse(mazeFactory.order(order));
 		
-		// check each case when builder is DFS, Prim, or algorithm is missing
-		// for selected builder (should return false)
-		
+		// check each case when builder is DFS or Prim
 		// when method finishes it should return true
+		mazeFactory = new MazeFactory();
+		assertTrue(mazeFactory.order(order));
+		mazeFactory = new MazeFactory();
+		Order primOrder = new StubOrder(0, false, Order.Builder.Prim);
+		assertTrue(mazeFactory.order(primOrder));
+		
+		// check when algorithm is missing
+		// should return false
+		mazeFactory = new MazeFactory();
+		Order missingOrder = new StubOrder(0, false, Order.Builder.Test);
+		assertFalse(mazeFactory.order(missingOrder));
 	}
 	
 	/**
@@ -67,6 +83,7 @@ public class MazeFactoryTest {
 	public final void testCancel() {
 		// check if build thread already exists, then cancel it and allow
 		// the next thread to proceed
+
 		
 		// if not then no thread is cancelled
 		
@@ -108,6 +125,7 @@ public class MazeFactoryTest {
 		// if there is a builder, then it should build the order and start
 		// a new thread
 	}
+	
 	
 	/**
 	 * Test case: Correctness of the generated maze based on inputted width
