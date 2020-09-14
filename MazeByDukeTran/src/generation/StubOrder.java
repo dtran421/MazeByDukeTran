@@ -6,6 +6,7 @@ public class StubOrder implements Order {
 	private Builder builder;
 	private boolean perfect;
 	private int seed;
+	private Maze maze;
 	
 	private int percentdone;
 	private boolean started;
@@ -20,14 +21,18 @@ public class StubOrder implements Order {
         seed = 13; // default: an arbitrary fixed value
 	}
 	
-	public StubOrder(int inSkillLevel, boolean inPerfect, Builder inBuilder) {
+	public StubOrder(int inSkillLevel, boolean inPerfect) {
 		skillLevel = inSkillLevel;
         perfect = inPerfect;
 		factory = new MazeFactory();
-        builder = inBuilder; // default algorithm
+        builder = Order.Builder.DFS; // default algorithm
         percentdone = 0;
         started = false;
         seed = 13; // default: an arbitrary fixed value
+	}
+	
+	public Maze getMaze() {
+		return maze;
 	}
 
 	@Override
@@ -57,7 +62,7 @@ public class StubOrder implements Order {
             // This reveals how the maze was generated
             mazeConfig.getFloorplan().saveLogFile(Floorplan.deepedebugWallFileName);
         }
-        //control.switchFromGeneratingToPlaying(mazeConfig);
+        maze = mazeConfig;
 	}
 
 	@Override
