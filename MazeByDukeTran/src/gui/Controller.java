@@ -6,6 +6,7 @@ import generation.CardinalDirection;
 import generation.Maze;
 import generation.Order;
 import generation.Order.Builder;
+import generation.SingleRandom;
 
 
 /**
@@ -153,9 +154,10 @@ public class Controller {
         currentState.setPerfect(perfect);
         if (!deterministic) {
         	System.out.println("Assignment: implement code such that a repeated generation creates different mazes! Program stops!");
-			System.exit(0) ;
+			// System.exit(0) ;
         	// TODO: implement code that makes sure we generate different random mazes
         	// HINT: check http://download.oracle.com/javase/6/docs/api/java/util/Random.html
+        	setSeed(SingleRandom.getRandom().nextInt());
         }
         currentState.setSeed(seed);
         currentState.start(this, panel);

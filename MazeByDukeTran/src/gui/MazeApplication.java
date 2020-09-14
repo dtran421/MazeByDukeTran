@@ -88,6 +88,7 @@ public class MazeApplication extends JFrame {
 	            return result;
 	        }
 	        else {
+	        	System.out.println("" + f.exists() + " " + f);
 	            // None of the predefined strings and not a filename either: 
 	            msg = "MazeApplication: unknown parameter value: " + parameter + " ignored, operating in default mode.";
 	        }
