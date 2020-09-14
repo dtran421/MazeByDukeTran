@@ -11,14 +11,14 @@ import org.junit.Test;
 public class MazeFactoryTest {
 
 	// private variables
-	private MazeBuilder mazeBuilder; // setup makes this a MazeBuilder object
+	private MazeFactory mazeFactory; // setup makes this a MazeFactory object
 	
 	/**
-	 * Instantiate a new MazeBuilder object for each test
+	 * Instantiate a new MazeFactory object for each test
 	 */
 	@Before
 	public void setUp() {
-		mazeBuilder = new MazeBuilder();
+		mazeFactory = new MazeFactory();
 	}
 	
 	/**
@@ -31,7 +31,7 @@ public class MazeFactoryTest {
 	 */
 	@Test
 	public final void testMazeBuilder() {
-		
+		// check that mazeBuilder is not null
 	}
 	
 	/**
@@ -45,7 +45,13 @@ public class MazeFactoryTest {
 	 */
 	@Test
 	public final void testOrder() {
+		// test for if build thread already exists, call order and then
+		// call order again
 		
+		// check each case when builder is DFS, Prim, or algorithm is missing
+		// for selected builder (should return false)
+		
+		// when method finishes it should return true
 	}
 	
 	/**
@@ -59,7 +65,12 @@ public class MazeFactoryTest {
 	 */
 	@Test
 	public final void testCancel() {
+		// check if build thread already exists, then cancel it and allow
+		// the next thread to proceed
 		
+		// if not then no thread is cancelled
+		
+		// builder and order should be cleaned up
 	}
 	
 	/**
@@ -73,7 +84,12 @@ public class MazeFactoryTest {
 	 */
 	@Test
 	public final void testWaitTillDelivered() {
+		// check if build thread already exists, then attempt to execute
+		// the join method and wait for it to finish
 		
+		// if not then no thread needs to be awaited
+		
+		// builder and order should be cleaned up
 	}
 	
 	/**
@@ -87,7 +103,10 @@ public class MazeFactoryTest {
 	 */
 	@Test
 	public final void testBuildOrder() {
+		// if there's no builder then the method does not need to execute
 		
+		// if there is a builder, then it should build the order and start
+		// a new thread
 	}
 	
 	/**
@@ -99,7 +118,9 @@ public class MazeFactoryTest {
 	 */
 	@Test
 	public final void testDimensions() {
-		
+		// instantiate new width and height
+		// build the maze
+		// compare the maze's dimensions to the inputs
 	}
 	
 	/**
@@ -110,8 +131,12 @@ public class MazeFactoryTest {
 	 * a maze should have no enclosed areas that cannot be accessed.
 	 */
 	@Test
-	public final void testNoEnclosedAreas() {
+	public final void testNoEnclosedAreas() {		
+		// iterate through the cells of the maze and ensure that no
+		// cell has walls in all 4 directions
 		
+		// iterate through cells marked as a room and ensure that there
+		// is at least one door
 	}
 	
 	/**
@@ -123,7 +148,22 @@ public class MazeFactoryTest {
 	 */
 	@Test
 	public final void testRoomDesign() {
-		
+		// designate a room
+		// ensure that all walls are borders
+		// at least one wall is missing to be a door
+		// all cells inside the room must be empty
+	}
+	
+	/**
+	 * Test case: Correctness of the generated maze based on existence
+	 * of an exit on the border
+	 * <p>
+	 * Correct behavior:
+	 * a maze should have an exit on the border
+	 */
+	@Test
+	public final void testExitExists() {
+		// check if one exterior wall is missing to be the exit
 	}
 	
 	/**
@@ -136,19 +176,8 @@ public class MazeFactoryTest {
 	 */
 	@Test
 	public final void testBorderWalls() {
-		
-	}
-	
-	/**
-	 * Test case: Correctness of the generated maze based on existence
-	 * of an exit on the border
-	 * <p>
-	 * Correct behavior:
-	 * a maze should have an exit on the border
-	 */
-	@Test
-	public final void testExitExists() {
-		
+		// check all walls along the exterior to make sure they are borders
+		// one wall should be missing to be the exit
 	}
 	
 	/**
@@ -160,7 +189,8 @@ public class MazeFactoryTest {
 	 */
 	@Test
 	public final void testStartingPosition() {
-		
+		// check that the distance from the starting position to the exit
+		// is the maximum
 	}
 	
 	
@@ -174,6 +204,7 @@ public class MazeFactoryTest {
 	 */
 	@Test
 	public final void testPathExists() {
-		
+		// check that the distance from the starting position to the exit
+		// is not infinity
 	}
 }
