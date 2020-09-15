@@ -75,8 +75,9 @@ public class MazeApplication extends JFrame {
 	    }
 	    else if ("Eller".equalsIgnoreCase(parameter))
 	    {
-	    	// TODO: for P2 assignment, please add code to set the builder accordingly
-	        throw new RuntimeException("Don't know anybody named Eller ...");
+	        // throw new RuntimeException("Don't know anybody named Eller ...");
+	    	msg = "MazeApplication: generating random maze with Eller's algorithm.";
+	        result.setBuilder(Order.Builder.Eller);
 	    }
 	    // Case 4: a file
 	    else {

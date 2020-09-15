@@ -139,7 +139,8 @@ public class MazeFactoryTest {
 	 * <p>
 	 * Correct behavior:
 	 * a maze should have a path that is traversable from the starting position
-	 * to the exit.
+	 * to the exit, and any cell that is not part of a room should have at least
+	 * one wall.
 	 */
 	@Test
 	public final void testPathExists() {
@@ -148,6 +149,15 @@ public class MazeFactoryTest {
 		computeDists();
 		int[] start = mazeDists.getStartPosition();
 		assertFalse(start[0] == INFINITY || start[1] == INFINITY);
+		
+		// check that each cell has at least one wall
+		for (int x = 0; x < mazeWidth; x++) {
+			for (int y = 0; y < mazeHeight; y++) {
+				if (!floorplan.isInRoom(x, y)) {
+					assertTrue(cellHasWall(x, y));
+				}
+			}
+		}
 	}
 	
 
@@ -157,7 +167,7 @@ public class MazeFactoryTest {
 	 * <p>
 	 * Correct behavior:
 	 * a maze should have a border surrounding the entire area less one wall which
-	 * would serve to be the exit
+	 * would serve to be the exit.
 	 */
 	@Test
 	public final void testBorderWalls() {

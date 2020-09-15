@@ -47,6 +47,10 @@ public class MazeFactory implements Factory {
 			builder = new MazeBuilderPrim();
 			buildOrder();
 			break;
+		case Eller:
+			builder = new MazeBuilderEller();
+			buildOrder();
+			break;
 		default:
 			System.out.println("MazeFactory.order: missing implementation for requested algorithm: " + order.getBuilder());
 			return false;
