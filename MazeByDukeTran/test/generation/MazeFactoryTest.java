@@ -71,8 +71,8 @@ public class MazeFactoryTest {
 		
 		newMazeWithRooms();
 		
-		assertEquals(order.getMaze().getWidth(), Constants.SKILL_X[0]);
-		assertEquals(order.getMaze().getHeight(), Constants.SKILL_Y[0]);
+		assertEquals(order.getMaze().getWidth(), Constants.SKILL_X[2]);
+		assertEquals(order.getMaze().getHeight(), Constants.SKILL_Y[2]);
 	}	
 	
 	/**
@@ -223,7 +223,7 @@ public class MazeFactoryTest {
 	 * have rooms
 	 */
 	private final void newMazeWithRooms() {
-		order = new StubOrder(0, true, Order.Builder.Eller); // change true to false and builder
+		order = new StubOrder(2, false, Order.Builder.Eller); // change true to false and builder
 		mazeFactory.order(order);
 		mazeFactory.waitTillDelivered();
 

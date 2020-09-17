@@ -15,29 +15,16 @@ import gui.Constants;
 public class MazeBuilderEllerTest {
 
 	// private variables
-	private MazeFactory mazeFactory; // setup makes this a MazeFactory object
-	private StubOrder order; // setup makes this a StubOrder object
-	private int mazeWidth;
-	private int mazeHeight;
-	private Floorplan floorplan;
-	private Distance mazeDists;
+	private MazeBuilder builder; // setup makes this a MazeBuilder object
 	
 	private final int INFINITY = Integer.MAX_VALUE; 
 
 	/**
-	 * Instantiate a new MazeFactory object for each test
+	 * Instantiate a new MazeBuilder object for each test
 	 */
 	@Before
 	public void setUp() {
-		mazeFactory = new MazeFactory();
-		order = new StubOrder(0, true, Order.Builder.Eller);
-		// build the maze with specified skill level
-		mazeFactory.order(order);
-		mazeFactory.waitTillDelivered();
-		// assign maze dimensions
-		mazeWidth = order.getMaze().getWidth();
-		mazeHeight = order.getMaze().getHeight();
-		floorplan = order.getMaze().getFloorplan();
+		MazeBuilder builder = new MazeBuilderEller();
 	}
 	
 	/**
@@ -46,36 +33,40 @@ public class MazeBuilderEllerTest {
 	 * Method under test: own set up
 	 * <p>
 	 * Correct behavior:
-	 * the mazeFactory field is not null
+	 * the builder field is not null
 	 */
 	@Test
-	public final void testMazeFactory() {
-		// check that mazeFactory is not null
-		assertNotNull(mazeFactory);
-		// check that the maze contained in order is not null
-		assertNotNull(order.getMaze());
+	public final void testMazeBuilderEller() {
+		// check that builder is not null
+		assertNotNull(builder);
+		// check that the private HashMaps are instantiated properly
 	}
 	
 	/**
 	 * Test case: Correctness of the generatePathways method
 	 * <p>
-	 * Method being tested: generatePathways()
+	 * Method tested: generatePathways()
 	 * <p>
 	 * Correct behavior:
 	 * a maze should be generated properly using Eller's algorithm
 	 */
 	@Test
 	public final void testGeneratePathways() {	
-		// save the current floorplan that has no rooms
+		// make a new MazeFactory object and order
+				
+		// build the maze
 		
-		// set up the mazeBuilder, execute the method
+		// check that the dimensions match the floorplan's
 		
-		// ensure the HashMaps at the beginning are properly generated
+		// check that there are no enclosed areas
 		
-		// check that all cells are in one set (one pathway, no enclosed areas)
+		// check that there is an exit
 		
-		
+		// check that there is a path to the exit
+				
 		// repeat test with new saved floorplan that has rooms
+		
+		// check for the same things as above
 		
 		// compare this end floorplan with the previously saved one to make sure
 		// all load-bearing walls are still standing 
@@ -83,190 +74,62 @@ public class MazeBuilderEllerTest {
 	}	
 	
 	/**
-	 * Test case: Correctness of the generated maze based on the absence of
-	 * enclosed areas with no doors.
+	 * Test case: Correctness of the getCell method
+	 * <p>
+	 * Method tested: getCell(int x, int y)
 	 * <p>
 	 * Correct behavior:
-	 * a maze should have no enclosed areas that cannot be accessed.
+	 * returns an ArrayList containing the coordinates of the
+	 * requested cell
 	 */
 	@Test
-	public final void testNoEnclosedAreas() {		
-		// iterate through the cells of the maze and ensure that no
-		// cell has walls in all 4 directions
-		computeDists();
-		for (int x = 0; x < mazeWidth; x++) {
-			for (int y = 0; y < mazeHeight; y++) {
-				assertFalse(cellHas4Walls(x, y));
-				assertNotEquals(mazeDists.getDistanceValue(x, y), INFINITY);
-			}
-		}		
-	}
-	
-	/**
-	 * Test case: Correctness of the generated maze based on existence
-	 * of an exit on the border
-	 * <p>
-	 * Correct behavior:
-	 * a maze should have an exit on the border
-	 */
-	@Test
-	public final void testExitExists() {
-		// check if one exterior wall is missing to be the exit
-		computeDists();
-		int[] exit = mazeDists.getExitPosition();
-		assertEquals(mazeDists.getDistanceValue(exit[0], exit[1]), 1);
-		assertTrue(floorplan.hasNoWall(exit[0], exit[1], CardinalDirection.North) || 
-				floorplan.hasNoWall(exit[0], exit[1], CardinalDirection.East) ||
-				floorplan.hasNoWall(exit[0], exit[1], CardinalDirection.South) ||
-				floorplan.hasNoWall(exit[0], exit[1], CardinalDirection.West));
-	}
-	
-	/**
-	 * Test case: Correctness of the generated maze based on starting
-	 * position
-	 * <p>
-	 * Correct behavior:
-	 * a maze should have a starting position that is furthest from the exit.
-	 */
-	@Test
-	public final void testStartingPosition() {
-		// check that the distance from the starting position to the exit
-		// is the maximum
-		computeDists();
-		int[] start = mazeDists.getStartPosition();
-		int maxDist = mazeDists.getMaxDistance();
+	public final void testGetCell() {		
+		// check for invalid inputs (cell is out of bounds)
 		
-		assertEquals(maxDist,
-			mazeDists.getDistanceValue(start[0], start[1]));
+		// check that the returned value is of the correct type of ArrayList<Integer>
+		
+		// check that the returned cell matches the inputted cell
 	}
 	
 	/**
-	 * Test case: Correctness of the generated maze based on existence of path
-	 * from starting position to exit
+	 * Test case: Correctness of the newSet method
+	 * <p>
+	 * Method tested: newSet(int x, int y)
 	 * <p>
 	 * Correct behavior:
-	 * a maze should have a path that is traversable from the starting position
-	 * to the exit, and any cell that is not part of a room should have at least
-	 * one wall.
+	 * a new set has been made for the requested cell
+	 * and added to the HashMap
 	 */
 	@Test
-	public final void testPathExists() {
-		// check that the distance from the starting position to the exit
-		// is not infinity
-		computeDists();
-		int[] start = mazeDists.getStartPosition();
-		assertFalse(start[0] == INFINITY || start[1] == INFINITY);
+	public final void testNewSet() {
+		// check for invalid inputs
 		
-		// check that each cell has at least one wall
-		for (int x = 0; x < mazeWidth; x++) {
-			for (int y = 0; y < mazeHeight; y++) {
-				if (!floorplan.isInRoom(x, y)) {
-					assertTrue(cellHasWall(x, y));
-				}
-			}
-		}
-	}
-	
-
-	/**
-	 * Test case: Correctness of the generated maze based on existence of 
-	 * border walls.
-	 * <p>
-	 * Correct behavior:
-	 * a maze should have a border surrounding the entire area less one wall which
-	 * would serve to be the exit.
-	 */
-	@Test
-	public final void testBorderWalls() {
-		// check all walls along the exterior to make sure they are borders
-		// one wall should be missing to be the exit
-		computeDists();
-		int[] exit = mazeDists.getExitPosition();
+		// check that a new set has been added to the HashMap
 		
-		for (int x = 0; x < mazeWidth; x++) {
-			if (exit[0] != x && exit[1] != 0) 
-				assertTrue(cellHasWall(x, 0));
-			if (exit[0] != x && exit[1] != mazeHeight-1) 
-				assertTrue(cellHasWall(x, mazeHeight-1));
-		} 
-		for (int y = 0; y < mazeHeight; y++) {
-			if (exit[0] != 0 && exit[1] != y) 
-				assertTrue(cellHasWall(0, y));
-			if (exit[0] != mazeWidth-1 && exit[1] != y) 
-				assertTrue(cellHasWall(mazeWidth-1, y));
-		}
+		// check that the set belongs to the requested cell
 	}
 	
 	/**
-	 * Test case: Correctness of the generated maze based on room design.
+	 * Test case: Correctness of the mergeSets method
+	 * <p>
+	 * Method tested: mergeSets(int x, int y, String dir)
 	 * <p>
 	 * Correct behavior:
-	 * if a maze has rooms, they should be empty and its walls should be load-bearing
-	 * less at least one wall so that it's not an enclosed area.
+	 * merges the cell with the adjacent cell in the requested
+	 * direction and updates the HashMaps correctly
 	 */
 	@Test
-	public final void testRoomDesign() {
-		// ensure that all rooms have walls
-		// at least one wall is missing to be a door
-		// all cells inside the room must be empty
-		// iterate through cells marked as a room and ensure that there
-		// is a possible path to the exit
-		newMazeWithRooms();
-		computeDists();
+	public final void testMergeSets() {
+		// check for invalid cell inputs
 		
-		for (int x = 0; x < mazeWidth; x++) {
-			for (int y = 0; y < mazeHeight; y++) {
-				if (floorplan.isInRoom(x, y)) {
-					assertNotEquals(mazeDists.getDistanceValue(x, y), INFINITY);
-				}
-			}
-		}
+		// check for invalid direction input
+		
+		// check that the sets have been successfully merged
+		
+		// check that the new set contains elements from both sets
+				
 	}
 	
-	// private methods
-	
-	/*
-	 * make a new maze with a skill level of 2 so that it will
-	 * have rooms
-	 */
-	private final void newMazeWithRooms() {
-		mazeFactory = new MazeFactory();
-		order = new StubOrder(2, true, Order.Builder.Eller);
-		mazeFactory.order(order);
-		mazeFactory.waitTillDelivered();
-
-		System.out.println(order.getMaze());
-		floorplan = order.getMaze().getFloorplan();
-		System.out.println(floorplan.toString());
-		mazeWidth = order.getMaze().getWidth();
-		mazeHeight = order.getMaze().getHeight();
-	}
-	
-	/*
-	 * check if the selected cell has 4 walls surrounding it
-	 */
-	private final boolean cellHas4Walls(int x, int y) {
-		return floorplan.hasWall(x, y, CardinalDirection.North) && 
-		floorplan.hasWall(x, y, CardinalDirection.East) &&
-		floorplan.hasWall(x, y, CardinalDirection.South) &&
-		floorplan.hasWall(x, y, CardinalDirection.West);
-	}
-	
-	/*
-	 * check if the selected cell has at least one wall
-	 */
-	private final boolean cellHasWall(int x, int y) {
-		return floorplan.hasWall(x, y, CardinalDirection.North) || 
-			floorplan.hasWall(x, y, CardinalDirection.East) ||
-			floorplan.hasWall(x, y, CardinalDirection.South) ||
-			floorplan.hasWall(x, y, CardinalDirection.West);
-	}
-	
-	/*
-	 * compute the maze distance matrix based on the floorplan
-	 */
-	private final void computeDists() {
-		mazeDists = new Distance(mazeWidth, mazeHeight);
-		mazeDists.computeDistances(floorplan);
-	}
 }
+	
+	
