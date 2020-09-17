@@ -61,7 +61,8 @@ public class MazeBuilder implements Runnable {
 		height = Constants.SKILL_Y[skill];
 		// only algorithm without rooms guarantees a perfect maze
 		// rooms can result in loops, so for a perfect maze, set room number to 0
-		rooms = order.isPerfect() ? 0 : Constants.SKILL_ROOMS[skill];
+		//rooms = order.isPerfect() ? 0 : Constants.SKILL_ROOMS[skill];
+		rooms = 0;
 		expectedPartiters = Constants.SKILL_PARTCT[skill];
 		// instantiate data structures
 		floorplan = new Floorplan(width,height) ;
@@ -197,13 +198,12 @@ public class MazeBuilder implements Runnable {
 		// i.e. between any two cells in the maze there is a path to get from one to the other
 		// the search algorithms starts at some random point
 		generatePathways(); 
-
-		final int[] remote = dists.computeDistances(floorplan) ;
+		final int[] remote = dists.computeDistances(floorplan);
 
 		// identify cell with the greatest distance
 		final int[] pos = dists.getStartPosition();
-		startx = pos[0] ;
-		starty = pos[1] ;
+		startx = pos[0];
+		starty = pos[1];
 
 		// make exit position at true exit in the cells data structure
 		floorplan.setExitPosition(remote[0], remote[1]);

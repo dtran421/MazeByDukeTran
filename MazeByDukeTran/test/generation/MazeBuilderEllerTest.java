@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import gui.Constants;
 
-public class MazeFactoryTest {
+public class MazeBuilderEllerTest {
 
 	// private variables
 	private MazeFactory mazeFactory; // setup makes this a MazeFactory object
@@ -57,22 +57,29 @@ public class MazeFactoryTest {
 	}
 	
 	/**
-	 * Test case: Correctness of the generated maze based on skill level's
-	 * predetermined width and height.
+	 * Test case: Correctness of the generatePathways method
+	 * <p>
+	 * Method being tested: generatePathways()
 	 * <p>
 	 * Correct behavior:
-	 * a maze should have dimensions that match the designated width and height
+	 * a maze should be generated properly using Eller's algorithm
 	 */
 	@Test
-	public final void testDimensions() {		
-		// compare the maze's dimensions to the inputs
-		assertEquals(mazeWidth, Constants.SKILL_X[0]);
-		assertEquals(mazeHeight, Constants.SKILL_Y[0]);
+	public final void testGeneratePathways() {	
+		// save the current floorplan that has no rooms
 		
-		newMazeWithRooms();
+		// set up the mazeBuilder, execute the method
 		
-		assertEquals(order.getMaze().getWidth(), Constants.SKILL_X[0]);
-		assertEquals(order.getMaze().getHeight(), Constants.SKILL_Y[0]);
+		// ensure the HashMaps at the beginning are properly generated
+		
+		// check that all cells are in one set (one pathway, no enclosed areas)
+		
+		
+		// repeat test with new saved floorplan that has rooms
+		
+		// compare this end floorplan with the previously saved one to make sure
+		// all load-bearing walls are still standing 
+		
 	}	
 	
 	/**
@@ -223,13 +230,16 @@ public class MazeFactoryTest {
 	 * have rooms
 	 */
 	private final void newMazeWithRooms() {
-		order = new StubOrder(0, true, Order.Builder.Eller); // change true to false and builder
+		mazeFactory = new MazeFactory();
+		order = new StubOrder(2, true, Order.Builder.Eller);
 		mazeFactory.order(order);
 		mazeFactory.waitTillDelivered();
 
+		System.out.println(order.getMaze());
+		floorplan = order.getMaze().getFloorplan();
+		System.out.println(floorplan.toString());
 		mazeWidth = order.getMaze().getWidth();
 		mazeHeight = order.getMaze().getHeight();
-		floorplan = order.getMaze().getFloorplan();
 	}
 	
 	/*

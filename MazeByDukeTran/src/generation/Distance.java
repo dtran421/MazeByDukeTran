@@ -342,6 +342,10 @@ public class Distance {
 			progress = toDoCounter - countInfinity();
 			toDoCounter -= progress; // update to current value
 		} while (0 < progress);
+		for (int i=0; i<width; i++)
+			for (int j=0; j<height; j++)
+				if (dists[i][j] == INFINITY)
+					System.out.println(i + "," + j + "=" + dists[i][j]);
 		assert (0 == countInfinity()) : 
 			"All positions should have a finite distance to the exit";
 		// the computation is not good enough to have truly minimum values

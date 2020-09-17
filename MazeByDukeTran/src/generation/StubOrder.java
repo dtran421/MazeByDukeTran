@@ -21,11 +21,11 @@ public class StubOrder implements Order {
         seed = 13; // default: an arbitrary fixed value
 	}
 	
-	public StubOrder(int inSkillLevel, boolean inPerfect) {
+	public StubOrder(int inSkillLevel, boolean inPerfect, Builder inBuilder) {
 		skillLevel = inSkillLevel;
         perfect = inPerfect;
 		factory = new MazeFactory();
-        builder = Order.Builder.DFS; // default algorithm
+        builder = inBuilder; // default algorithm
         percentdone = 0;
         started = false;
         seed = 13; // default: an arbitrary fixed value
