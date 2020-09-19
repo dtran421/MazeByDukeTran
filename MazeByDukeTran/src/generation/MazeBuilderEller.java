@@ -56,7 +56,7 @@ public class MazeBuilderEller extends MazeBuilder implements Runnable {
 				// (less than 50 means no, greater than or equal to 50 means yes)
 				if (!cellToId.get(getCell(x, y)).equals(cellToId.get(getCell(x+1, y))) &&
 						(floorplan.isInRoom(x, y) || SingleRandom.getRandom().nextIntWithinInterval(0, 100) >= 50)) {
-					if (floorplan.hasWall(x, y, CardinalDirection.East)) {
+					if (floorplan.hasWall(x, y, CardinalDirection.East)) { 
 						Wallboard wallboard = new Wallboard(x, y, CardinalDirection.East);
 						// if wallboard can be torn down (it's not load-bearing or a border)
 						if (floorplan.canTearDown(wallboard)) {
@@ -64,7 +64,6 @@ public class MazeBuilderEller extends MazeBuilder implements Runnable {
 							floorplan.deleteWallboard(wallboard);
 							// update HashMaps
 							mergeSets(x, y, "left-right");
-							assert(cellToId.get(getCell(x, y)).equals(cellToId.get(getCell(x+1, y)))) : "Cells not in the same set";
 						}
 					} else {
 						mergeSets(x, y, "left-right");
@@ -81,42 +80,47 @@ public class MazeBuilderEller extends MazeBuilder implements Runnable {
 			for (int x = 0; x < width; x++) {
 				Wallboard wallboard = new Wallboard(x, y, CardinalDirection.South);
 				
-				// generate a random integer within the range [0, 99] to
-				// decide whether to create a vertical connection or not 
-				// (less than 50 means no, greater than or equal to 50 means yes) and
-				// determine if wallboard can be torn down (it's not load-bearing or a border)						
-				if (SingleRandom.getRandom().nextIntWithinInterval(0, 100) < 50 || 
-					!floorplan.canTearDown(wallboard)) {
+				// determine if wallboard cannot be torn down (it's load-bearing or a border)
+				// or if the given cell is not in a room and generate a random integer
+				// within the range [0, 99] to decide whether to create a vertical connection 
+				// (less than 50 means no, greater than or equal to 50 means yes)						
+				if (!floorplan.canTearDown(wallboard) || (!floorplan.isInRoom(x, y) && 
+					SingleRandom.getRandom().nextIntWithinInterval(0, 100) < 50)) {
 					// if the cell in the current row (not the next one) is 
 					// in a different set from the previous one in the same row,
 					// then update the flags
-					assert(cellToId.containsKey(getCell(x, y))) : "Error with cell " + getCell(x, y);
 					int tempSet = cellToId.get(getCell(x, y));
 					if (tempSet != currSet) {
 						currSet = tempSet;
 						newVerticalConnection = false;
 					}
 				} else {
-					// tear down the southern wall
-					floorplan.deleteWallboard(wallboard);
+					// if there is a southern wall
+					if (floorplan.hasWall(x, y, CardinalDirection.South)) {
+						// tear down the southern wall
+						floorplan.deleteWallboard(wallboard);
+					}
 					// update HashMaps
 					mergeSets(x, y, "up-down");
-					assert(cellToId.get(getCell(x, y)).equals(cellToId.get(getCell(x, y+1)))) : "Cells not in the same set";
 					// update flag
 					newVerticalConnection = true;
+					assert(cellToId.get(getCell(x, y)).equals(cellToId.get(getCell(x, y+1)))) : "Cells not in the same set";
 				}
 		
 				// if this is the last cell in the set (the next cell is a
 				// different cell) and a connection has not been made, then it must
 				// be made with this cell
-				if (!newVerticalConnection && 
-						(x == width-1 ||
+				if (!newVerticalConnection && (x == width-1 ||
 						(x < width-1 && !currSet.equals(cellToId.get(getCell(x+1, y)))))) {
-					// tear down the southern wall
-					floorplan.deleteWallboard(wallboard);
+					// if there is a southern wall
+					if (floorplan.hasWall(x, y, CardinalDirection.South)) {
+						// tear down the southern wall
+						floorplan.deleteWallboard(wallboard);
+					}
 					// update HashMaps
 					mergeSets(x, y, "up-down");
-					assert(cellToId.get(getCell(x, y)).equals(cellToId.get(getCell(x, y+1)))) : "Cells not in the same set";
+					// update flag
+					newVerticalConnection = true;
 				}
 			}
 				
@@ -124,10 +128,9 @@ public class MazeBuilderEller extends MazeBuilder implements Runnable {
 			for (int x = 0; x < width; x++) {
 				// if a cell doesn't have a vertical connection, make a new set for itself
 				if (floorplan.hasWall(x, y+1, CardinalDirection.North) ||
-					floorplan.isInRoom(x, y+1)) {
+					(floorplan.isInRoom(x, y+1) && !cellToId.containsKey(getCell(x, y)))) {
 					// add cell to its own new set and update the HashMaps
 					newSet(x, y+1);
-					assert(cellToId.get(getCell(x, y+1)) != null);
 				}
 			}
 		}
@@ -147,28 +150,23 @@ public class MazeBuilderEller extends MazeBuilder implements Runnable {
 					floorplan.deleteWallboard(wallboard);
 					// update HashMaps
 					mergeSets(x, height-1, "left-right");
-					assert(cellToId.get(origCell).equals(cellToId.get(newCell))) : "Cells not in the same set";
 				}
 			}
-			assert(cellToId.get(origCell).equals(cellToId.get(newCell))) : "Cells not in the same set " + origCell.toString() + " " + newCell.toString();
 		}
+		
+		assert(idToSet.size() == 1) : "Something went wrong with the algorithm!";
 	}
 	
 	// private methods
 	
-	private ArrayList<Integer> getCell(int x, int y) {
+	private ArrayList<Integer> getCell(int x, int y) {		
+		// make and return a new ArrayList containing the requested cell's coordinates
 		ArrayList<Integer> cell = new ArrayList<Integer>();
 		cell.add(0, x); cell.add(1, y);
 		return cell;
 	}
 	
 	private void newSet(int x, int y) {
-		// check validity of inputs
-		if (x >= width || y >= height) {
-			System.out.println("Error: inputs out of bounds");
-			System.exit(0);
-		}
-		
 		// make a new set for each cell and add the cell to it
 		ArrayList<Integer> cell = getCell(x, y);
 		Set<ArrayList<Integer>> cells = new HashSet<ArrayList<Integer>>();
@@ -183,7 +181,7 @@ public class MazeBuilderEller extends MazeBuilder implements Runnable {
 		setId++;
 	}
 	
-	private void mergeSets(int x, int y, String dir) {
+	private void mergeSets(int x, int y, String dir) {		
 		ArrayList<Integer> origCell; ArrayList<Integer> newCell;
 		
 		if (dir == "left-right") {
@@ -203,8 +201,10 @@ public class MazeBuilderEller extends MazeBuilder implements Runnable {
 		origCells.addAll(newCells);
 		
 		// for all of the new cells, update their ids to the new set's id
-		for (ArrayList<Integer> cell: newCells)
+		for (ArrayList<Integer> cell: newCells) {
+			assert(origCells.contains(cell)) : "Not all items were merged from the new set";
 			cellToId.put(cell, origId);
+		}
 		assert(cellToId.get(origCell).equals(cellToId.get(newCell))) : "Sets didn't merge properly";
 		
 		// remove the new cell set
@@ -213,12 +213,14 @@ public class MazeBuilderEller extends MazeBuilder implements Runnable {
 		idToSet.put(origId, origCells);
 	}
 	
-	// public accessor methods
+	// public methods
 	
+	// gets the cellToId HashMap
 	public Map<ArrayList<Integer>, Integer> getCellToId() {
 		return cellToId;
 	}
 	
+	// gets the idToSet HashMap
 	public Map<Integer, Set<ArrayList<Integer>>> getIdToSet() {
 		return idToSet;
 	}
