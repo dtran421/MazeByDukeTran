@@ -22,6 +22,7 @@ public class MazeFactoryTest {
 	private Floorplan floorplan;
 	private Distance mazeDists;
 	
+	private final String BUILDER = "Eller";
 	private final int INFINITY = Integer.MAX_VALUE; 
 
 	/**
@@ -30,7 +31,14 @@ public class MazeFactoryTest {
 	@Before
 	public void setUp() {
 		mazeFactory = new MazeFactory();
-		order = new StubOrder(0, true, Order.Builder.DFS);
+		switch (BUILDER) {
+			case "DFS":
+				order = new StubOrder(0, true, Order.Builder.DFS);
+				break;
+			case "Eller":
+				order = new StubOrder(0, true, Order.Builder.Eller);
+				break;
+		}
 		// build the maze with specified skill level
 		mazeFactory.order(order);
 		mazeFactory.waitTillDelivered();
@@ -271,7 +279,14 @@ public class MazeFactoryTest {
 	 * have rooms
 	 */
 	private final void newMazeWithRooms() {
-		order = new StubOrder(2, false, Order.Builder.DFS); // change true to false and builder
+		switch (BUILDER) {
+		case "DFS":
+			order = new StubOrder(2, false, Order.Builder.DFS);
+			break;
+		case "Eller":
+			order = new StubOrder(2, false, Order.Builder.Eller);
+			break;
+	}
 		mazeFactory.order(order);
 		mazeFactory.waitTillDelivered();
 
