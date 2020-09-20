@@ -30,7 +30,7 @@ public class MazeFactoryTest {
 	@Before
 	public void setUp() {
 		mazeFactory = new MazeFactory();
-		order = new StubOrder(0, true, Order.Builder.Eller);
+		order = new StubOrder(0, true, Order.Builder.DFS);
 		// build the maze with specified skill level
 		mazeFactory.order(order);
 		mazeFactory.waitTillDelivered();
@@ -71,8 +71,8 @@ public class MazeFactoryTest {
 		
 		newMazeWithRooms();
 		
-		assertEquals(order.getMaze().getWidth(), Constants.SKILL_X[2]);
-		assertEquals(order.getMaze().getHeight(), Constants.SKILL_Y[2]);
+		assertEquals(mazeWidth, Constants.SKILL_X[2]);
+		assertEquals(mazeHeight, Constants.SKILL_Y[2]);
 	}	
 	
 	/**
@@ -92,7 +92,16 @@ public class MazeFactoryTest {
 				assertFalse(cellHas4Walls(x, y));
 				assertNotEquals(mazeDists.getDistanceValue(x, y), INFINITY);
 			}
-		}		
+		}	
+		
+		newMazeWithRooms();
+		computeDists();
+		for (int x = 0; x < mazeWidth; x++) {
+			for (int y = 0; y < mazeHeight; y++) {
+				assertFalse(cellHas4Walls(x, y));
+				assertNotEquals(mazeDists.getDistanceValue(x, y), INFINITY);
+			}
+		}
 	}
 	
 	/**
@@ -108,10 +117,13 @@ public class MazeFactoryTest {
 		computeDists();
 		int[] exit = mazeDists.getExitPosition();
 		assertEquals(mazeDists.getDistanceValue(exit[0], exit[1]), 1);
-		assertTrue(floorplan.hasNoWall(exit[0], exit[1], CardinalDirection.North) || 
-				floorplan.hasNoWall(exit[0], exit[1], CardinalDirection.East) ||
-				floorplan.hasNoWall(exit[0], exit[1], CardinalDirection.South) ||
-				floorplan.hasNoWall(exit[0], exit[1], CardinalDirection.West));
+		assertFalse(cellHas4Walls(exit[0], exit[1]));
+		
+		newMazeWithRooms();
+		computeDists();
+		exit = mazeDists.getExitPosition();
+		assertEquals(mazeDists.getDistanceValue(exit[0], exit[1]), 1);
+		assertFalse(cellHas4Walls(exit[0], exit[1]));
 	}
 	
 	/**
@@ -129,8 +141,14 @@ public class MazeFactoryTest {
 		int[] start = mazeDists.getStartPosition();
 		int maxDist = mazeDists.getMaxDistance();
 		
-		assertEquals(maxDist,
-			mazeDists.getDistanceValue(start[0], start[1]));
+		assertEquals(maxDist, mazeDists.getDistanceValue(start[0], start[1]));
+		
+		newMazeWithRooms();
+		computeDists();
+		start = mazeDists.getStartPosition();
+		maxDist = mazeDists.getMaxDistance();
+		
+		assertEquals(maxDist, mazeDists.getDistanceValue(start[0], start[1]));
 	}
 	
 	/**
@@ -158,6 +176,11 @@ public class MazeFactoryTest {
 				}
 			}
 		}
+		
+		newMazeWithRooms();
+		computeDists();
+		start = mazeDists.getStartPosition();
+		assertFalse(start[0] == INFINITY || start[1] == INFINITY);
 	}
 
 	/**
@@ -187,6 +210,23 @@ public class MazeFactoryTest {
 			if (exit[0] != mazeWidth-1 && exit[1] != y) 
 				assertTrue(cellHasWall(mazeWidth-1, y));
 		}
+		
+		newMazeWithRooms();
+		computeDists();
+		exit = mazeDists.getExitPosition();
+		
+		for (int x = 0; x < mazeWidth; x++) {
+			if (exit[0] != x && exit[1] != 0) 
+				assertTrue(cellHasWall(x, 0));
+			if (exit[0] != x && exit[1] != mazeHeight-1) 
+				assertTrue(cellHasWall(x, mazeHeight-1));
+		} 
+		for (int y = 0; y < mazeHeight; y++) {
+			if (exit[0] != 0 && exit[1] != y) 
+				assertTrue(cellHasWall(0, y));
+			if (exit[0] != mazeWidth-1 && exit[1] != y) 
+				assertTrue(cellHasWall(mazeWidth-1, y));
+		}
 	}
 	
 	/**
@@ -198,22 +238,30 @@ public class MazeFactoryTest {
 	 */
 	@Test
 	public final void testRoomDesign() {
-		// at least one wall is missing to be a door
 		// all cells inside the room must be empty
+		for (int x = 1; x < mazeWidth-1; x++) {
+			for (int y = 1; y < mazeHeight-1; y++) {
+				if (floorplan.isInRoom(x, y) && isRoomInterior(x, y))
+					assertFalse(cellHasWall(x, y));
+			}
+		}
 		
 		newMazeWithRooms();
 		computeDists();
 		
 		// iterate through cells marked as a room and ensure that there
-		// is a possible path to the exit
+		// is a possible path to the exit and at least one wall is missing to be a door
+		boolean doorExists = false;
 		for (int x = 0; x < mazeWidth; x++) {
 			for (int y = 0; y < mazeHeight; y++) {
 				if (floorplan.isInRoom(x, y)) {
 					assertNotEquals(mazeDists.getDistanceValue(x, y), INFINITY);
-					//assertTrue(checkRoomWalls(x, y));
+					if (checkForDoor(x, y))
+						doorExists = true;
 				}
 			}
 		}
+		assertTrue(doorExists);
 	}
 	
 	// private methods
@@ -223,7 +271,7 @@ public class MazeFactoryTest {
 	 * have rooms
 	 */
 	private final void newMazeWithRooms() {
-		order = new StubOrder(2, false, Order.Builder.Eller); // change true to false and builder
+		order = new StubOrder(2, false, Order.Builder.DFS); // change true to false and builder
 		mazeFactory.order(order);
 		mazeFactory.waitTillDelivered();
 
@@ -261,22 +309,31 @@ public class MazeFactoryTest {
 	}
 	
 	/*
-	 * check a cell of a room to see if it has load-bearing walls
-	 * and if those walls are still standing
+	 * determines if a cell is on the interior of a room if it has
+	 * no walls and all cells surrounding it are in a room
 	 */
-	private final boolean checkRoomWalls(int x, int y) {
-		Wallboard wallboard = new Wallboard(x, y, CardinalDirection.North);
-		if (!floorplan.canTearDown(wallboard) && !floorplan.hasWall(x, y, CardinalDirection.North))
+	private final boolean isRoomInterior(int x, int y) {
+		if (floorplan.isInRoom(x, y-1) && floorplan.isInRoom(x+1, y)
+			&& floorplan.isInRoom(x, y+1) && floorplan.isInRoom(x-1, y)) {
+			return true;
+		} else {
 			return false;
-		wallboard = new Wallboard(x, y, CardinalDirection.East);
-		if (!floorplan.canTearDown(wallboard) && !floorplan.hasWall(x, y, CardinalDirection.East))
-			return false;
-		wallboard = new Wallboard(x, y, CardinalDirection.South);
-		if (!floorplan.canTearDown(wallboard) && !floorplan.hasWall(x, y, CardinalDirection.South))
-			return false;
-		wallboard = new Wallboard(x, y, CardinalDirection.West);
-		if (!floorplan.canTearDown(wallboard) && !floorplan.hasWall(x, y, CardinalDirection.West))
-			return false;
-		return true;
+		}
+	}
+	
+	/*
+	 * check a cell of a room to see if it has an exit (it's missing a wall
+	 * that connects to a cell that is not in the room)
+	 */
+	private final boolean checkForDoor(int x, int y) {
+		if (!floorplan.hasWall(x, y, CardinalDirection.North) && !floorplan.isInRoom(x, y-1))
+			return true;
+		if (!floorplan.hasWall(x, y, CardinalDirection.East) && !floorplan.isInRoom(x+1, y))
+			return true;
+		if (!floorplan.hasWall(x, y, CardinalDirection.South) && !floorplan.isInRoom(x, y+1))
+			return true;
+		if (!floorplan.hasWall(x, y, CardinalDirection.West) && !floorplan.isInRoom(x-1, y))
+			return true;
+		return false;
 	}
 }

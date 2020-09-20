@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class MazeBuilderEller extends MazeBuilder implements Runnable {
-	private Map<ArrayList<Integer>, Integer> cellToId;
-	private Map<Integer, Set<ArrayList<Integer>>> idToSet;
+	protected Map<ArrayList<Integer>, Integer> cellToId;
+	protected Map<Integer, Set<ArrayList<Integer>>> idToSet;
 	// declare a variable that will be incremented with each new set to serve
 	// as the set id
 	private Integer setId; 
@@ -38,7 +38,6 @@ public class MazeBuilderEller extends MazeBuilder implements Runnable {
 	 */
 	@Override
 	protected void generatePathways() {
-		
 		// iterate through the first row of the floorplan
 		for (int x = 0; x < width; x++) {
 			// add cell to its own new set and update the HashMaps
@@ -128,7 +127,7 @@ public class MazeBuilderEller extends MazeBuilder implements Runnable {
 			for (int x = 0; x < width; x++) {
 				// if a cell doesn't have a vertical connection, make a new set for itself
 				if (floorplan.hasWall(x, y+1, CardinalDirection.North) ||
-					(floorplan.isInRoom(x, y+1) && !cellToId.containsKey(getCell(x, y)))) {
+					(floorplan.isInRoom(x, y+1) && !cellToId.containsKey(getCell(x, y+1)))) {
 					// add cell to its own new set and update the HashMaps
 					newSet(x, y+1);
 				}
@@ -159,14 +158,33 @@ public class MazeBuilderEller extends MazeBuilder implements Runnable {
 	
 	// private methods
 	
-	private ArrayList<Integer> getCell(int x, int y) {		
+	/*
+	 * converts the requested coordinates into an ArrayList
+	 * @param x is the x-coordinate
+	 * @param y is the y-coordinate
+	 * @return an ArrayList containing the coordinates, 
+	 * or null if inputs are invalid
+	 */
+	protected ArrayList<Integer> getCell(int x, int y) {
+		// check invalid inputs
+		if (x >= width || y >= height || x < 0 || y < 0) {
+			System.out.println("Error: inputs out of bounds");
+			return null;
+		}
+		
 		// make and return a new ArrayList containing the requested cell's coordinates
 		ArrayList<Integer> cell = new ArrayList<Integer>();
 		cell.add(0, x); cell.add(1, y);
 		return cell;
 	}
 	
-	private void newSet(int x, int y) {
+	protected void newSet(int x, int y) {
+		// check invalid inputs
+		if (x >= width || y >= height || x < 0 || y < 0) {
+			System.out.println("Error: inputs out of bounds");
+			return;
+		}
+		
 		// make a new set for each cell and add the cell to it
 		ArrayList<Integer> cell = getCell(x, y);
 		Set<ArrayList<Integer>> cells = new HashSet<ArrayList<Integer>>();
@@ -181,13 +199,36 @@ public class MazeBuilderEller extends MazeBuilder implements Runnable {
 		setId++;
 	}
 	
-	private void mergeSets(int x, int y, String dir) {		
-		ArrayList<Integer> origCell; ArrayList<Integer> newCell;
+	protected void mergeSets(int x, int y, String dir) {
+		// check invalid direction
+		if (dir != "left-right" && dir != "up-down") {
+			System.out.println("Error: invalid merge direction");
+			return;
+		}
+		
+		// check general invalid coordinates
+		if (x >= width || y >= height || x < 0 || y < 0) {
+			System.out.println("Error: inputs out of bounds");
+			return;
+		}
+		
+		ArrayList<Integer> origCell = new ArrayList<Integer>(); 
+		ArrayList<Integer> newCell = new ArrayList<Integer>();
 		
 		if (dir == "left-right") {
+			// check specific invalid coordinates
+			if (x >= width-1) {
+				System.out.println("Error: inputs out of bounds");
+				return;
+			}
 			origCell = getCell(x, y);
 			newCell = getCell(x+1, y);
 		} else {
+			// check specific invalid coordinates
+			if (y >= width-1) {
+				System.out.println("Error: inputs out of bounds");
+				return;
+			}
 			newSet(x, y+1);
 			origCell = getCell(x, y);
 			newCell = getCell(x, y+1);
@@ -211,17 +252,5 @@ public class MazeBuilderEller extends MazeBuilder implements Runnable {
 		idToSet.remove(newId);
 		// replace the original set with the updated set
 		idToSet.put(origId, origCells);
-	}
-	
-	// public methods
-	
-	// gets the cellToId HashMap
-	public Map<ArrayList<Integer>, Integer> getCellToId() {
-		return cellToId;
-	}
-	
-	// gets the idToSet HashMap
-	public Map<Integer, Set<ArrayList<Integer>>> getIdToSet() {
-		return idToSet;
 	}
 }

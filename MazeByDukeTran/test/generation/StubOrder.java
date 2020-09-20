@@ -25,7 +25,7 @@ public class StubOrder implements Order {
 		skillLevel = inSkillLevel;
         perfect = inPerfect;
 		factory = new MazeFactory();
-        builder = inBuilder; // default algorithm
+        builder = inBuilder;
         percentdone = 0;
         started = false;
         seed = 13; // default: an arbitrary fixed value
