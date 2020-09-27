@@ -11,7 +11,7 @@ import gui.Robot.Direction;
  * Responsibilites: sense distance to obstacle (wall), obtain energy cost for sensing,
  * determine when a failure occurs and start and stop the repair process
  * <p>
- * Collaborators: Maze, RobotDriver (Wall-follower and Wizard), Robot (ReliableRobot)
+ * Collaborators: Maze, RobotDriver (Wall-follower and Wizard)
  */
 public class ReliableSensor implements DistanceSensor {
 
