@@ -16,7 +16,7 @@ import java.util.Arrays;
  * Responsibilities: perform move and rotate operations, interact with its Sensors,
  * monitor and manage its energy consumption
  * <p>
- * Collaborators: Controller, RobotDriver (Wall-follower and Wizard)
+ * Collaborators: Controller, RobotDriver (Wall-follower and Wizard), DistanceSensor (ReliableSensor and UnreliableSensor)
  */
 public class ReliableRobot implements Robot {
 	private Controller controller;
@@ -24,19 +24,14 @@ public class ReliableRobot implements Robot {
 	private float batteryLevel;
 	private int distTraveled;
 	private boolean stopped;
-	private Map<Direction, Boolean> sensorStatus;
-	
+
 	private final float SENSE_COST = 1;
 	private final float ROTATE_COST = 3;
 	private final float MOVE_COST = 6;
 	private final float JUMP_COST = 40;
 	
 	public ReliableRobot() {
-		sensorStatus = new HashMap<Direction, Boolean>();
-		sensorStatus.put(Direction.LEFT, true);
-		sensorStatus.put(Direction.RIGHT, true);
-		sensorStatus.put(Direction.FORWARD, true);
-		sensorStatus.put(Direction.BACKWARD, true);
+
 	}
 
 	/**
@@ -360,7 +355,7 @@ public class ReliableRobot implements Robot {
 	@Override
 	public int distanceToObstacle(Direction direction) throws UnsupportedOperationException {
 		// check if the direction is invalid or the sensor is not operational and throw an exception if so
-		if (sensorStatus.containsKey(direction) || !sensorStatus.get(direction)) throw new UnsupportedOperationException();
+		//if (sensorStatus.containsKey(direction) || !sensorStatus.get(direction)) throw new UnsupportedOperationException();
 		
 		// check battery level beforehand
 		if (getBatteryLevel() < SENSE_COST) {
@@ -443,7 +438,7 @@ public class ReliableRobot implements Robot {
 	@Override
 	public boolean canSeeThroughTheExitIntoEternity(Direction direction) throws UnsupportedOperationException {
 		// check if the direction is invalid or the sensor is not operational and throw an exception if so
-		if (sensorStatus.containsKey(direction) || !sensorStatus.get(direction)) throw new UnsupportedOperationException();
+		//if (sensorStatus.containsKey(direction) || !sensorStatus.get(direction)) throw new UnsupportedOperationException();
 		
 		// use the controller to fetch the maze
 		Maze mazeConfig = controller.getMazeConfiguration();
@@ -536,6 +531,9 @@ public class ReliableRobot implements Robot {
 	
 	/**
 	 * Converts a relative direction to an absolute direction based on the current CardinalDirection
+	 * @param direction that we want to use for the conversion
+	 * @param currDir is the current direction of the robot, we use this in conjunction with the relative direction
+	 * to obtain the new absolute (cardinal) direction
 	 * @return CardinalDirection of the relative direction
 	 */
 	private CardinalDirection convertToAbsoluteDirection(Direction direction, CardinalDirection currDir) {

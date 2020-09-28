@@ -30,7 +30,7 @@ public interface RobotDriver {
 	
 	
 	/**
-	 * Drives the robot one step towards the exit following
+	 * Drives the robot towards the exit following
 	 * its solution strategy and given the exists and  
 	 * given the robot's energy supply lasts long enough. 
 	 * @return true if driver successfully reaches the exit, false otherwise

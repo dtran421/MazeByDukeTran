@@ -5,7 +5,7 @@ import generation.Maze;
 import gui.Robot.Direction;
 
 /**
- * A DistanceSensor provides information how for it is
+ * A DistanceSensor provides information how far it is
  * to a wall for a given position and in a specific direction.
  * 
  * The sensor is assumed to be mounted at a particular angle
