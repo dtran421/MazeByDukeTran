@@ -4,11 +4,6 @@ import generation.CardinalDirection;
 import generation.Maze;
 import gui.Constants.UserInput;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.Arrays;
-
 /**
  * @author Duke Tran
  * Class: ReliableRobot
@@ -20,18 +15,29 @@ import java.util.Arrays;
  */
 public class ReliableRobot implements Robot {
 	private Controller controller;
+	private DistanceSensor leftSensor;
+	private DistanceSensor rightSensor;
+	private DistanceSensor forwardSensor;
+	private DistanceSensor backwardSensor;
 		
 	private float batteryLevel;
 	private int distTraveled;
 	private boolean stopped;
 
-	private final float SENSE_COST = 1;
+	private final float INITIAL_BATTERY = 3500;
 	private final float ROTATE_COST = 3;
 	private final float MOVE_COST = 6;
 	private final float JUMP_COST = 40;
 	
-	public ReliableRobot() {
-
+	public ReliableRobot(Controller controller) {
+		setController(controller);
+		Maze mazeConfig = controller.getMazeConfiguration();
+		
+		setBatteryLevel(INITIAL_BATTERY);
+		leftSensor = new ReliableSensor(mazeConfig, Direction.LEFT);
+		rightSensor = new ReliableSensor(mazeConfig, Direction.RIGHT);
+		forwardSensor = new ReliableSensor(mazeConfig, Direction.FORWARD);
+		backwardSensor = new ReliableSensor(mazeConfig, Direction.BACKWARD);
 	}
 
 	/**
@@ -354,20 +360,6 @@ public class ReliableRobot implements Robot {
 	 */
 	@Override
 	public int distanceToObstacle(Direction direction) throws UnsupportedOperationException {
-		// check if the direction is invalid or the sensor is not operational and throw an exception if so
-		//if (sensorStatus.containsKey(direction) || !sensorStatus.get(direction)) throw new UnsupportedOperationException();
-		
-		// check battery level beforehand
-		if (getBatteryLevel() < SENSE_COST) {
-			stopped = true;
-			return -1;
-		}
-			
-		// use the controller to fetch the maze
-		Maze mazeConfig = controller.getMazeConfiguration();
-		int width = mazeConfig.getWidth();
-		int height = mazeConfig.getHeight();
-		
 		// keep track of the current cell
 		int[] currPos;
 		try {
@@ -376,52 +368,45 @@ public class ReliableRobot implements Robot {
 			System.out.println("Position outside maze!");
 			return -1;
 		}
-		// figure out which absolute (cardinal) direction we should move in
-		CardinalDirection checkDir = convertToAbsoluteDirection(direction, getCurrentDirection());
-		int dist = 0;
-		// calculate the distance from the current position to a wall in the given direction
-		// while checking if the current cell is at the exit and return Integer.MAX_VALUE if so
-		while (!mazeConfig.hasWall(currPos[0], currPos[1], checkDir)) {
-			// check if the next cell is outside of the maze (meaning the current cell is located at the exit)
-			// if not, then sense the next cell and update the distance counter
-			switch (checkDir) {
-				case North:
-					if (currPos[1]+1 > height) {
-						setBatteryLevel(getBatteryLevel()-SENSE_COST);
-						if (getBatteryLevel() == 0) stopped = true;
-						return Integer.MAX_VALUE;
-					}
-					currPos[1] += 1;
-					break;
-				case East:
-					if (currPos[0]+1 > width) {
-						setBatteryLevel(getBatteryLevel()-SENSE_COST);
-						if (getBatteryLevel() == 0) stopped = true;
-						return Integer.MAX_VALUE;
-					}
-					currPos[0] += 1;
-					break;
-				case South:
-					if (currPos[1]-1 < 0) {
-						setBatteryLevel(getBatteryLevel()-SENSE_COST);
-						if (getBatteryLevel() == 0) stopped = true;
-						return Integer.MAX_VALUE;
-					}
-					currPos[1] -= 1;
-					break;
-				case West:
-					if (currPos[0]-1 < 0) {
-						setBatteryLevel(getBatteryLevel()-SENSE_COST);
-						if (getBatteryLevel() == 0) stopped = true;
-						return Integer.MAX_VALUE;
-					}
-					currPos[0] -= 1;
-					break;
-			}
-			dist++;
-		}
 		
-		setBatteryLevel(getBatteryLevel()-SENSE_COST);
+		float[] batteryLevel = {getBatteryLevel()};
+		int dist = -1;
+		switch (direction) {
+			case LEFT:
+				try {
+					dist = leftSensor.distanceToObstacle(currPos, getCurrentDirection(), batteryLevel);
+				} catch (Exception e) {
+					System.out.println(e.getMessage());
+					throw new UnsupportedOperationException();
+				}
+				break;
+			case RIGHT:
+				try {
+					dist = rightSensor.distanceToObstacle(currPos, getCurrentDirection(), batteryLevel);
+				} catch (Exception e) {
+					System.out.println(e.getMessage());
+					throw new UnsupportedOperationException();
+				}
+				break;
+			case FORWARD:
+				try {
+					dist = forwardSensor.distanceToObstacle(currPos, getCurrentDirection(), batteryLevel);
+				} catch (Exception e) {
+					System.out.println(e.getMessage());
+					throw new UnsupportedOperationException();
+				}
+				break;
+			case BACKWARD:
+				try {
+					dist = backwardSensor.distanceToObstacle(currPos, getCurrentDirection(), batteryLevel);
+				} catch (Exception e) {
+					System.out.println(e.getMessage());
+					throw new UnsupportedOperationException();
+				}
+				break;
+		}	
+		
+		setBatteryLevel(batteryLevel[0]);
 		if (getBatteryLevel() == 0) stopped = true;
 		
 		return dist;
@@ -437,14 +422,6 @@ public class ReliableRobot implements Robot {
 	 */
 	@Override
 	public boolean canSeeThroughTheExitIntoEternity(Direction direction) throws UnsupportedOperationException {
-		// check if the direction is invalid or the sensor is not operational and throw an exception if so
-		//if (sensorStatus.containsKey(direction) || !sensorStatus.get(direction)) throw new UnsupportedOperationException();
-		
-		// use the controller to fetch the maze
-		Maze mazeConfig = controller.getMazeConfiguration();
-		int width = mazeConfig.getWidth();
-		int height = mazeConfig.getHeight();
-		
 		// keep track of the current cell
 		int[] currPos;
 		try {
@@ -453,53 +430,49 @@ public class ReliableRobot implements Robot {
 			System.out.println("Position outside maze!");
 			return false;
 		}
-		// figure out which absolute (cardinal) direction we should move in
-		CardinalDirection checkDir = convertToAbsoluteDirection(direction, getCurrentDirection());
-		// while the current cell doesn't have a wallboard in the given direction
-		while (!mazeConfig.hasWall(currPos[0], currPos[1], checkDir)) {
-			// check if the next cell is outside of the maze and return true if so
-			// else take a step in that direction
-			switch (checkDir) {
-				case North:
-					if (currPos[1]+1 > height) {
-						setBatteryLevel(getBatteryLevel()-SENSE_COST);
-						if (getBatteryLevel() == 0) stopped = true;
-						return true;
-					}
-					currPos[1] += 1;
-					break;
-				case East:
-					if (currPos[0]+1 > width) {
-						setBatteryLevel(getBatteryLevel()-SENSE_COST);
-						if (getBatteryLevel() == 0) stopped = true;
-						return true;
-					}
-					currPos[0] += 1;
-					break;
-				case South:
-					if (currPos[1]-1 < 0) {
-						setBatteryLevel(getBatteryLevel()-SENSE_COST);
-						if (getBatteryLevel() == 0) stopped = true;
-						return true;
-					}
-					currPos[1] -= 1;
-					break;
-				case West:
-					if (currPos[0]-1 < 0) {
-						setBatteryLevel(getBatteryLevel()-SENSE_COST);
-						if (getBatteryLevel() == 0) stopped = true;
-						return true;
-					}
-					currPos[0] -= 1;
-					break;
-			}
-		}
 		
-		setBatteryLevel(getBatteryLevel()-SENSE_COST);
+		float[] batteryLevel = {getBatteryLevel()};
+		int dist = -1;
+		switch (direction) {
+			case LEFT:
+				try {
+					dist = leftSensor.distanceToObstacle(currPos, getCurrentDirection(), batteryLevel);
+				} catch (Exception e) {
+					System.out.println(e.getMessage());
+					throw new UnsupportedOperationException();
+				}
+				break;
+			case RIGHT:
+				try {
+					dist = rightSensor.distanceToObstacle(currPos, getCurrentDirection(), batteryLevel);
+				} catch (Exception e) {
+					System.out.println(e.getMessage());
+					throw new UnsupportedOperationException();
+				}
+				break;
+			case FORWARD:
+				try {
+					dist = forwardSensor.distanceToObstacle(currPos, getCurrentDirection(), batteryLevel);
+				} catch (Exception e) {
+					System.out.println(e.getMessage());
+					throw new UnsupportedOperationException();
+				}
+				break;
+			case BACKWARD:
+				try {
+					dist = backwardSensor.distanceToObstacle(currPos, getCurrentDirection(), batteryLevel);
+				} catch (Exception e) {
+					System.out.println(e.getMessage());
+					throw new UnsupportedOperationException();
+				}
+				break;
+		}
+			
+		setBatteryLevel(batteryLevel[0]);
 		if (getBatteryLevel() == 0) stopped = true;
 		
 		// return false since a wallboard was encountered
-		return false;
+		return dist == Integer.MAX_VALUE ? true : false;
 	}
 
 	/**
@@ -513,7 +486,25 @@ public class ReliableRobot implements Robot {
 	@Override
 	public void startFailureAndRepairProcess(Direction direction, int meanTimeBetweenFailures, int meanTimeToRepair)
 			throws UnsupportedOperationException {
-		throw new UnsupportedOperationException();
+		try {
+			switch (direction) {
+				case LEFT:
+					leftSensor.startFailureAndRepairProcess(meanTimeBetweenFailures, meanTimeToRepair);
+					break;
+				case RIGHT:
+					rightSensor.startFailureAndRepairProcess(meanTimeBetweenFailures, meanTimeToRepair);
+					break;
+				case FORWARD:
+					forwardSensor.startFailureAndRepairProcess(meanTimeBetweenFailures, meanTimeToRepair);
+					break;
+				case BACKWARD:
+					backwardSensor.startFailureAndRepairProcess(meanTimeBetweenFailures, meanTimeToRepair);
+					break;
+			}
+		} catch (UnsupportedOperationException e) {
+			System.out.println("Method not supported!");
+			throw new UnsupportedOperationException();
+		}
 	}
 
 	/**
@@ -526,53 +517,24 @@ public class ReliableRobot implements Robot {
 	 */
 	@Override
 	public void stopFailureAndRepairProcess(Direction direction) throws UnsupportedOperationException {
-		throw new UnsupportedOperationException();
-	}
-	
-	/**
-	 * Converts a relative direction to an absolute direction based on the current CardinalDirection
-	 * @param direction that we want to use for the conversion
-	 * @param currDir is the current direction of the robot, we use this in conjunction with the relative direction
-	 * to obtain the new absolute (cardinal) direction
-	 * @return CardinalDirection of the relative direction
-	 */
-	private CardinalDirection convertToAbsoluteDirection(Direction direction, CardinalDirection currDir) {
-		// all of the CardinalDirections in the order that will map consistently to the transformations
-		CardinalDirection[] dirs = {CardinalDirection.South, CardinalDirection.West, CardinalDirection.East, CardinalDirection.North};
-		// map coordinates involving only +/-1 to each direction 
-		Map<ArrayList<Integer>, CardinalDirection> coordsMap = new HashMap<ArrayList<Integer>, CardinalDirection>();
-		// map each direction to its coordinates
-		Map<CardinalDirection, ArrayList<Integer>> dirsMap = new HashMap<CardinalDirection, ArrayList<Integer>>();
-		int idx = 0;
-		int[] range = {-1, 1};
-		for (int x = 0; x <= 1; x++) {
-			for (int y = 0; y <= 1; y++) {
-				ArrayList<Integer> pair = new ArrayList<Integer>();
-				pair.add(range[x]); pair.add(range[y]);
-				coordsMap.put(pair, dirs[idx]);
-				dirsMap.put(dirs[idx], pair);
-				idx++;
+		try {
+			switch (direction) {
+				case LEFT:
+					leftSensor.stopFailureAndRepairProcess();
+					break;
+				case RIGHT:
+					rightSensor.stopFailureAndRepairProcess();
+					break;
+				case FORWARD:
+					forwardSensor.stopFailureAndRepairProcess();
+					break;
+				case BACKWARD:
+					backwardSensor.stopFailureAndRepairProcess();
+					break;
 			}
-		}
-		// apply transformations to the CardinalDirection based on the relative direction
-		ArrayList<Integer> dirCoords = dirsMap.get(currDir); 
-		ArrayList<Integer> newCoords;
-		switch (direction) {
-			case BACKWARD:
-				newCoords = new ArrayList<Integer>(); 
-				newCoords.add(dirCoords.get(0)*-1); newCoords.add(dirCoords.get(1)*-1);
-				return coordsMap.get(newCoords);
-			case LEFT:
-				newCoords = new ArrayList<Integer>(); 
-				newCoords.add(dirCoords.get(1)*-1); newCoords.add(dirCoords.get(0));
-				return coordsMap.get(newCoords);
-			case RIGHT:
-				newCoords = new ArrayList<Integer>(); 
-				newCoords.add(dirCoords.get(1)); newCoords.add(dirCoords.get(0)*-1);
-				return coordsMap.get(newCoords);
-			default:
-				return currDir;
+		} catch (UnsupportedOperationException e) {
+			System.out.println("Method not supported!");
+			throw new UnsupportedOperationException();
 		}
 	}
-
 }

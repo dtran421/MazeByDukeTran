@@ -1,5 +1,9 @@
 package gui;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
 import generation.CardinalDirection;
 import generation.Maze;
 import gui.Robot.Direction;
@@ -18,6 +22,8 @@ public class ReliableSensor implements DistanceSensor {
 	private Direction mountedDirection;
 	
 	private boolean isOperational;
+	
+	private final float SENSE_COST = 1;
 	
 	public ReliableSensor(Maze maze, Direction direction) {
 		setMaze(maze);
@@ -47,26 +53,79 @@ public class ReliableSensor implements DistanceSensor {
 	 */
 	@Override
 	public int distanceToObstacle(int[] currentPosition, CardinalDirection currentDirection, float[] powersupply)
-			throws Exception {
-			// check if any of the parameters are null or if currentPosition is outside of the maze
-			// and throw an exception if so
+		throws Exception {
+		// use the maze to fetch the dimensions
+		int width = maze.getWidth();
+		int height = maze.getHeight();
 		
-			// check if the powersupply is less than 0 and throw an exception if so
-		
-			// check if sensor is not operational or the powersupply is insufficient
-			// and throw the appropriate exception with message if so
-				
-		
-			// use the maze to fetch the dimensions
-		
-			// keep track of the distance with a counter
+		// check if any of the parameters are null or if currentPosition is outside of the maze
+		// and throw an exception if so
+		if (currentPosition == null || currentDirection == null || powersupply == null ||
+			currentPosition[0] < 0 || currentPosition[0] >= width || currentPosition[1] < 0 || currentPosition[1] >= height)
+			throw new IllegalArgumentException();
 			
-			// while there isn't a wallboard in the given direction
-				// check if the next cell is outside of the maze (meaning the current cell is located at the exit) and
-				// return Integer.MAX_VALUE if so
-				// else sense the next cell and update the distance counter
+		// check if the powersupply is less than 0 and throw an exception if so
+		if (powersupply[0] < 0) throw new IndexOutOfBoundsException();
+	
+		// check if sensor is not operational or the powersupply is insufficient
+		// and throw the appropriate exception with message if so
+		if (!isOperational) throw new Exception("SensorFailure");
+		if (powersupply[0] < getEnergyConsumptionForSensing()) throw new Exception("PowerFailure");		
+	
+		// figure out which absolute (cardinal) direction we should move in
+		CardinalDirection currDir = convertToAbsoluteDirection(mountedDirection, currentDirection);
+		
+		// keep track of the distance with a counter
+		int dist = 0;
+		// while there isn't a wallboard in the given direction
+		while (!maze.hasWall(currentPosition[0], currentPosition[1], currentDirection)) {
+			// check if the next cell is outside of the maze (meaning the current cell is located at the exit) and
+			// return Integer.MAX_VALUE if so
+			// else sense the next cell and update the distance counter
+			switch (currDir) {
+				case North:
+					if (currentPosition[1]+1 >= height) {
+						powersupply[0] -= getEnergyConsumptionForSensing();
+						dist++;
+						if (powersupply[0] < getEnergyConsumptionForSensing()) throw new Exception("PowerFailure");
+						return Integer.MAX_VALUE;
+					}
+					currentPosition[1] += 1;
+					break;
+				case East:
+					if (currentPosition[0]+1 >= width) {
+						powersupply[0] -= getEnergyConsumptionForSensing();
+						dist++;
+						if (powersupply[0] < getEnergyConsumptionForSensing()) throw new Exception("PowerFailure");
+						return Integer.MAX_VALUE;
+					}
+					currentPosition[0] += 1;
+					break;
+				case South:
+					if (currentPosition[1]-1 < 0) {
+						powersupply[0] -= getEnergyConsumptionForSensing();
+						dist++;
+						if (powersupply[0] < getEnergyConsumptionForSensing()) throw new Exception("PowerFailure");
+						return Integer.MAX_VALUE;
+					}
+					currentPosition[1] -= 1;
+					break;
+				case West:
+					if (currentPosition[0]-1 < 0) {
+						powersupply[0] -= getEnergyConsumptionForSensing();
+						dist++;
+						if (powersupply[0] < getEnergyConsumptionForSensing()) throw new Exception("PowerFailure");
+						return Integer.MAX_VALUE;
+					}
+					currentPosition[0] -= 1;
+					break;
+			}
+			powersupply[0] -= getEnergyConsumptionForSensing();
+			dist++;
+			if (powersupply[0] < getEnergyConsumptionForSensing()) throw new Exception("PowerFailure");
+		}
 
-		return 0;
+		return dist;
 	}
 
 	/**
@@ -78,8 +137,9 @@ public class ReliableSensor implements DistanceSensor {
 	@Override
 	public void setMaze(Maze maze) {
 		// check if the maze or its floor plan is null and throw an exception if so
-		
+		if (maze == null || maze.getFloorplan() == null) throw new IllegalArgumentException();
 		// assign the maze parameter to the maze field of the sensor
+		this.maze = maze;
 	}
 
 	/**
@@ -90,8 +150,9 @@ public class ReliableSensor implements DistanceSensor {
 	@Override
 	public void setSensorDirection(Direction mountedDirection) {
 		// check if mountedDirection is null and throw an exception if so
-		
+		if (mountedDirection == null) throw new IllegalArgumentException();
 		// assign the mountedDirection parameter to the mountedDirection field of the sensor
+		this.mountedDirection = mountedDirection;
 	}
 
 	/**
@@ -102,7 +163,7 @@ public class ReliableSensor implements DistanceSensor {
 	@Override
 	public float getEnergyConsumptionForSensing() {
 		// return the constant amount of energy required to use the sensor once
-		return 0;
+		return SENSE_COST;
 	}
 
 	/**
@@ -132,4 +193,49 @@ public class ReliableSensor implements DistanceSensor {
 		throw new UnsupportedOperationException();
 	}
 
+	/**
+	 * Converts a relative direction to an absolute direction based on the current CardinalDirection
+	 * @param direction that we want to use for the conversion
+	 * @param currDir is the current direction of the robot, we use this in conjunction with the relative direction
+	 * to obtain the new absolute (cardinal) direction
+	 * @return CardinalDirection of the relative direction
+	 */
+	private CardinalDirection convertToAbsoluteDirection(Direction direction, CardinalDirection currDir) {
+		// all of the CardinalDirections in the order that will map consistently to the transformations
+		CardinalDirection[] dirs = {CardinalDirection.South, CardinalDirection.West, CardinalDirection.East, CardinalDirection.North};
+		// map coordinates involving only +/-1 to each direction 
+		Map<ArrayList<Integer>, CardinalDirection> coordsMap = new HashMap<ArrayList<Integer>, CardinalDirection>();
+		// map each direction to its coordinates
+		Map<CardinalDirection, ArrayList<Integer>> dirsMap = new HashMap<CardinalDirection, ArrayList<Integer>>();
+		int idx = 0;
+		int[] range = {-1, 1};
+		for (int x = 0; x <= 1; x++) {
+			for (int y = 0; y <= 1; y++) {
+				ArrayList<Integer> pair = new ArrayList<Integer>();
+				pair.add(range[x]); pair.add(range[y]);
+				coordsMap.put(pair, dirs[idx]);
+				dirsMap.put(dirs[idx], pair);
+				idx++;
+			}
+		}
+		// apply transformations to the CardinalDirection based on the relative direction
+		ArrayList<Integer> dirCoords = dirsMap.get(currDir); 
+		ArrayList<Integer> newCoords;
+		switch (direction) {
+			case BACKWARD:
+				newCoords = new ArrayList<Integer>(); 
+				newCoords.add(dirCoords.get(0)*-1); newCoords.add(dirCoords.get(1)*-1);
+				return coordsMap.get(newCoords);
+			case LEFT:
+				newCoords = new ArrayList<Integer>(); 
+				newCoords.add(dirCoords.get(1)*-1); newCoords.add(dirCoords.get(0));
+				return coordsMap.get(newCoords);
+			case RIGHT:
+				newCoords = new ArrayList<Integer>(); 
+				newCoords.add(dirCoords.get(1)); newCoords.add(dirCoords.get(0)*-1);
+				return coordsMap.get(newCoords);
+			default:
+				return currDir;
+		}
+	}
 }

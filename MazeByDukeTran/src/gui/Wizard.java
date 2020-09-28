@@ -1,6 +1,7 @@
 package gui;
 
 import generation.Maze;
+import gui.Robot.Turn;
 
 /**
  * @author Duke Tran
@@ -8,11 +9,13 @@ import generation.Maze;
  * <p>
  * Responsibilites: direct the robot towards the maze exit
  * <p>
- * Collaborators: Maze, Robot (ReliableRobot), DistanceSensor (ReliableSensor and UnreliableSensor)
+ * Collaborators: Maze, Robot (ReliableRobot)
  */
 public class Wizard implements RobotDriver {
 	private Robot robot;
 	private Maze maze;
+	
+	private float initialBatteryLevel;
 
 	/**
 	 * Assigns a robot for the Wizard. 
@@ -21,6 +24,8 @@ public class Wizard implements RobotDriver {
 	@Override
 	public void setRobot(Robot r) {
 		// assign robot to the robot field
+		robot = r;
+		initialBatteryLevel = r.getBatteryLevel();
 	}
 
 	/**
@@ -29,7 +34,8 @@ public class Wizard implements RobotDriver {
 	 */
 	@Override
 	public void setMaze(Maze maze) {
-		// assign maze to the maze field		
+		// assign maze to the maze field	
+		this.maze = maze;
 	}
 
 	/**
@@ -41,11 +47,16 @@ public class Wizard implements RobotDriver {
 	@Override
 	public boolean drive2Exit() throws Exception {
 		// while the robot hasn't stopped
-			
+		while (!robot.hasStopped()) {
 			// try to get to the exit by running drive1Step2Exit
-		
+			try {
+				drive1Step2Exit();
+			} catch (Exception e) {
+				throw new Exception();
+			}
 			// check if it has reached the exit and return true if so
-		
+			if (robot.isAtExit()) return true;
+		}
 		return false;
 	}
 
@@ -58,12 +69,39 @@ public class Wizard implements RobotDriver {
 	@Override
 	public boolean drive1Step2Exit() throws Exception {
 		// get the next neighbor closest to the exit
+		int[] currPos = robot.getCurrentPosition();
+		int[] neighbor = maze.getNeighborCloserToExit(currPos[0], currPos[1]);
 		
-		// rotate robot in that direction 
+		// rotate robot in that direction
+		int[] changeDir = {neighbor[0]-currPos[0], neighbor[1]-currPos[1]};
+		switch (robot.getCurrentDirection()) {
+			case North:
+				if (changeDir[0] == -1) robot.rotate(Turn.RIGHT);
+				else if (changeDir[0] == 1) robot.rotate(Turn.LEFT);
+				else if (changeDir[1] == 1) robot.rotate(Turn.AROUND);
+				break;
+			case East:
+				if (changeDir[0] == -1) robot.rotate(Turn.AROUND);
+				else if (changeDir[1] == -1) robot.rotate(Turn.RIGHT);
+				else if (changeDir[1] == 1) robot.rotate(Turn.LEFT);
+				break;
+			case South:
+				if (changeDir[0] == -1) robot.rotate(Turn.LEFT);
+				else if (changeDir[0] == 1) robot.rotate(Turn.RIGHT);
+				else if (changeDir[1] == -1) robot.rotate(Turn.AROUND);
+				break;
+			case West:
+				if (changeDir[0] == 1) robot.rotate(Turn.AROUND);
+				else if (changeDir[1] == -1) robot.rotate(Turn.LEFT);
+				else if (changeDir[1] == 1) robot.rotate(Turn.RIGHT);
+				break;
+		}
 		
-		// attempt to get to the cell either by moving or jumping
+		// move to the cell by taking a step
+		robot.move(1);	
 		
 		// if robot is stopped, then throw an exception
+		if (robot.hasStopped()) throw new Exception();
 				
 		return true;
 	}
@@ -76,7 +114,7 @@ public class Wizard implements RobotDriver {
 	@Override
 	public float getEnergyConsumption() {
 		// return the difference between the initial battery level and the ending battery level
-		return 0;
+		return initialBatteryLevel - robot.getBatteryLevel();
 	}
 
 	/**
@@ -87,7 +125,7 @@ public class Wizard implements RobotDriver {
 	@Override
 	public int getPathLength() {
 		// return distance traveled by robot from the robot's odometer
-		return 0;
+		return robot.getOdometerReading();
 	}
 
 }
