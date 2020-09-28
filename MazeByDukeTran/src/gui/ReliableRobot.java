@@ -1,29 +1,42 @@
 package gui;
 
 import generation.CardinalDirection;
+import generation.Maze;
+import gui.Constants.UserInput;
+
 import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * @author Duke Tran
  * Class: ReliableRobot
  * <p>
- * Responsibilites: perform move and rotate operations, interact with its Sensors,
+ * Responsibilities: perform move and rotate operations, interact with its Sensors,
  * monitor and manage its energy consumption
  * <p>
  * Collaborators: Controller, RobotDriver (Wall-follower and Wizard)
  */
 public class ReliableRobot implements Robot {
 	private Controller controller;
-	
-	private int[] currPos;
-	private CardinalDirection currDir;
-	
+		
 	private float batteryLevel;
-	private float distTraveled;
+	private int distTraveled;
 	private boolean stopped;
-	//private Map<Direction, boolean> sensorStatus;
+	private Map<Direction, Boolean> sensorStatus;
+	
+	private final float SENSE_COST = 1;
+	private final float ROTATE_COST = 3;
+	private final float MOVE_COST = 6;
+	private final float JUMP_COST = 40;
 	
 	public ReliableRobot() {
+		sensorStatus = new HashMap<Direction, Boolean>();
+		sensorStatus.put(Direction.LEFT, true);
+		sensorStatus.put(Direction.RIGHT, true);
+		sensorStatus.put(Direction.FORWARD, true);
+		sensorStatus.put(Direction.BACKWARD, true);
 	}
 
 	/**
@@ -36,11 +49,15 @@ public class ReliableRobot implements Robot {
 	@Override
 	public void setController(Controller controller) throws IllegalArgumentException {
 		// check if controller is null and throw an exception if so
+		if (controller == null) throw new IllegalArgumentException();
 		
 		// check if controller is not in playing state or doesn't have a maze
 		// and throw an exception if so
+		if (controller.currentState instanceof StatePlaying || controller.getMazeConfiguration() == null) 
+			throw new IllegalArgumentException();
 		
-		// assign controller field to inputted controller
+		// assign controller field to inputed controller
+		this.controller = controller;
 	}
 
 	/**
@@ -50,12 +67,17 @@ public class ReliableRobot implements Robot {
 	 */
 	@Override
 	public int[] getCurrentPosition() throws Exception {
-		// fetch the current position from the controller
+		// fetch the maze from the controller and store the widths and heights
+		Maze mazeConfig = controller.getMazeConfiguration();
+		int[] currPos = controller.getCurrentPosition();
+		int width = mazeConfig.getWidth();
+		int height = mazeConfig.getHeight();
 		
 		// check if the current position is outside of the maze and throw an exception if so
+		if (currPos[0] >= width || currPos[1] >= height) throw new Exception();
 		
 		// return position array
-		return null;
+		return currPos;
 	}
 
 	/**
@@ -65,7 +87,7 @@ public class ReliableRobot implements Robot {
 	@Override
 	public CardinalDirection getCurrentDirection() {
 		// return fetched direction from the controller
-		return null;
+		return controller.getCurrentDirection();
 	}
 
 	/**
@@ -76,7 +98,7 @@ public class ReliableRobot implements Robot {
 	@Override
 	public float getBatteryLevel() {
 		// return the battery level
-		return 0;
+		return batteryLevel;
 	}
 
 	/**
@@ -87,8 +109,10 @@ public class ReliableRobot implements Robot {
 	@Override
 	public void setBatteryLevel(float level) throws IllegalArgumentException {
 		// check if level is negative and throw an exception if so
+		if (level < 0) throw new IllegalArgumentException();
 		
-		// set the battery level to the inputted level
+		// set the battery level to the inputed level
+		batteryLevel = level;
 	}
 
 	/**
@@ -98,7 +122,7 @@ public class ReliableRobot implements Robot {
 	@Override
 	public float getEnergyForFullRotation() {
 		// return the energy required for a full rotation
-		return 0;
+		return 4 * ROTATE_COST;
 	}
 
 	/**
@@ -108,7 +132,7 @@ public class ReliableRobot implements Robot {
 	@Override
 	public float getEnergyForStepForward() {
 		// return the energy required for a single step forward
-		return 0;
+		return MOVE_COST;
 	}
 
 	/** 
@@ -118,7 +142,7 @@ public class ReliableRobot implements Robot {
 	@Override
 	public int getOdometerReading() {
 		// return the distance traveled
-		return 0;
+		return distTraveled;
 	}
 
 	/** 
@@ -127,6 +151,7 @@ public class ReliableRobot implements Robot {
 	@Override
 	public void resetOdometer() {
 		// set the distance traveled to zero
+		distTraveled = 0;
 	}
 
 	/**
@@ -135,10 +160,31 @@ public class ReliableRobot implements Robot {
 	 */
 	@Override
 	public void rotate(Turn turn) {
-		// use the controller to turn the robot
+		// check battery level beforehand
+		if (getBatteryLevel() < ROTATE_COST) {
+			stopped = true;
+			return;
+		}
+		
+		// use the controller to turn the robot and update the battery level
+		switch (turn) {
+			case LEFT:
+				controller.keyDown(UserInput.Left, 0);
+				setBatteryLevel(getBatteryLevel()-ROTATE_COST);
+				break;
+			case RIGHT:
+				setBatteryLevel(getBatteryLevel()-ROTATE_COST);
+				controller.keyDown(UserInput.Right, 0);
+				break;
+			case AROUND:
+				setBatteryLevel(getBatteryLevel()-ROTATE_COST * 2);
+				controller.keyDown(UserInput.Left, 0);
+				controller.keyDown(UserInput.Left, 0);
+				break;
+		}
 		
 		// check if the battery level is 0 and stop the robot if so
-
+		if (getBatteryLevel() == 0) stopped = true;
 	}
 
 	/**
@@ -150,16 +196,50 @@ public class ReliableRobot implements Robot {
 	@Override
 	public void move(int distance) throws IllegalArgumentException {
 		// check if distance is not positive and throw an exception if so
+		if (distance <= 0) throw new IllegalArgumentException();
 		
+		// check battery level beforehand
+		if (getBatteryLevel() < MOVE_COST) {
+			stopped = true;
+			return;
+		}
+		
+		// fetch the maze from the controller
+		Maze mazeConfig = controller.getMazeConfiguration();
 		// create a new variable to keep track of distance moved
-		// while the distance moved is less than the inputted distance
+		int distMoved = 0;
+		
+		// while the distance moved is less than the inputed distance
+		while (distMoved <= distance) {
+			// get the current position
+			int[] currPos;
+			try {
+				currPos = getCurrentPosition();
+			} catch (Exception e) {
+				System.out.println("Position outside maze!");
+				return;
+			}
+			
 			// check if there is an obstacle (wall) directly in front of the robot
 			// and stop if so
-		
-			// move the robot one step forward and update the distance traveled
-		
+			if (mazeConfig.hasWall(currPos[0], currPos[1], getCurrentDirection())) {
+				stopped = true;
+				break;
+			}
+			
+			// move the robot one step forward and update the distance traveled and battery level
+			controller.keyDown(UserInput.Up, 0);
+			distTraveled++;
+			distMoved++;
+			
+			setBatteryLevel(getBatteryLevel()-MOVE_COST);
 			// check if the energy has been depleted and stop if so
 			// (make sure to break out of the loop)
+			if (getBatteryLevel() == 0) {
+				stopped = true;
+				break;
+			}
+		}
 
 	}
 
@@ -171,11 +251,56 @@ public class ReliableRobot implements Robot {
 	 */
 	@Override
 	public void jump() {
+		// check battery level beforehand
+		if (getBatteryLevel() < JUMP_COST) {
+			stopped = true;
+			return;
+		}
+		
+		// fetch the current position of the robot
+		int[] currPos;
+		try {
+			currPos = getCurrentPosition();
+		} catch (Exception e) {
+			System.out.println("Position outside maze!");
+			return;
+		}
 		// check if the wall in front is an exterior wall and stop if so
+		Maze mazeConfig = controller.getMazeConfiguration();
+		int mazeHeight = mazeConfig.getHeight();
+		int mazeWidth = mazeConfig.getWidth();
+		switch (getCurrentDirection()) {
+			case North:
+				if (mazeConfig.hasWall(currPos[0], currPos[1], CardinalDirection.North) && currPos[1]+1==mazeHeight) {
+					stopped = true;
+					return;
+				}	
+				break;
+			case East:
+				if (mazeConfig.hasWall(currPos[0], currPos[1], CardinalDirection.East) && currPos[0]+1==mazeWidth) {
+					stopped = true;
+					return;
+				}
+				break;
+			case South:
+				if (mazeConfig.hasWall(currPos[0], currPos[1], CardinalDirection.South) && currPos[1]-1<0) {
+					stopped = true;
+					return;
+				}
+				break;
+			case West:
+				if (mazeConfig.hasWall(currPos[0], currPos[1], CardinalDirection.West) && currPos[0]-1<0) {
+					stopped = true;
+					return;
+				}
+				break;
+		}	
 		
-		// check if the energy has been depleted and stop if so
-		
-		// execute the jump and update the distance traveled
+		// execute the jump and update the distance traveled and battery level
+		controller.keyDown(UserInput.Jump, 0);
+		distTraveled++;
+		setBatteryLevel(getBatteryLevel()-JUMP_COST);
+		if (getBatteryLevel() == 0) stopped = true;
 	}
 	
 	/**
@@ -186,7 +311,15 @@ public class ReliableRobot implements Robot {
 	public boolean isAtExit() {
 		// fetch the maze from the controller and determine if the current position is at the exit
 		// (at least one wallboard is missing and the adjacent cell in that direction is outside of the maze)
-		return false;
+		// fetch the current position of the robot
+		int[] currPos;
+		try {
+			currPos = getCurrentPosition();
+		} catch (Exception e) {
+			System.out.println("Position outside maze!");
+			return false;
+		}
+		return controller.getMazeConfiguration().getFloorplan().isExitPosition(currPos[0], currPos[1]);
 	}
 
 	/**
@@ -196,7 +329,14 @@ public class ReliableRobot implements Robot {
 	@Override
 	public boolean isInsideRoom() {
 		// return whether the current position is inside a room from the controller
-		return false;
+		int[] currPos;
+		try {
+			currPos = getCurrentPosition();
+		} catch (Exception e) {
+			System.out.println("Position outside maze!");
+			return false;
+		}
+		return controller.getMazeConfiguration().getFloorplan().isInRoom(currPos[0], currPos[1]);
 	}
 
 	/**
@@ -206,7 +346,7 @@ public class ReliableRobot implements Robot {
 	@Override
 	public boolean hasStopped() {
 		// returns stopped
-		return false;
+		return stopped;
 	}
 
 	/**
@@ -220,15 +360,76 @@ public class ReliableRobot implements Robot {
 	@Override
 	public int distanceToObstacle(Direction direction) throws UnsupportedOperationException {
 		// check if the direction is invalid or the sensor is not operational and throw an exception if so
+		if (sensorStatus.containsKey(direction) || !sensorStatus.get(direction)) throw new UnsupportedOperationException();
 		
+		// check battery level beforehand
+		if (getBatteryLevel() < SENSE_COST) {
+			stopped = true;
+			return -1;
+		}
+			
 		// use the controller to fetch the maze
+		Maze mazeConfig = controller.getMazeConfiguration();
+		int width = mazeConfig.getWidth();
+		int height = mazeConfig.getHeight();
 		
-		// call canSeeThroughTheExitIntoEternity to see if the given direction contains the exit
-		// and return Integer.MAX_VALUE if so
-		
+		// keep track of the current cell
+		int[] currPos;
+		try {
+			currPos = getCurrentPosition();
+		} catch (Exception e) {
+			System.out.println("Position outside maze!");
+			return -1;
+		}
+		// figure out which absolute (cardinal) direction we should move in
+		CardinalDirection checkDir = convertToAbsoluteDirection(direction, getCurrentDirection());
+		int dist = 0;
 		// calculate the distance from the current position to a wall in the given direction
+		// while checking if the current cell is at the exit and return Integer.MAX_VALUE if so
+		while (!mazeConfig.hasWall(currPos[0], currPos[1], checkDir)) {
+			// check if the next cell is outside of the maze (meaning the current cell is located at the exit)
+			// if not, then sense the next cell and update the distance counter
+			switch (checkDir) {
+				case North:
+					if (currPos[1]+1 > height) {
+						setBatteryLevel(getBatteryLevel()-SENSE_COST);
+						if (getBatteryLevel() == 0) stopped = true;
+						return Integer.MAX_VALUE;
+					}
+					currPos[1] += 1;
+					break;
+				case East:
+					if (currPos[0]+1 > width) {
+						setBatteryLevel(getBatteryLevel()-SENSE_COST);
+						if (getBatteryLevel() == 0) stopped = true;
+						return Integer.MAX_VALUE;
+					}
+					currPos[0] += 1;
+					break;
+				case South:
+					if (currPos[1]-1 < 0) {
+						setBatteryLevel(getBatteryLevel()-SENSE_COST);
+						if (getBatteryLevel() == 0) stopped = true;
+						return Integer.MAX_VALUE;
+					}
+					currPos[1] -= 1;
+					break;
+				case West:
+					if (currPos[0]-1 < 0) {
+						setBatteryLevel(getBatteryLevel()-SENSE_COST);
+						if (getBatteryLevel() == 0) stopped = true;
+						return Integer.MAX_VALUE;
+					}
+					currPos[0] -= 1;
+					break;
+			}
+			dist++;
+		}
 		
-		return 0;
+		setBatteryLevel(getBatteryLevel()-SENSE_COST);
+		if (getBatteryLevel() == 0) stopped = true;
+		
+		return dist;
 	}
 
 	/**
@@ -242,15 +443,65 @@ public class ReliableRobot implements Robot {
 	@Override
 	public boolean canSeeThroughTheExitIntoEternity(Direction direction) throws UnsupportedOperationException {
 		// check if the direction is invalid or the sensor is not operational and throw an exception if so
+		if (sensorStatus.containsKey(direction) || !sensorStatus.get(direction)) throw new UnsupportedOperationException();
 		
 		// use the controller to fetch the maze
+		Maze mazeConfig = controller.getMazeConfiguration();
+		int width = mazeConfig.getWidth();
+		int height = mazeConfig.getHeight();
 		
 		// keep track of the current cell
-		
+		int[] currPos;
+		try {
+			currPos = getCurrentPosition();
+		} catch (Exception e) {
+			System.out.println("Position outside maze!");
+			return false;
+		}
+		// figure out which absolute (cardinal) direction we should move in
+		CardinalDirection checkDir = convertToAbsoluteDirection(direction, getCurrentDirection());
 		// while the current cell doesn't have a wallboard in the given direction
+		while (!mazeConfig.hasWall(currPos[0], currPos[1], checkDir)) {
 			// check if the next cell is outside of the maze and return true if so
+			// else take a step in that direction
+			switch (checkDir) {
+				case North:
+					if (currPos[1]+1 > height) {
+						setBatteryLevel(getBatteryLevel()-SENSE_COST);
+						if (getBatteryLevel() == 0) stopped = true;
+						return true;
+					}
+					currPos[1] += 1;
+					break;
+				case East:
+					if (currPos[0]+1 > width) {
+						setBatteryLevel(getBatteryLevel()-SENSE_COST);
+						if (getBatteryLevel() == 0) stopped = true;
+						return true;
+					}
+					currPos[0] += 1;
+					break;
+				case South:
+					if (currPos[1]-1 < 0) {
+						setBatteryLevel(getBatteryLevel()-SENSE_COST);
+						if (getBatteryLevel() == 0) stopped = true;
+						return true;
+					}
+					currPos[1] -= 1;
+					break;
+				case West:
+					if (currPos[0]-1 < 0) {
+						setBatteryLevel(getBatteryLevel()-SENSE_COST);
+						if (getBatteryLevel() == 0) stopped = true;
+						return true;
+					}
+					currPos[0] -= 1;
+					break;
+			}
+		}
 		
-			// take a step in the given direction
+		setBatteryLevel(getBatteryLevel()-SENSE_COST);
+		if (getBatteryLevel() == 0) stopped = true;
 		
 		// return false since a wallboard was encountered
 		return false;
@@ -281,6 +532,49 @@ public class ReliableRobot implements Robot {
 	@Override
 	public void stopFailureAndRepairProcess(Direction direction) throws UnsupportedOperationException {
 		throw new UnsupportedOperationException();
+	}
+	
+	/**
+	 * Converts a relative direction to an absolute direction based on the current CardinalDirection
+	 * @return CardinalDirection of the relative direction
+	 */
+	private CardinalDirection convertToAbsoluteDirection(Direction direction, CardinalDirection currDir) {
+		// all of the CardinalDirections in the order that will map consistently to the transformations
+		CardinalDirection[] dirs = {CardinalDirection.South, CardinalDirection.West, CardinalDirection.East, CardinalDirection.North};
+		// map coordinates involving only +/-1 to each direction 
+		Map<ArrayList<Integer>, CardinalDirection> coordsMap = new HashMap<ArrayList<Integer>, CardinalDirection>();
+		// map each direction to its coordinates
+		Map<CardinalDirection, ArrayList<Integer>> dirsMap = new HashMap<CardinalDirection, ArrayList<Integer>>();
+		int idx = 0;
+		int[] range = {-1, 1};
+		for (int x = 0; x <= 1; x++) {
+			for (int y = 0; y <= 1; y++) {
+				ArrayList<Integer> pair = new ArrayList<Integer>();
+				pair.add(range[x]); pair.add(range[y]);
+				coordsMap.put(pair, dirs[idx]);
+				dirsMap.put(dirs[idx], pair);
+				idx++;
+			}
+		}
+		// apply transformations to the CardinalDirection based on the relative direction
+		ArrayList<Integer> dirCoords = dirsMap.get(currDir); 
+		ArrayList<Integer> newCoords;
+		switch (direction) {
+			case BACKWARD:
+				newCoords = new ArrayList<Integer>(); 
+				newCoords.add(dirCoords.get(0)*-1); newCoords.add(dirCoords.get(1)*-1);
+				return coordsMap.get(newCoords);
+			case LEFT:
+				newCoords = new ArrayList<Integer>(); 
+				newCoords.add(dirCoords.get(1)*-1); newCoords.add(dirCoords.get(0));
+				return coordsMap.get(newCoords);
+			case RIGHT:
+				newCoords = new ArrayList<Integer>(); 
+				newCoords.add(dirCoords.get(1)); newCoords.add(dirCoords.get(0)*-1);
+				return coordsMap.get(newCoords);
+			default:
+				return currDir;
+		}
 	}
 
 }
