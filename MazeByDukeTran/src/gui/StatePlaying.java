@@ -106,6 +106,13 @@ public class StatePlaying extends DefaultState {
         	// else: dry-run without graphics, most likely for testing purposes
         	printWarning();
         }
+        
+        if (control.getDriver() != null)
+        	try {
+        		control.getDriver().drive2Exit();
+        	} catch (Exception e) {
+        		System.out.println(e.toString());
+        	}
     }
     /**
      * Initializes the drawer for the first person view

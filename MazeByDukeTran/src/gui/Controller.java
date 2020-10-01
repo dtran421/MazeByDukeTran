@@ -107,7 +107,7 @@ public class Controller {
         builder = Order.Builder.DFS; // default
         perfect = false; // default
         seed = 13; // default
-        deterministic = true; // default
+        deterministic = false; // default is true
     }
     
     public void setFileName(String fileName) {
@@ -152,13 +152,7 @@ public class Controller {
         currentState.setSkillLevel(skillLevel);
         currentState.setBuilder(builder); 
         currentState.setPerfect(perfect);
-        if (!deterministic) {
-        	System.out.println("Assignment: implement code such that a repeated generation creates different mazes! Program stops!");
-			// System.exit(0) ;
-        	// TODO: implement code that makes sure we generate different random mazes
-        	// HINT: check http://download.oracle.com/javase/6/docs/api/java/util/Random.html
-        	setSeed(SingleRandom.getRandom().nextInt());
-        }
+        if (!deterministic) setSeed(SingleRandom.getRandom().nextInt());
         currentState.setSeed(seed);
         currentState.start(this, panel);
     }
@@ -181,6 +175,13 @@ public class Controller {
     public void switchFromGeneratingToPlaying(Maze config) {
         currentState = states[2];
         currentState.setMazeConfiguration(config);
+        
+        if (getDriver() != null && getRobot() != null) {
+        	getRobot().setController(this);
+        	getDriver().setRobot(getRobot());
+        	getDriver().setMaze(config);
+        }
+        
         currentState.start(this, panel);
     }
     /**

@@ -24,20 +24,16 @@ public class ReliableRobot implements Robot {
 	private int distTraveled;
 	private boolean stopped;
 
-	private final float INITIAL_BATTERY = 3500;
-	private final float ROTATE_COST = 3;
-	private final float MOVE_COST = 6;
-	private final float JUMP_COST = 40;
+	protected final float INITIAL_BATTERY = 3500;
+	private final float SENSE_COST = 1;
+	protected final float ROTATE_COST = 3;
+	protected final float MOVE_COST = 6;
+	protected final float JUMP_COST = 40;
 	
-	public ReliableRobot(Controller controller) {
-		setController(controller);
-		Maze mazeConfig = controller.getMazeConfiguration();
-		
+	public ReliableRobot() {
 		setBatteryLevel(INITIAL_BATTERY);
-		leftSensor = new ReliableSensor(mazeConfig, Direction.LEFT);
-		rightSensor = new ReliableSensor(mazeConfig, Direction.RIGHT);
-		forwardSensor = new ReliableSensor(mazeConfig, Direction.FORWARD);
-		backwardSensor = new ReliableSensor(mazeConfig, Direction.BACKWARD);
+		distTraveled = 0;
+		stopped = false;
 	}
 
 	/**
@@ -48,17 +44,21 @@ public class ReliableRobot implements Robot {
 	 * or if controller does not have a maze
 	 */
 	@Override
-	public void setController(Controller controller) throws IllegalArgumentException {
-		// check if controller is null and throw an exception if so
-		if (controller == null) throw new IllegalArgumentException();
-		
-		// check if controller is not in playing state or doesn't have a maze
+	public void setController(Controller controller) throws IllegalArgumentException {		
+		// check if controller is null, controller is not in playing state, or it doesn't have a maze
 		// and throw an exception if so
-		if (controller.currentState instanceof StatePlaying || controller.getMazeConfiguration() == null) 
+		if (controller == null || !(controller.currentState instanceof StatePlaying) || controller.getMazeConfiguration() == null) 
 			throw new IllegalArgumentException();
 		
 		// assign controller field to inputed controller
 		this.controller = controller;
+		
+		// instantiate the distance sensors now that we have the maze
+		Maze mazeConfig = controller.getMazeConfiguration();
+		leftSensor = new ReliableSensor(mazeConfig, Direction.LEFT);
+		rightSensor = new ReliableSensor(mazeConfig, Direction.RIGHT);
+		forwardSensor = new ReliableSensor(mazeConfig, Direction.FORWARD);
+		backwardSensor = new ReliableSensor(mazeConfig, Direction.BACKWARD);
 	}
 
 	/**
@@ -70,10 +70,10 @@ public class ReliableRobot implements Robot {
 	public int[] getCurrentPosition() throws Exception {
 		// fetch the maze from the controller and store the widths and heights
 		Maze mazeConfig = controller.getMazeConfiguration();
-		int[] currPos = controller.getCurrentPosition();
 		int width = mazeConfig.getWidth();
 		int height = mazeConfig.getHeight();
 		
+		int[] currPos = controller.getCurrentPosition();
 		// check if the current position is outside of the maze and throw an exception if so
 		if (currPos[0] >= width || currPos[1] >= height) throw new Exception();
 		
@@ -162,7 +162,9 @@ public class ReliableRobot implements Robot {
 	@Override
 	public void rotate(Turn turn) {
 		// check battery level beforehand
-		if (getBatteryLevel() < ROTATE_COST) {
+		if (getBatteryLevel() < ROTATE_COST || 
+				(turn == Turn.AROUND && getBatteryLevel() < ROTATE_COST * 2)) {
+			setBatteryLevel(0);
 			stopped = true;
 			return;
 		}
@@ -178,7 +180,7 @@ public class ReliableRobot implements Robot {
 				controller.keyDown(UserInput.Right, 0);
 				break;
 			case AROUND:
-				setBatteryLevel(getBatteryLevel()-ROTATE_COST * 2);
+				setBatteryLevel(getBatteryLevel()-ROTATE_COST*2);
 				controller.keyDown(UserInput.Left, 0);
 				controller.keyDown(UserInput.Left, 0);
 				break;
@@ -197,10 +199,11 @@ public class ReliableRobot implements Robot {
 	@Override
 	public void move(int distance) throws IllegalArgumentException {
 		// check if distance is not positive and throw an exception if so
-		if (distance <= 0) throw new IllegalArgumentException();
+		if (distance < 0) throw new IllegalArgumentException();
 		
 		// check battery level beforehand
-		if (getBatteryLevel() < MOVE_COST) {
+		if (getBatteryLevel() < MOVE_COST * distance) {
+			setBatteryLevel(0);
 			stopped = true;
 			return;
 		}
@@ -221,17 +224,18 @@ public class ReliableRobot implements Robot {
 				return;
 			}
 			
-			// check if there is an obstacle (wall) directly in front of the robot
-			// and stop if so
-			if (mazeConfig.hasWall(currPos[0], currPos[1], getCurrentDirection())) {
-				stopped = true;
-				break;
-			}
-			
 			// move the robot one step forward and update the distance traveled and battery level
 			controller.keyDown(UserInput.Up, 0);
 			distTraveled++;
 			distMoved++;
+			
+			// check if there is an obstacle (wall) directly in front of the robot
+			// and stop if so
+			if (distMoved != distance && mazeConfig.hasWall(currPos[0], currPos[1], getCurrentDirection())) {
+				setBatteryLevel(0);
+				stopped = true;
+				break;
+			}
 			
 			setBatteryLevel(getBatteryLevel()-MOVE_COST);
 			// check if the energy has been depleted and stop if so
@@ -254,6 +258,7 @@ public class ReliableRobot implements Robot {
 	public void jump() {
 		// check battery level beforehand
 		if (getBatteryLevel() < JUMP_COST) {
+			setBatteryLevel(0);
 			stopped = true;
 			return;
 		}
@@ -273,24 +278,28 @@ public class ReliableRobot implements Robot {
 		switch (getCurrentDirection()) {
 			case North:
 				if (mazeConfig.hasWall(currPos[0], currPos[1], CardinalDirection.North) && currPos[1]+1==mazeHeight) {
+					setBatteryLevel(0);
 					stopped = true;
 					return;
 				}	
 				break;
 			case East:
 				if (mazeConfig.hasWall(currPos[0], currPos[1], CardinalDirection.East) && currPos[0]+1==mazeWidth) {
+					setBatteryLevel(0);
 					stopped = true;
 					return;
 				}
 				break;
 			case South:
 				if (mazeConfig.hasWall(currPos[0], currPos[1], CardinalDirection.South) && currPos[1]-1<0) {
+					setBatteryLevel(0);
 					stopped = true;
 					return;
 				}
 				break;
 			case West:
 				if (mazeConfig.hasWall(currPos[0], currPos[1], CardinalDirection.West) && currPos[0]-1<0) {
+					setBatteryLevel(0);
 					stopped = true;
 					return;
 				}
@@ -311,8 +320,7 @@ public class ReliableRobot implements Robot {
 	@Override
 	public boolean isAtExit() {
 		// fetch the maze from the controller and determine if the current position is at the exit
-		// (at least one wallboard is missing and the adjacent cell in that direction is outside of the maze)
-		// fetch the current position of the robot
+		// by using the floorplan's isExitPosition method
 		int[] currPos;
 		try {
 			currPos = getCurrentPosition();
@@ -370,6 +378,13 @@ public class ReliableRobot implements Robot {
 		}
 		
 		float[] batteryLevel = {getBatteryLevel()};
+		// check battery level beforehand
+		if (batteryLevel[0] < SENSE_COST) {
+			setBatteryLevel(0);
+			stopped = true;
+			return -1;
+		}
+		
 		int dist = -1;
 		switch (direction) {
 			case LEFT:
@@ -404,6 +419,8 @@ public class ReliableRobot implements Robot {
 					throw new UnsupportedOperationException();
 				}
 				break;
+			default:
+				throw new UnsupportedOperationException();
 		}	
 		
 		setBatteryLevel(batteryLevel[0]);
@@ -422,57 +439,12 @@ public class ReliableRobot implements Robot {
 	 */
 	@Override
 	public boolean canSeeThroughTheExitIntoEternity(Direction direction) throws UnsupportedOperationException {
-		// keep track of the current cell
-		int[] currPos;
 		try {
-			currPos = getCurrentPosition();
+			// return true if a wallboard wasn't encountered (looking at the exit), false otherwise
+			return distanceToObstacle(direction) == Integer.MAX_VALUE ? true : false;
 		} catch (Exception e) {
-			System.out.println("Position outside maze!");
-			return false;
+			throw new UnsupportedOperationException();
 		}
-		
-		float[] batteryLevel = {getBatteryLevel()};
-		int dist = -1;
-		switch (direction) {
-			case LEFT:
-				try {
-					dist = leftSensor.distanceToObstacle(currPos, getCurrentDirection(), batteryLevel);
-				} catch (Exception e) {
-					System.out.println(e.getMessage());
-					throw new UnsupportedOperationException();
-				}
-				break;
-			case RIGHT:
-				try {
-					dist = rightSensor.distanceToObstacle(currPos, getCurrentDirection(), batteryLevel);
-				} catch (Exception e) {
-					System.out.println(e.getMessage());
-					throw new UnsupportedOperationException();
-				}
-				break;
-			case FORWARD:
-				try {
-					dist = forwardSensor.distanceToObstacle(currPos, getCurrentDirection(), batteryLevel);
-				} catch (Exception e) {
-					System.out.println(e.getMessage());
-					throw new UnsupportedOperationException();
-				}
-				break;
-			case BACKWARD:
-				try {
-					dist = backwardSensor.distanceToObstacle(currPos, getCurrentDirection(), batteryLevel);
-				} catch (Exception e) {
-					System.out.println(e.getMessage());
-					throw new UnsupportedOperationException();
-				}
-				break;
-		}
-			
-		setBatteryLevel(batteryLevel[0]);
-		if (getBatteryLevel() == 0) stopped = true;
-		
-		// return false since a wallboard was encountered
-		return dist == Integer.MAX_VALUE ? true : false;
 	}
 
 	/**

@@ -70,16 +70,24 @@ public class MazeApplication extends JFrame {
 	    // Case 3 a and b: Eller, Kruskal or some other generation algorithm
 	    else if ("Kruskal".equalsIgnoreCase(parameter))
 	    {
-	    	// TODO: for P2 assignment, please add code to set the builder accordingly
 	        throw new RuntimeException("Don't know anybody named Kruskal ...");
 	    }
 	    else if ("Eller".equalsIgnoreCase(parameter))
 	    {
-	        // throw new RuntimeException("Don't know anybody named Eller ...");
 	    	msg = "MazeApplication: generating random maze with Eller's algorithm.";
 	        result.setBuilder(Order.Builder.Eller);
 	    }
-	    // Case 4: a file
+	    // Case 4: Wizard RobotDriver to play game automatically
+	    else if ("Wizard".equalsIgnoreCase(parameter))
+	    {
+	    	msg = "MazeApplication: generating random maze and Wizard RobotDriver";
+	        result.setBuilder(Order.Builder.DFS);
+	        
+	        Robot reliableRobot = new ReliableRobot();
+	        RobotDriver wizard = new Wizard();
+	        result.setRobotAndDriver(reliableRobot, wizard);
+	    }
+	    // Case 5: a file
 	    else {
 	        File f = new File(parameter) ;
 	        if (f.exists() && f.canRead())
@@ -94,7 +102,7 @@ public class MazeApplication extends JFrame {
 	            msg = "MazeApplication: unknown parameter value: " + parameter + " ignored, operating in default mode.";
 	        }
 	    }
-	    // controller instanted and attributes set according to given input parameter
+	    // controller instantiated and attributes set according to given input parameter
 	    // output message and return controller
 	    System.out.println(msg);
 	    return result;
