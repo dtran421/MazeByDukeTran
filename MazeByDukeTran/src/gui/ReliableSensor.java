@@ -74,11 +74,11 @@ public class ReliableSensor implements DistanceSensor {
 	
 		// figure out which absolute (cardinal) direction we should move in
 		CardinalDirection currDir = convertToAbsoluteDirection(mountedDirection, currentDirection);
-		
 		// keep track of the distance with a counter
 		int dist = 0;
 		// while there isn't a wallboard in the given direction
-		while (!maze.hasWall(currentPosition[0], currentPosition[1], currentDirection)) {
+		while (!maze.hasWall(currentPosition[0], currentPosition[1], currDir)) {
+			System.out.println(currentPosition[0]+" "+currentPosition[1]);
 			// check if the next cell is outside of the maze (meaning the current cell is located at the exit) and
 			// return Integer.MAX_VALUE if so
 			// else sense the next cell and update the distance counter
@@ -120,11 +120,10 @@ public class ReliableSensor implements DistanceSensor {
 					currentPosition[0] -= 1;
 					break;
 			}
-			powersupply[0] -= getEnergyConsumptionForSensing();
 			dist++;
-			if (powersupply[0] < getEnergyConsumptionForSensing()) throw new Exception("PowerFailure");
 		}
 
+		powersupply[0] -= getEnergyConsumptionForSensing();
 		return dist;
 	}
 
@@ -202,7 +201,7 @@ public class ReliableSensor implements DistanceSensor {
 	 */
 	private CardinalDirection convertToAbsoluteDirection(Direction direction, CardinalDirection currDir) {
 		// all of the CardinalDirections in the order that will map consistently to the transformations
-		CardinalDirection[] dirs = {CardinalDirection.South, CardinalDirection.West, CardinalDirection.East, CardinalDirection.North};
+		CardinalDirection[] dirs = {CardinalDirection.North, CardinalDirection.West, CardinalDirection.East, CardinalDirection.South};
 		// map coordinates involving only +/-1 to each direction 
 		Map<ArrayList<Integer>, CardinalDirection> coordsMap = new HashMap<ArrayList<Integer>, CardinalDirection>();
 		// map each direction to its coordinates

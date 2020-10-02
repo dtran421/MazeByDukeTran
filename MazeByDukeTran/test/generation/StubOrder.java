@@ -17,6 +17,14 @@ public class StubOrder implements Order {
         seed = 13; // default: an arbitrary fixed value
 	}
 	
+	public StubOrder(int skillLevel, boolean perfect) {
+		this.skillLevel = skillLevel;
+        this.perfect = perfect;
+        this.builder = Order.Builder.DFS;
+        percentdone = 0;
+        seed = 13; // default: an arbitrary fixed value
+	}
+	
 	public StubOrder(int skillLevel, boolean perfect, Builder builder) {
 		this.skillLevel = skillLevel;
         this.perfect = perfect;
