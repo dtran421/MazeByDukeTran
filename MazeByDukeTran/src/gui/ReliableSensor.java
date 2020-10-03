@@ -18,12 +18,15 @@ import gui.Robot.Direction;
  * Collaborators: Maze, RobotDriver (Wall-follower and Wizard), Robot
  */
 public class ReliableSensor implements DistanceSensor {
-	private Maze maze;
-	private Direction mountedDirection;
+	protected Maze maze;
+	protected Direction mountedDirection;
+	protected boolean isOperational;
 	
-	private boolean isOperational;
+	protected final float SENSE_COST = 1;
 	
-	private final float SENSE_COST = 1;
+	public ReliableSensor() {
+		isOperational = true;
+	}
 	
 	public ReliableSensor(Maze maze, Direction direction) {
 		setMaze(maze);
@@ -199,7 +202,7 @@ public class ReliableSensor implements DistanceSensor {
 	 * to obtain the new absolute (cardinal) direction
 	 * @return CardinalDirection of the relative direction
 	 */
-	private CardinalDirection convertToAbsoluteDirection(Direction direction, CardinalDirection currDir) {
+	protected CardinalDirection convertToAbsoluteDirection(Direction direction, CardinalDirection currDir) {
 		// all of the CardinalDirections in the order that will map consistently to the transformations
 		CardinalDirection[] dirs = {CardinalDirection.North, CardinalDirection.West, CardinalDirection.East, CardinalDirection.South};
 		// map coordinates involving only +/-1 to each direction 
@@ -219,22 +222,20 @@ public class ReliableSensor implements DistanceSensor {
 		}
 		// apply transformations to the CardinalDirection based on the relative direction
 		ArrayList<Integer> dirCoords = dirsMap.get(currDir); 
-		ArrayList<Integer> newCoords;
+		ArrayList<Integer> newCoords = new ArrayList<Integer>();
 		switch (direction) {
 			case BACKWARD:
-				newCoords = new ArrayList<Integer>(); 
 				newCoords.add(dirCoords.get(0)*-1); newCoords.add(dirCoords.get(1)*-1);
-				return coordsMap.get(newCoords);
+				break;
 			case LEFT:
-				newCoords = new ArrayList<Integer>(); 
 				newCoords.add(dirCoords.get(1)*-1); newCoords.add(dirCoords.get(0));
-				return coordsMap.get(newCoords);
+				break;
 			case RIGHT:
-				newCoords = new ArrayList<Integer>(); 
 				newCoords.add(dirCoords.get(1)); newCoords.add(dirCoords.get(0)*-1);
-				return coordsMap.get(newCoords);
+				break;
 			default:
 				return currDir;
 		}
+		return coordsMap.get(newCoords);
 	}
 }
