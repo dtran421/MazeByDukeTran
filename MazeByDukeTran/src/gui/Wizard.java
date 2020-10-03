@@ -1,5 +1,6 @@
 package gui;
 
+import generation.CardinalDirection;
 import generation.Maze;
 import gui.Robot.Turn;
 
@@ -12,10 +13,10 @@ import gui.Robot.Turn;
  * Collaborators: Maze, Robot (ReliableRobot)
  */
 public class Wizard implements RobotDriver {
-	private Robot robot;
-	private Maze maze;
+	protected Robot robot;
+	protected Maze maze;
 	
-	private float initialBatteryLevel;
+	protected float initialBatteryLevel;
 
 	/**
 	 * Assigns a robot for the Wizard. 
@@ -73,8 +74,9 @@ public class Wizard implements RobotDriver {
 		int[] neighbor = maze.getNeighborCloserToExit(currPos[0], currPos[1]);
 		
 		// rotate robot in that direction
+		CardinalDirection currDir = robot.getCurrentDirection();
 		int[] changeDir = {neighbor[0]-currPos[0], neighbor[1]-currPos[1]};
-		switch (robot.getCurrentDirection()) {
+		switch (currDir) {
 			case North:
 				if (changeDir[0] == -1) robot.rotate(Turn.RIGHT);
 				else if (changeDir[0] == 1) robot.rotate(Turn.LEFT);
@@ -97,8 +99,9 @@ public class Wizard implements RobotDriver {
 				break;
 		}
 		
-		// move to the cell by taking a step
-		robot.move(1);	
+		// move to the cell by taking a step or jumping
+		if (maze.hasWall(currPos[0], currPos[1], currDir)) robot.jump();
+		else robot.move(1);	
 		
 		// if robot is stopped, then throw an exception
 		if (robot.hasStopped()) throw new Exception();
