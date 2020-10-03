@@ -81,19 +81,18 @@ public class ReliableSensor implements DistanceSensor {
 		int dist = 0;
 		// while there isn't a wallboard in the given direction
 		while (!maze.hasWall(currentPosition[0], currentPosition[1], currDir)) {
-			System.out.println(currentPosition[0]+" "+currentPosition[1]);
 			// check if the next cell is outside of the maze (meaning the current cell is located at the exit) and
 			// return Integer.MAX_VALUE if so
 			// else sense the next cell and update the distance counter
 			switch (currDir) {
 				case North:
-					if (currentPosition[1]+1 >= height) {
+					if (currentPosition[1]-1 < 0) {
 						powersupply[0] -= getEnergyConsumptionForSensing();
 						dist++;
 						if (powersupply[0] < getEnergyConsumptionForSensing()) throw new Exception("PowerFailure");
 						return Integer.MAX_VALUE;
 					}
-					currentPosition[1] += 1;
+					currentPosition[1] -= 1;
 					break;
 				case East:
 					if (currentPosition[0]+1 >= width) {
@@ -105,13 +104,13 @@ public class ReliableSensor implements DistanceSensor {
 					currentPosition[0] += 1;
 					break;
 				case South:
-					if (currentPosition[1]-1 < 0) {
+					if (currentPosition[1]+1 >= height) {
 						powersupply[0] -= getEnergyConsumptionForSensing();
 						dist++;
 						if (powersupply[0] < getEnergyConsumptionForSensing()) throw new Exception("PowerFailure");
 						return Integer.MAX_VALUE;
 					}
-					currentPosition[1] -= 1;
+					currentPosition[1] += 1;
 					break;
 				case West:
 					if (currentPosition[0]-1 < 0) {
@@ -204,7 +203,7 @@ public class ReliableSensor implements DistanceSensor {
 	 */
 	protected CardinalDirection convertToAbsoluteDirection(Direction direction, CardinalDirection currDir) {
 		// all of the CardinalDirections in the order that will map consistently to the transformations
-		CardinalDirection[] dirs = {CardinalDirection.North, CardinalDirection.West, CardinalDirection.East, CardinalDirection.South};
+		CardinalDirection[] dirs = {CardinalDirection.North, CardinalDirection.East, CardinalDirection.West, CardinalDirection.South};
 		// map coordinates involving only +/-1 to each direction 
 		Map<ArrayList<Integer>, CardinalDirection> coordsMap = new HashMap<ArrayList<Integer>, CardinalDirection>();
 		// map each direction to its coordinates

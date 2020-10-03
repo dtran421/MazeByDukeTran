@@ -727,7 +727,7 @@ public class ReliableRobotTest extends ReliableRobot {
 	@Test
 	public final void testDistanceToObstacle() {
 		// check that the robot is stopped if it doesn't initially have sufficient energy
-		robot.setBatteryLevel(robot.SENSE_COST-1);
+		robot.setBatteryLevel(robot.leftSensor.getEnergyConsumptionForSensing()-1);
 		robot.distanceToObstacle(Direction.FORWARD);
 		assertTrue(robot.hasStopped());
 		assertEquals(0, robot.getBatteryLevel(), 0);
@@ -750,7 +750,7 @@ public class ReliableRobotTest extends ReliableRobot {
 			// check that it corresponds with the maze
 			assertEquals(correctDists[i], testDist);
 			// check that the battery level is updated to subtract the sensing cost
-			assertEquals(origBattery-robot.SENSE_COST, robot.getBatteryLevel(), 0);
+			assertEquals(origBattery-robot.leftSensor.getEnergyConsumptionForSensing(), robot.getBatteryLevel(), 0);
 		}
 		
 		robot.rotate(Turn.AROUND);
@@ -765,7 +765,7 @@ public class ReliableRobotTest extends ReliableRobot {
 			// check that it corresponds with the maze
 			assertEquals(correctDists2[i], testDist);
 			// check that the battery level is updated to subtract the sensing cost
-			assertEquals(origBattery-robot.SENSE_COST, robot.getBatteryLevel(), 0);
+			assertEquals(origBattery-robot.leftSensor.getEnergyConsumptionForSensing(), robot.getBatteryLevel(), 0);
 		}
 		
 		robot.rotate(Turn.RIGHT);
@@ -782,7 +782,7 @@ public class ReliableRobotTest extends ReliableRobot {
 			// check that it corresponds with the maze
 			assertEquals(correctDists3[i], testDist);
 			// check that the battery level is updated to subtract the sensing cost
-			assertEquals(origBattery-robot.SENSE_COST, robot.getBatteryLevel(), 0);
+			assertEquals(origBattery-robot.leftSensor.getEnergyConsumptionForSensing(), robot.getBatteryLevel(), 0);
 		}
 		
 		// try to get the distance with insufficient battery 

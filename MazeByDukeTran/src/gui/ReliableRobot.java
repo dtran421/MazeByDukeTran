@@ -25,7 +25,6 @@ public class ReliableRobot implements Robot {
 	protected boolean stopped;
 
 	protected final float INITIAL_BATTERY = 3500;
-	protected final float SENSE_COST = 1;
 	protected final float ROTATE_COST = 3;
 	protected final float MOVE_COST = 6;
 	protected final float JUMP_COST = 40;
@@ -385,7 +384,7 @@ public class ReliableRobot implements Robot {
 		
 		float[] batteryLevel = {getBatteryLevel()};
 		// check battery level beforehand
-		if (batteryLevel[0] < SENSE_COST) {
+		if (batteryLevel[0] < leftSensor.getEnergyConsumptionForSensing()) {
 			setBatteryLevel(0);
 			stopped = true;
 			return -1;
