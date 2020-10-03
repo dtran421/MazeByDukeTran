@@ -76,13 +76,13 @@ public class ReliableRobotTest extends ReliableRobot {
 	@Test
 	public final void testSetController() {
 		// check that an exception is thrown when the controller parameter is null
-		assertThrows(IllegalArgumentException.class, () -> {robot.setController(null);});
+		assertThrows(IllegalArgumentException.class, () -> robot.setController(null));
 		// check that an exception is thrown when the controller's state isn't StatePlaying
 		Controller controller = new Controller();
-		assertThrows(IllegalArgumentException.class, () -> {robot.setController(controller);});
+		assertThrows(IllegalArgumentException.class, () -> robot.setController(controller));
 		// check that an exception is thrown when the controller's maze is null
 		controller.currentState = controller.states[2];
-		assertThrows(IllegalArgumentException.class, () -> {robot.setController(controller);});
+		assertThrows(IllegalArgumentException.class, () -> robot.setController(controller));
 		
 		// when the controller is valid, it should be appropriately assigned to the controller field
 		controller.currentState.setMazeConfiguration(maze);
@@ -115,15 +115,12 @@ public class ReliableRobotTest extends ReliableRobot {
 			// check that the position matches the maze's starting position
 			// (since the robot hasn't moved anywhere)
 			int[] startPos = maze.getStartingPosition();
-			for (int i = 0; i < 2; i++)
-				assertEquals(startPos[i], currPos[i]);
+			assertEquals(startPos[0], currPos[0]);
+			assertEquals(startPos[1], currPos[1]);
 		} catch (Exception e) {
 			System.out.println("Something went wrong!");
 			return;
 		}
-		
-		// check that an exception is thrown when the position is outside of the maze
-		
 	}
 	
 	/**
@@ -169,7 +166,7 @@ public class ReliableRobotTest extends ReliableRobot {
 	@Test
 	public final void testSetBatteryLevel() {
 		// check that an exception is thrown if the inputed level is negative
-		assertThrows(IllegalArgumentException.class, () -> {robot.setBatteryLevel(-1);});
+		assertThrows(IllegalArgumentException.class, () -> robot.setBatteryLevel(-1));
 		// check that the battery level is changed
 		float origLevel = robot.getBatteryLevel();
 		robot.setBatteryLevel(10);
@@ -319,7 +316,7 @@ public class ReliableRobotTest extends ReliableRobot {
 	@Test
 	public final void testMove() {
 		// check that an exception is thrown for an invalid distance (< 0)
-		assertThrows(IllegalArgumentException.class, () -> {robot.move(-1);});
+		assertThrows(IllegalArgumentException.class, () -> robot.move(-1));
 		// check that the robot is stopped if it doesn't initially have sufficient energy
 		robot.setBatteryLevel(robot.MOVE_COST*10-1);
 		robot.move(10);
@@ -727,10 +724,13 @@ public class ReliableRobotTest extends ReliableRobot {
 	@Test
 	public final void testDistanceToObstacle() {
 		// check that the robot is stopped if it doesn't initially have sufficient energy
+		int origDistance = robot.getOdometerReading();
 		robot.setBatteryLevel(robot.leftSensor.getEnergyConsumptionForSensing()-1);
-		robot.distanceToObstacle(Direction.FORWARD);
+		Throwable exception = assertThrows(UnsupportedOperationException.class, () -> robot.distanceToObstacle(Direction.FORWARD));
+		assertEquals("PowerFailure", exception.getMessage());
 		assertTrue(robot.hasStopped());
 		assertEquals(0, robot.getBatteryLevel(), 0);
+		assertEquals(origDistance, robot.getOdometerReading());
 		
 		robot.setBatteryLevel(robot.INITIAL_BATTERY);
 		robot.stopped = false;
@@ -742,30 +742,33 @@ public class ReliableRobotTest extends ReliableRobot {
 		// and zero for Backward and Right 
 		int[] correctDists = {1, 0, 1, 0};
 		Direction[] sensors = Direction.values();
+		float origBattery = robot.getBatteryLevel();
+		origDistance = robot.getOdometerReading();
 		for (int i = 0; i < sensors.length; i++) {
-			float origBattery = robot.getBatteryLevel();
 			// try to get the distance in the direction
 			int testDist = robot.distanceToObstacle(sensors[i]);
 	
 			// check that it corresponds with the maze
 			assertEquals(correctDists[i], testDist);
 			// check that the battery level is updated to subtract the sensing cost
-			assertEquals(origBattery-robot.leftSensor.getEnergyConsumptionForSensing(), robot.getBatteryLevel(), 0);
+			assertEquals(origBattery-robot.leftSensor.getEnergyConsumptionForSensing()*(i+1), robot.getBatteryLevel(), 0);
+			assertEquals(origDistance, robot.getOdometerReading());
 		}
 		
 		robot.rotate(Turn.AROUND);
 		// test sensors with non-zero distances for Backward and Right 
 		// and zero for Forward and Left
 		int[] correctDists2 = {0, 1, 0, 1};
+		origBattery = robot.getBatteryLevel();
 		for (int i = 0; i < sensors.length; i++) {
-			float origBattery = robot.getBatteryLevel();
 			// try to get the distance in the direction
 			int testDist = robot.distanceToObstacle(sensors[i]);
 	
 			// check that it corresponds with the maze
 			assertEquals(correctDists2[i], testDist);
 			// check that the battery level is updated to subtract the sensing cost
-			assertEquals(origBattery-robot.leftSensor.getEnergyConsumptionForSensing(), robot.getBatteryLevel(), 0);
+			assertEquals(origBattery-robot.leftSensor.getEnergyConsumptionForSensing()*(i+1), robot.getBatteryLevel(), 0);
+			assertEquals(origDistance, robot.getOdometerReading());
 		}
 		
 		robot.rotate(Turn.RIGHT);
@@ -774,21 +777,32 @@ public class ReliableRobotTest extends ReliableRobot {
 		robot.move(1);
 		// test sensors with distances greater than 1
 		int[] correctDists3 = {1, 0, 0, 2};
+		origBattery = robot.getBatteryLevel();
+		origDistance = robot.getOdometerReading();
 		for (int i = 0; i < sensors.length; i++) {
-			float origBattery = robot.getBatteryLevel();
 			// try to get the distance in the direction
 			int testDist = robot.distanceToObstacle(sensors[i]);
 	
 			// check that it corresponds with the maze
 			assertEquals(correctDists3[i], testDist);
 			// check that the battery level is updated to subtract the sensing cost
-			assertEquals(origBattery-robot.leftSensor.getEnergyConsumptionForSensing(), robot.getBatteryLevel(), 0);
+			assertEquals(origBattery-robot.leftSensor.getEnergyConsumptionForSensing()*(i+1), robot.getBatteryLevel(), 0);
+			assertEquals(origDistance, robot.getOdometerReading());
 		}
 		
-		// try to get the distance with insufficient battery 
-		
-		// confirm that it throws an exception
-			
+		robot.rotate(Turn.AROUND);
+		int[] correctDists4 = {0, 1, 2, 0};
+		origBattery = robot.getBatteryLevel();
+		for (int i = 0; i < sensors.length; i++) {
+			// try to get the distance in the direction
+			int testDist = robot.distanceToObstacle(sensors[i]);
+	
+			// check that it corresponds with the maze
+			assertEquals(correctDists4[i], testDist);
+			// check that the battery level is updated to subtract the sensing cost
+			assertEquals(origBattery-robot.leftSensor.getEnergyConsumptionForSensing()*(i+1), robot.getBatteryLevel(), 0);
+			assertEquals(origDistance, robot.getOdometerReading());
+		}
 	}
 	
 	/**
@@ -802,21 +816,54 @@ public class ReliableRobotTest extends ReliableRobot {
 	@Test
 	public final void testCanSeeThroughTheExitIntoEternity() {
 		// check that the robot is stopped if it doesn't initially have sufficient energy
+		int origDistance = robot.getOdometerReading();
+		robot.setBatteryLevel(robot.leftSensor.getEnergyConsumptionForSensing()-1);
+		Throwable exception = assertThrows(UnsupportedOperationException.class, () -> robot.canSeeThroughTheExitIntoEternity(Direction.FORWARD));
+		assertEquals("PowerFailure", exception.getMessage());
+		assertTrue(robot.hasStopped());
+		assertEquals(origDistance, robot.getBatteryLevel(), 0);
 		
-		// for each of the four directions
-			// call the method for the given direction to see if it can see the exit
-		
-			// check that it corresponds with the maze (should be false at the starting position)
-			// check that the battery level is updated to subtract the sensing cost
-		
-			// try to get the distance with insufficient battery 
-		
-			// confirm that it throws an exception
-		
+		robot.setBatteryLevel(robot.INITIAL_BATTERY);
+		float origBattery = robot.getBatteryLevel();
+		// for each of the four directions, call the method for the given direction
+		// to see if it can see the exit (should be false at the starting position)
+		assertFalse(robot.canSeeThroughTheExitIntoEternity(Direction.FORWARD));
+		// check that the battery level is updated to subtract the sensing cost
+		assertEquals(origBattery-robot.leftSensor.getEnergyConsumptionForSensing(), robot.getBatteryLevel(), 0);
+		assertEquals(origDistance, robot.getOdometerReading());
+		assertFalse(robot.canSeeThroughTheExitIntoEternity(Direction.BACKWARD));
+		assertEquals(origBattery-robot.leftSensor.getEnergyConsumptionForSensing()*2, robot.getBatteryLevel(), 0);
+		assertEquals(origDistance, robot.getOdometerReading());
+		assertFalse(robot.canSeeThroughTheExitIntoEternity(Direction.LEFT));
+		assertEquals(origBattery-robot.leftSensor.getEnergyConsumptionForSensing()*3, robot.getBatteryLevel(), 0);
+		assertEquals(origDistance, robot.getOdometerReading());
+		assertFalse(robot.canSeeThroughTheExitIntoEternity(Direction.RIGHT));
+		assertEquals(origBattery-robot.leftSensor.getEnergyConsumptionForSensing()*4, robot.getBatteryLevel(), 0);
+		assertEquals(origDistance, robot.getOdometerReading());	
+
 		// move the robot to the exit position
+		robot.rotate(Turn.RIGHT);
+		robot.move(1);
+		robot.rotate(Turn.LEFT);
+		robot.move(1);
+		robot.jump();
+		robot.rotate(Turn.RIGHT);
 		
+		origBattery = robot.getBatteryLevel();
+		origDistance = robot.getOdometerReading();
 		// for each of the four directions, test the same tests as above
-			
+		assertTrue(robot.canSeeThroughTheExitIntoEternity(Direction.FORWARD));
+		assertEquals(origBattery-robot.leftSensor.getEnergyConsumptionForSensing(), robot.getBatteryLevel(), 0);
+		assertEquals(origDistance, robot.getOdometerReading());
+		assertFalse(robot.canSeeThroughTheExitIntoEternity(Direction.BACKWARD));
+		assertEquals(origBattery-robot.leftSensor.getEnergyConsumptionForSensing()*2, robot.getBatteryLevel(), 0);
+		assertEquals(origDistance, robot.getOdometerReading());
+		assertFalse(robot.canSeeThroughTheExitIntoEternity(Direction.LEFT));
+		assertEquals(origBattery-robot.leftSensor.getEnergyConsumptionForSensing()*3, robot.getBatteryLevel(), 0);
+		assertEquals(origDistance, robot.getOdometerReading());
+		assertFalse(robot.canSeeThroughTheExitIntoEternity(Direction.RIGHT));
+		assertEquals(origBattery-robot.leftSensor.getEnergyConsumptionForSensing()*4, robot.getBatteryLevel(), 0);
+		assertEquals(origDistance, robot.getOdometerReading());	
 	}
 	
 	/**
@@ -833,7 +880,7 @@ public class ReliableRobotTest extends ReliableRobot {
 		// check that an exception is thrown for all 4 directions
 		for (Direction direction: Direction.values()) {
 			assertThrows(UnsupportedOperationException.class, 
-				() -> {robot.startFailureAndRepairProcess(direction, 0, 0);});
+				() -> robot.startFailureAndRepairProcess(direction, 0, 0));
 		}
 	}
 	
@@ -850,7 +897,7 @@ public class ReliableRobotTest extends ReliableRobot {
 		// check that an exception is thrown for all 4 directions
 		for (Direction direction: Direction.values()) {
 			assertThrows(UnsupportedOperationException.class, 
-				() -> {robot.startFailureAndRepairProcess(direction, 0, 0);});
+				() -> robot.startFailureAndRepairProcess(direction, 0, 0));
 		}
 	}
 }

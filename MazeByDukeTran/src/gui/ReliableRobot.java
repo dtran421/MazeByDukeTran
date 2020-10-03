@@ -278,7 +278,7 @@ public class ReliableRobot implements Robot {
 			// check if the wall in front is an exterior wall and stop if so
 			switch (getCurrentDirection()) {
 				case North:
-					if (mazeConfig.hasWall(currPos[0], currPos[1], CardinalDirection.North) && currPos[1]+1==mazeHeight) {
+					if (mazeConfig.hasWall(currPos[0], currPos[1], CardinalDirection.North) && currPos[1]-1<0) {
 						setBatteryLevel(0);
 						stopped = true;
 						return;
@@ -292,7 +292,7 @@ public class ReliableRobot implements Robot {
 					}
 					break;
 				case South:
-					if (mazeConfig.hasWall(currPos[0], currPos[1], CardinalDirection.South) && currPos[1]-1<0) {
+					if (mazeConfig.hasWall(currPos[0], currPos[1], CardinalDirection.South) && currPos[1]+1==mazeHeight) {
 						setBatteryLevel(0);
 						stopped = true;
 						return;
@@ -383,50 +383,29 @@ public class ReliableRobot implements Robot {
 		}
 		
 		float[] batteryLevel = {getBatteryLevel()};
-		// check battery level beforehand
-		if (batteryLevel[0] < leftSensor.getEnergyConsumptionForSensing()) {
+		int dist = -1;
+		try {
+			switch (direction) {
+				case LEFT:
+					dist = leftSensor.distanceToObstacle(currPos, getCurrentDirection(), batteryLevel);
+					break;
+				case RIGHT:
+					dist = rightSensor.distanceToObstacle(currPos, getCurrentDirection(), batteryLevel);
+					break;
+				case FORWARD:
+					dist = forwardSensor.distanceToObstacle(currPos, getCurrentDirection(), batteryLevel);
+					break;
+				case BACKWARD:
+					dist = backwardSensor.distanceToObstacle(currPos, getCurrentDirection(), batteryLevel);
+					break;
+			}	
+		} catch (Exception e) {
+			String msg = e.getMessage();
+			System.out.println(msg);
 			setBatteryLevel(0);
 			stopped = true;
-			return -1;
+			throw new UnsupportedOperationException(msg);
 		}
-		
-		int dist = -1;
-		switch (direction) {
-			case LEFT:
-				try {
-					dist = leftSensor.distanceToObstacle(currPos, getCurrentDirection(), batteryLevel);
-				} catch (Exception e) {
-					System.out.println(e.getMessage());
-					throw new UnsupportedOperationException();
-				}
-				break;
-			case RIGHT:
-				try {
-					dist = rightSensor.distanceToObstacle(currPos, getCurrentDirection(), batteryLevel);
-				} catch (Exception e) {
-					System.out.println(e.getMessage());
-					throw new UnsupportedOperationException();
-				}
-				break;
-			case FORWARD:
-				try {
-					dist = forwardSensor.distanceToObstacle(currPos, getCurrentDirection(), batteryLevel);
-				} catch (Exception e) {
-					System.out.println(e.getMessage());
-					throw new UnsupportedOperationException();
-				}
-				break;
-			case BACKWARD:
-				try {
-					dist = backwardSensor.distanceToObstacle(currPos, getCurrentDirection(), batteryLevel);
-				} catch (Exception e) {
-					System.out.println(e.getMessage());
-					throw new UnsupportedOperationException();
-				}
-				break;
-			default:
-				throw new UnsupportedOperationException();
-		}	
 		
 		setBatteryLevel(batteryLevel[0]);
 		if (getBatteryLevel() == 0) stopped = true;
@@ -448,7 +427,8 @@ public class ReliableRobot implements Robot {
 			// return true if a wallboard wasn't encountered (looking at the exit), false otherwise
 			return distanceToObstacle(direction) == Integer.MAX_VALUE ? true : false;
 		} catch (Exception e) {
-			throw new UnsupportedOperationException();
+			String msg = e.getMessage();
+			throw new UnsupportedOperationException(msg);
 		}
 	}
 

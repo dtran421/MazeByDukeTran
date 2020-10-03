@@ -203,7 +203,7 @@ public class ReliableSensor implements DistanceSensor {
 	 */
 	protected CardinalDirection convertToAbsoluteDirection(Direction direction, CardinalDirection currDir) {
 		// all of the CardinalDirections in the order that will map consistently to the transformations
-		CardinalDirection[] dirs = {CardinalDirection.North, CardinalDirection.East, CardinalDirection.West, CardinalDirection.South};
+		CardinalDirection[] dirs = {CardinalDirection.North, CardinalDirection.West, CardinalDirection.East, CardinalDirection.South};
 		// map coordinates involving only +/-1 to each direction 
 		Map<ArrayList<Integer>, CardinalDirection> coordsMap = new HashMap<ArrayList<Integer>, CardinalDirection>();
 		// map each direction to its coordinates

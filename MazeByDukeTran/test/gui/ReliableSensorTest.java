@@ -70,41 +70,41 @@ public class ReliableSensorTest extends ReliableSensor {
 		powersupply[0] = INITIAL_BATTERY;
 		
 		// check that an exception is thrown if the current position is null
-		assertThrows(IllegalArgumentException.class, () -> {sensor.distanceToObstacle(null, CardinalDirection.North, powersupply);});
+		assertThrows(IllegalArgumentException.class, () -> sensor.distanceToObstacle(null, CardinalDirection.North, powersupply));
 		// check that an exception is thrown if the current direction is null
-		assertThrows(IllegalArgumentException.class, () -> {sensor.distanceToObstacle(currPos, null, powersupply);});
+		assertThrows(IllegalArgumentException.class, () -> sensor.distanceToObstacle(currPos, null, powersupply));
 		// check that an exception is thrown if the powersupply is null
-		assertThrows(IllegalArgumentException.class, () -> {sensor.distanceToObstacle(currPos, CardinalDirection.North, null);});
+		assertThrows(IllegalArgumentException.class, () -> sensor.distanceToObstacle(currPos, CardinalDirection.North, null));
 		// check that an exception is thrown if all of the parameters are null
-		assertThrows(IllegalArgumentException.class, () -> {sensor.distanceToObstacle(null, null, null);});
+		assertThrows(IllegalArgumentException.class, () -> sensor.distanceToObstacle(null, null, null));
 		// check that an exception is thrown if the current position is outside of the maze
 		int[] invalidPos = new int[2];
 		invalidPos[0] = -1; invalidPos[1] = 0;
-		assertThrows(IllegalArgumentException.class, () -> {sensor.distanceToObstacle(invalidPos, CardinalDirection.North, powersupply);});
+		assertThrows(IllegalArgumentException.class, () -> sensor.distanceToObstacle(invalidPos, CardinalDirection.North, powersupply));
 		invalidPos[0] = 0; invalidPos[1] = -1;
-		assertThrows(IllegalArgumentException.class, () -> {sensor.distanceToObstacle(invalidPos, CardinalDirection.North, powersupply);});
+		assertThrows(IllegalArgumentException.class, () -> sensor.distanceToObstacle(invalidPos, CardinalDirection.North, powersupply));
 		invalidPos[0] = maze.getWidth(); invalidPos[1] = 0;
-		assertThrows(IllegalArgumentException.class, () -> {sensor.distanceToObstacle(invalidPos, CardinalDirection.North, powersupply);});
+		assertThrows(IllegalArgumentException.class, () -> sensor.distanceToObstacle(invalidPos, CardinalDirection.North, powersupply));
 		invalidPos[0] = 0; invalidPos[1] = maze.getHeight();
-		assertThrows(IllegalArgumentException.class, () -> {sensor.distanceToObstacle(invalidPos, CardinalDirection.North, powersupply);});
+		assertThrows(IllegalArgumentException.class, () -> sensor.distanceToObstacle(invalidPos, CardinalDirection.North, powersupply));
 		invalidPos[0] = -1; invalidPos[1] = -1;
-		assertThrows(IllegalArgumentException.class, () -> {sensor.distanceToObstacle(invalidPos, CardinalDirection.North, powersupply);});
+		assertThrows(IllegalArgumentException.class, () -> sensor.distanceToObstacle(invalidPos, CardinalDirection.North, powersupply));
 		invalidPos[0] = maze.getWidth(); invalidPos[1] = maze.getHeight();
-		assertThrows(IllegalArgumentException.class, () -> {sensor.distanceToObstacle(invalidPos, CardinalDirection.North, powersupply);});
+		assertThrows(IllegalArgumentException.class, () -> sensor.distanceToObstacle(invalidPos, CardinalDirection.North, powersupply));
 		
 		// check that an exception is thrown if the powersupply is less than 0
 		powersupply[0] = -1;
-		assertThrows(IndexOutOfBoundsException.class, () -> {sensor.distanceToObstacle(currPos, CardinalDirection.North, powersupply);});
+		assertThrows(IndexOutOfBoundsException.class, () -> sensor.distanceToObstacle(currPos, CardinalDirection.North, powersupply));
 		powersupply[0] = INITIAL_BATTERY;
 		
 		// check that an exception is thrown if the sensor is not operational
 		sensor.isOperational = false;
-		Throwable exception = assertThrows(Exception.class, () -> {sensor.distanceToObstacle(currPos, CardinalDirection.North, powersupply);});
+		Throwable exception = assertThrows(Exception.class, () -> sensor.distanceToObstacle(currPos, CardinalDirection.North, powersupply));
 		assertEquals("SensorFailure", exception.getMessage());
 		sensor.isOperational = true;
 		// check that an exception is thrown if the powersupply is insufficient
 		powersupply[0] = sensor.getEnergyConsumptionForSensing()-1;
-		exception = assertThrows(Exception.class, () -> {sensor.distanceToObstacle(currPos, CardinalDirection.North, powersupply);});
+		exception = assertThrows(Exception.class, () -> sensor.distanceToObstacle(currPos, CardinalDirection.North, powersupply));
 		assertEquals("PowerFailure", exception.getMessage());
 		powersupply[0] = INITIAL_BATTERY;
 
@@ -127,16 +127,16 @@ public class ReliableSensorTest extends ReliableSensor {
 			powersupply[0] = INITIAL_BATTERY;
 			
 			sensor.setSensorDirection(Direction.LEFT);
-			assertEquals(1, sensor.distanceToObstacle(currPos, CardinalDirection.North, powersupply));
+			assertEquals(0, sensor.distanceToObstacle(currPos, CardinalDirection.North, powersupply));
 			assertEquals(INITIAL_BATTERY-sensor.getEnergyConsumptionForSensing(), powersupply[0], 0);
 			currPos[0] = 1; currPos[1] = 0;
-			assertEquals(0, sensor.distanceToObstacle(currPos, CardinalDirection.East, powersupply));
+			assertEquals(2, sensor.distanceToObstacle(currPos, CardinalDirection.East, powersupply));
 			assertEquals(INITIAL_BATTERY-sensor.getEnergyConsumptionForSensing()*2, powersupply[0], 0);
 			currPos[0] = 1; currPos[1] = 0;
-			assertEquals(0, sensor.distanceToObstacle(currPos, CardinalDirection.South, powersupply));
+			assertEquals(1, sensor.distanceToObstacle(currPos, CardinalDirection.South, powersupply));
 			assertEquals(INITIAL_BATTERY-sensor.getEnergyConsumptionForSensing()*3, powersupply[0], 0);
 			currPos[0] = 1; currPos[1] = 0;
-			assertEquals(2, sensor.distanceToObstacle(currPos, CardinalDirection.West, powersupply));
+			assertEquals(0, sensor.distanceToObstacle(currPos, CardinalDirection.West, powersupply));
 			assertEquals(INITIAL_BATTERY-sensor.getEnergyConsumptionForSensing()*4, powersupply[0], 0);
 			currPos[0] = 1; currPos[1] = 0;
 			powersupply[0] = INITIAL_BATTERY;
@@ -157,16 +157,16 @@ public class ReliableSensorTest extends ReliableSensor {
 			powersupply[0] = INITIAL_BATTERY;
 
 			sensor.setSensorDirection(Direction.RIGHT);
-			assertEquals(0, sensor.distanceToObstacle(currPos, CardinalDirection.North, powersupply));
+			assertEquals(1, sensor.distanceToObstacle(currPos, CardinalDirection.North, powersupply));
 			assertEquals(INITIAL_BATTERY-sensor.getEnergyConsumptionForSensing(), powersupply[0], 0);
 			currPos[0] = 1; currPos[1] = 0;
-			assertEquals(2, sensor.distanceToObstacle(currPos, CardinalDirection.East, powersupply));
+			assertEquals(0, sensor.distanceToObstacle(currPos, CardinalDirection.East, powersupply));
 			assertEquals(INITIAL_BATTERY-sensor.getEnergyConsumptionForSensing()*2, powersupply[0], 0);
 			currPos[0] = 1; currPos[1] = 0;
-			assertEquals(1, sensor.distanceToObstacle(currPos, CardinalDirection.South, powersupply));
+			assertEquals(0, sensor.distanceToObstacle(currPos, CardinalDirection.South, powersupply));
 			assertEquals(INITIAL_BATTERY-sensor.getEnergyConsumptionForSensing()*3, powersupply[0], 0);
 			currPos[0] = 1; currPos[1] = 0;
-			assertEquals(0, sensor.distanceToObstacle(currPos, CardinalDirection.West, powersupply));
+			assertEquals(2, sensor.distanceToObstacle(currPos, CardinalDirection.West, powersupply));
 			assertEquals(INITIAL_BATTERY-sensor.getEnergyConsumptionForSensing()*4, powersupply[0], 0);
 			currPos[0] = 1; currPos[1] = 0;
 			powersupply[0] = INITIAL_BATTERY;
@@ -189,16 +189,16 @@ public class ReliableSensorTest extends ReliableSensor {
 			powersupply[0] = INITIAL_BATTERY;
 			
 			sensor.setSensorDirection(Direction.LEFT);
-			assertEquals(0, sensor.distanceToObstacle(currPos, CardinalDirection.North, powersupply));
+			assertEquals(1, sensor.distanceToObstacle(currPos, CardinalDirection.North, powersupply));
 			assertEquals(INITIAL_BATTERY-sensor.getEnergyConsumptionForSensing(), powersupply[0], 0);
 			currPos[0] = 2; currPos[1] = 0;
-			assertEquals(Integer.MAX_VALUE, sensor.distanceToObstacle(currPos, CardinalDirection.East, powersupply));
+			assertEquals(0, sensor.distanceToObstacle(currPos, CardinalDirection.East, powersupply));
 			assertEquals(INITIAL_BATTERY-sensor.getEnergyConsumptionForSensing()*2, powersupply[0], 0);
 			currPos[0] = 2; currPos[1] = 0;
-			assertEquals(1, sensor.distanceToObstacle(currPos, CardinalDirection.South, powersupply));
+			assertEquals(0, sensor.distanceToObstacle(currPos, CardinalDirection.South, powersupply));
 			assertEquals(INITIAL_BATTERY-sensor.getEnergyConsumptionForSensing()*3, powersupply[0], 0);
 			currPos[0] = 2; currPos[1] = 0;
-			assertEquals(0, sensor.distanceToObstacle(currPos, CardinalDirection.West, powersupply));
+			assertEquals(Integer.MAX_VALUE, sensor.distanceToObstacle(currPos, CardinalDirection.West, powersupply));
 			assertEquals(INITIAL_BATTERY-sensor.getEnergyConsumptionForSensing()*4, powersupply[0], 0);
 			currPos[0] = 2; currPos[1] = 0;
 			powersupply[0] = INITIAL_BATTERY;
@@ -219,16 +219,16 @@ public class ReliableSensorTest extends ReliableSensor {
 			powersupply[0] = INITIAL_BATTERY;
 
 			sensor.setSensorDirection(Direction.RIGHT);
-			assertEquals(1, sensor.distanceToObstacle(currPos, CardinalDirection.North, powersupply));
+			assertEquals(0, sensor.distanceToObstacle(currPos, CardinalDirection.North, powersupply));
 			assertEquals(INITIAL_BATTERY-sensor.getEnergyConsumptionForSensing(), powersupply[0], 0);
 			currPos[0] = 2; currPos[1] = 0;
-			assertEquals(0, sensor.distanceToObstacle(currPos, CardinalDirection.East, powersupply));
+			assertEquals(Integer.MAX_VALUE, sensor.distanceToObstacle(currPos, CardinalDirection.East, powersupply));
 			assertEquals(INITIAL_BATTERY-sensor.getEnergyConsumptionForSensing()*2, powersupply[0], 0);
 			currPos[0] = 2; currPos[1] = 0;
-			assertEquals(0, sensor.distanceToObstacle(currPos, CardinalDirection.South, powersupply));
+			assertEquals(1, sensor.distanceToObstacle(currPos, CardinalDirection.South, powersupply));
 			assertEquals(INITIAL_BATTERY-sensor.getEnergyConsumptionForSensing()*3, powersupply[0], 0);
 			currPos[0] = 2; currPos[1] = 0;
-			assertEquals(Integer.MAX_VALUE, sensor.distanceToObstacle(currPos, CardinalDirection.West, powersupply));
+			assertEquals(0, sensor.distanceToObstacle(currPos, CardinalDirection.West, powersupply));
 			assertEquals(INITIAL_BATTERY-sensor.getEnergyConsumptionForSensing()*4, powersupply[0], 0);
 			currPos[0] = 2; currPos[1] = 0;
 			powersupply[0] = INITIAL_BATTERY;
@@ -249,7 +249,7 @@ public class ReliableSensorTest extends ReliableSensor {
 	@Test
 	public final void testSetMaze() {
 		// check that an exception is thrown if the inputed maze is null
-		assertThrows(IllegalArgumentException.class, () -> {sensor.setMaze(null);});
+		assertThrows(IllegalArgumentException.class, () -> sensor.setMaze(null));
 		
 		// call the method with a maze and then check that the sensor's maze field matches
 		// the inputed maze
@@ -273,7 +273,7 @@ public class ReliableSensorTest extends ReliableSensor {
 	@Test
 	public final void testSetSensorDirection() {
 		// check that an exception is thrown if the inputed direction is null
-		assertThrows(IllegalArgumentException.class, () -> {sensor.setSensorDirection(null);});
+		assertThrows(IllegalArgumentException.class, () -> sensor.setSensorDirection(null));
 		
 		// call the method with a direction and then check that the sensor's direction field matches
 		// the inputed direction
@@ -312,7 +312,7 @@ public class ReliableSensorTest extends ReliableSensor {
 	@Test
 	public final void testStartFailureAndRepairProcess() {		
 		// check that an exception is thrown 
-		assertThrows(UnsupportedOperationException.class, () -> {sensor.startFailureAndRepairProcess(0, 0);});
+		assertThrows(UnsupportedOperationException.class, () -> sensor.startFailureAndRepairProcess(0, 0));
 	}
 	
 	/**
@@ -326,7 +326,7 @@ public class ReliableSensorTest extends ReliableSensor {
 	@Test
 	public final void testStopFailureAndRepairProcess() {		
 		// check that an exception is thrown 
-		assertThrows(UnsupportedOperationException.class, () -> {sensor.stopFailureAndRepairProcess();});
+		assertThrows(UnsupportedOperationException.class, () -> sensor.stopFailureAndRepairProcess());
 	}
 	
 	/**
@@ -343,38 +343,38 @@ public class ReliableSensorTest extends ReliableSensor {
 		// hard-code all possible direction conversions (i.e. Left, North -> West)
 		assertEquals(CardinalDirection.North,
 			sensor.convertToAbsoluteDirection(Direction.FORWARD, CardinalDirection.North));
-		assertEquals(CardinalDirection.East,
+		assertEquals(CardinalDirection.West,
 				sensor.convertToAbsoluteDirection(Direction.RIGHT, CardinalDirection.North));
 		assertEquals(CardinalDirection.South,
 				sensor.convertToAbsoluteDirection(Direction.BACKWARD, CardinalDirection.North));
-		assertEquals(CardinalDirection.West,
+		assertEquals(CardinalDirection.East,
 				sensor.convertToAbsoluteDirection(Direction.LEFT, CardinalDirection.North));
 		
 		assertEquals(CardinalDirection.East,
 				sensor.convertToAbsoluteDirection(Direction.FORWARD, CardinalDirection.East));
-		assertEquals(CardinalDirection.South,
+		assertEquals(CardinalDirection.North,
 				sensor.convertToAbsoluteDirection(Direction.RIGHT, CardinalDirection.East));
 		assertEquals(CardinalDirection.West,
 				sensor.convertToAbsoluteDirection(Direction.BACKWARD, CardinalDirection.East));
-		assertEquals(CardinalDirection.North,
+		assertEquals(CardinalDirection.South,
 				sensor.convertToAbsoluteDirection(Direction.LEFT, CardinalDirection.East));
 		
 		assertEquals(CardinalDirection.South,
 				sensor.convertToAbsoluteDirection(Direction.FORWARD, CardinalDirection.South));
-		assertEquals(CardinalDirection.West,
+		assertEquals(CardinalDirection.East,
 				sensor.convertToAbsoluteDirection(Direction.RIGHT, CardinalDirection.South));
 		assertEquals(CardinalDirection.North,
 				sensor.convertToAbsoluteDirection(Direction.BACKWARD, CardinalDirection.South));
-		assertEquals(CardinalDirection.East,
+		assertEquals(CardinalDirection.West,
 				sensor.convertToAbsoluteDirection(Direction.LEFT, CardinalDirection.South));
 		
 		assertEquals(CardinalDirection.West,
 				sensor.convertToAbsoluteDirection(Direction.FORWARD, CardinalDirection.West));
-		assertEquals(CardinalDirection.North,
+		assertEquals(CardinalDirection.South,
 				sensor.convertToAbsoluteDirection(Direction.RIGHT, CardinalDirection.West));
 		assertEquals(CardinalDirection.East,
 				sensor.convertToAbsoluteDirection(Direction.BACKWARD, CardinalDirection.West));
-		assertEquals(CardinalDirection.South,
+		assertEquals(CardinalDirection.North,
 				sensor.convertToAbsoluteDirection(Direction.LEFT, CardinalDirection.West));
 	}
 }
