@@ -55,7 +55,7 @@ public class MazeApplication extends JFrame {
 	    // if mazes are different each and every time
 	    // set to true for testing purposes
 	    // set to false for playing the game
-	    result.setDeterministic(true);
+	    result.setDeterministic(false);
 	    String msg = null; // message for feedback
 	    // Case 1: no input
 	    if (parameter == null) {

@@ -11,8 +11,6 @@ import org.junit.Test;
 
 import generation.CardinalDirection;
 import generation.Maze;
-import generation.MazeFactory;
-import generation.StubOrder;
 import gui.Robot.Turn;
 
 public class WizardTest extends Wizard {
@@ -28,12 +26,14 @@ public class WizardTest extends Wizard {
 	public final void setUp() {
 		// set up controller and maze
 		Controller controller = new Controller();
+		controller.setDeterministic(true);
 		controller.turnOffGraphics();
-		StubOrder order = new StubOrder();
-		MazeFactory factory = new MazeFactory();
-		factory.order(order);
-		factory.waitTillDelivered();
-		controller.switchFromGeneratingToPlaying(order.getMaze());
+		controller.switchFromTitleToGenerating(0);
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		maze = controller.getMazeConfiguration();
 		
 		// instantiate the robot and assign the controller to the robot
@@ -281,6 +281,7 @@ public class WizardTest extends Wizard {
 	private final void resetRobot() {
 		Controller controller = new Controller();
 		controller.turnOffGraphics();
+		controller.setDeterministic(true);
 		controller.switchFromGeneratingToPlaying(maze);
 		
 		robot = new ReliableRobot();

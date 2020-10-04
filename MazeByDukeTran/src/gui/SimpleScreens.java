@@ -137,8 +137,10 @@ public class SimpleScreens {
 			// write the path length and battery level (if robot driver was used)
 			updateFontAndColor(gc, smallBannerFont, greenWM);
 			centerString(gc, "Path length: " + pathLength, 210);
-			updateFontAndColor(gc, smallBannerFont, greenWM);
-			centerString(gc, "Energy consumption: " + energyConsumption, 230);
+			if (energyConsumption != 0) {
+				updateFontAndColor(gc, smallBannerFont, greenWM);
+				centerString(gc, "Energy consumption: " + energyConsumption, 230);
+			}
 		} else {
 			// write the title 
 			updateFontAndColor(gc, largeBannerFont, goldWM);

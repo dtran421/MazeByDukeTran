@@ -11,8 +11,6 @@ import org.junit.Test;
 
 import generation.CardinalDirection;
 import generation.Maze;
-import generation.MazeFactory;
-import generation.StubOrder;
 
 public class ReliableRobotTest extends ReliableRobot {
 	private ReliableRobot robot;
@@ -25,14 +23,15 @@ public class ReliableRobotTest extends ReliableRobot {
 	public final void setUp() {
 		// instantiate the controller
 		Controller controller = new Controller();
-		// generate a maze using a StubOrder and MazeFactory
+		// generate a maze using the controller
+		controller.setDeterministic(true);
 		controller.turnOffGraphics();
-		StubOrder order = new StubOrder();
-		MazeFactory factory = new MazeFactory();
-		factory.order(order);
-		factory.waitTillDelivered();
-		// start the game but with no panel (to skip drawing the graphics)
-		controller.switchFromGeneratingToPlaying(order.getMaze());
+		controller.switchFromTitleToGenerating(0);
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		maze = controller.getMazeConfiguration();
 		
 		// instantiate the robot
@@ -257,6 +256,14 @@ public class ReliableRobotTest extends ReliableRobot {
 		assertEquals(0, robot.getBatteryLevel(), 0);
 		assertEquals(CardinalDirection.East, robot.getCurrentDirection());
 		
+		// set the battery level to higher than the rotation cost but lower than the cost times two
+		// and execute a 180 rotation
+		robot.setBatteryLevel(ROTATE_COST*2-1);
+		robot.rotate(Turn.AROUND);
+		assertTrue(robot.hasStopped());
+		assertEquals(0, robot.getBatteryLevel(), 0);
+		assertEquals(CardinalDirection.East, robot.getCurrentDirection());
+		
 		robot.setBatteryLevel(INITIAL_BATTERY);
 		Turn[] turns = Turn.values();
 		CardinalDirection[] correctDirections = {CardinalDirection.South, CardinalDirection.East, CardinalDirection.West};
@@ -281,7 +288,7 @@ public class ReliableRobotTest extends ReliableRobot {
 		}
 			
 		// set the battery level to the rotation cost and execute a rotation
-		robot.setBatteryLevel(ROTATE_COST-1);
+		robot.setBatteryLevel(ROTATE_COST);
 		int origDistance = robot.getOdometerReading();
 		robot.rotate(Turn.LEFT);
 		// make sure that it is stopped
@@ -292,7 +299,7 @@ public class ReliableRobotTest extends ReliableRobot {
 		
 		// set the battery level to higher than the rotation cost but lower than the cost times two
 		// and execute a 180 rotation
-		robot.setBatteryLevel(ROTATE_COST*2-1);
+		robot.setBatteryLevel(ROTATE_COST*2);
 		origDistance = robot.getOdometerReading();
 		robot.rotate(Turn.AROUND);
 		// make sure that it is stopped
@@ -315,8 +322,8 @@ public class ReliableRobotTest extends ReliableRobot {
 		// check that an exception is thrown for an invalid distance (< 0)
 		assertThrows(IllegalArgumentException.class, () -> robot.move(-1));
 		// check that the robot is stopped if it doesn't initially have sufficient energy
-		robot.setBatteryLevel(MOVE_COST*10-1);
-		robot.move(10);
+		robot.setBatteryLevel(MOVE_COST-1);
+		robot.move(1);
 		assertTrue(robot.hasStopped());
 		assertEquals(0, robot.getBatteryLevel(), 0);
 		
@@ -659,13 +666,14 @@ public class ReliableRobotTest extends ReliableRobot {
 		
 		// regenerate the maze with rooms this time
 		Controller controller = new Controller();
+		controller.setDeterministic(true);
 		controller.turnOffGraphics();
-		StubOrder order = new StubOrder(1, false);
-		MazeFactory factory = new MazeFactory(); 
-		factory.order(order);
-		factory.waitTillDelivered();
-		
-		controller.switchFromGeneratingToPlaying(order.getMaze());
+		controller.switchFromTitleToGenerating(1);
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		maze = controller.getMazeConfiguration();
 		
 		robot = new ReliableRobot();
@@ -799,6 +807,13 @@ public class ReliableRobotTest extends ReliableRobot {
 			assertEquals(origBattery-robot.leftSensor.getEnergyConsumptionForSensing()*(i+1), robot.getBatteryLevel(), 0);
 			assertEquals(origDistance, robot.getOdometerReading());
 		}
+		
+		// check that the robot is stopped if it has exactly enough energy for the sensing
+		robot.setBatteryLevel(robot.leftSensor.getEnergyConsumptionForSensing());
+		robot.distanceToObstacle(Direction.FORWARD);
+		assertTrue(robot.hasStopped());
+		assertEquals(0, robot.getBatteryLevel(), 0);
+		assertEquals(origDistance, robot.getOdometerReading());
 	}
 	
 	/**
@@ -893,7 +908,7 @@ public class ReliableRobotTest extends ReliableRobot {
 		// check that an exception is thrown for all 4 directions
 		for (Direction direction: Direction.values()) {
 			assertThrows(UnsupportedOperationException.class, 
-				() -> robot.startFailureAndRepairProcess(direction, 0, 0));
+				() -> robot.stopFailureAndRepairProcess(direction));
 		}
 	}
 }

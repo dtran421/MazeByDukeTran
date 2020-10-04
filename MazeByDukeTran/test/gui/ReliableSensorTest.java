@@ -26,11 +26,16 @@ public class ReliableSensorTest extends ReliableSensor {
 		// create a reliable sensor
 		sensor = new ReliableSensor();
 		// create a maze and assign it to the sensor
-		StubOrder order = new StubOrder();
-		MazeFactory factory = new MazeFactory(); 
-		factory.order(order);
-		factory.waitTillDelivered();
-		maze = order.getMaze();
+		Controller controller = new Controller();
+		controller.setDeterministic(true);
+		controller.turnOffGraphics();
+		controller.switchFromTitleToGenerating(0);
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		maze = controller.getMazeConfiguration();
 		sensor.setMaze(maze);
 	}
 	
@@ -44,6 +49,9 @@ public class ReliableSensorTest extends ReliableSensor {
 	 */
 	@Test
 	public final void testReliableSensor() {
+		// make sure the parameterized constructor instantiates a non-null sensor
+		ReliableSensor testSensor = new ReliableSensor(maze, Direction.LEFT);
+		assertNotNull(testSensor);
 		// make sure that the reliable sensor is not null
 		assertNotNull(sensor);
 		// make sure that it has a maze that is not null

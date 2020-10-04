@@ -48,6 +48,7 @@ public class StatePlaying extends DefaultState {
     int px, py ; // current position on maze grid (x,y)
     int dx, dy;  // current direction
     
+    int distTraveled; // current distance traveled
     int angle; // current viewing angle, east == 0 degrees
     int walkStep; // counter for intermediate steps within a single step forward or backward
     Floorplan seenCells; // a matrix with cells to memorize which cells are visible from the current point of view
@@ -171,7 +172,7 @@ public class StatePlaying extends DefaultState {
             walk(1);
             // check termination, did we leave the maze?
             if (isOutside(px,py)) {
-                control.switchFromPlayingToWinning(0);
+                control.switchFromPlayingToWinning(distTraveled);
             }
             break;
         case Left: // turn left
@@ -184,7 +185,7 @@ public class StatePlaying extends DefaultState {
             walk(-1);
             // check termination, did we leave the maze?
             if (isOutside(px,py)) {
-                control.switchFromPlayingToWinning(0);
+                control.switchFromPlayingToWinning(distTraveled);
             }
             break;
         case ReturnToTitle: // escape to title screen
@@ -385,6 +386,7 @@ public class StatePlaying extends DefaultState {
         walkStep = 0; // reset counter for next time
         //logPosition(); // debugging
         drawHintIfNecessary();  
+        distTraveled++;
     }
 
     /**

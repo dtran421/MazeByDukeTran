@@ -195,10 +195,8 @@ public class Controller {
      */
     public void switchFromPlayingToWinning(int pathLength) {
         currentState = states[3];
-        if (getDriver() != null && getRobot() != null) {
+        if (getDriver() != null && getRobot() != null)
         	currentState.setPathLength(getDriver().getPathLength());
-        	
-        }
         else currentState.setPathLength(pathLength);
         currentState.start(this, panel);
     }
