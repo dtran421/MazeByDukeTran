@@ -74,7 +74,8 @@ public class ReliableRobot implements Robot {
 		
 		int[] currPos = controller.getCurrentPosition();
 		// check if the current position is outside of the maze and throw an exception if so
-		if (currPos[0] >= width || currPos[1] >= height) throw new Exception();
+		if (currPos[0] < 0 || currPos[0] >= width || currPos[1] < 0 || currPos[1] >= height) 
+			throw new Exception();
 		
 		// return position array
 		return currPos;
@@ -235,7 +236,7 @@ public class ReliableRobot implements Robot {
 			distTraveled++;
 			distMoved++;
 			
-			setBatteryLevel(getBatteryLevel()-MOVE_COST);			
+			setBatteryLevel(getBatteryLevel()-MOVE_COST);	
 			// check if the energy has been depleted and stop if so
 			// (make sure to break out of the loop)
 			if (getBatteryLevel() == 0) {
