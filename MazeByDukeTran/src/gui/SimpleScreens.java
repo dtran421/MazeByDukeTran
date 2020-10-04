@@ -111,28 +111,47 @@ public class SimpleScreens {
      * Draws the finish screen, screen content is hard coded
      * @param panel holds the graphics for the off-screen image
      */
-	void redrawFinish(MazePanel panel) {
+	void redrawFinish(MazePanel panel, boolean failure, int pathLength, float energyConsumption) {
 		Graphics g = panel.getBufferGraphics() ;
         if (null == g) {
             System.out.println(errorMsg) ;
         }
         else {
-            redrawFinish(g);
+            redrawFinish(g, failure, pathLength, energyConsumption);
         }
 	}
 	/**
 	 * Helper method for redraw to draw final screen, screen is hard coded
 	 * @param gc graphics is the off-screen image
 	 */
-	private void redrawFinish(Graphics gc) {
+	private void redrawFinish(Graphics gc, boolean failure, int pathLength, float energyConsumption) {
 		// produce blue background
 		drawBackground(gc);
-		// write the title 
-		updateFontAndColor(gc, largeBannerFont, goldWM);
-		centerString(gc, "You won!", 100);
-		// write some extra blurb
-		updateFontAndColor(gc, smallBannerFont, greenWM);
-		centerString(gc, "Congratulations!", 160);
+		if (!failure) {
+			// write the title 
+			updateFontAndColor(gc, largeBannerFont, goldWM);
+			centerString(gc, "You won!", 100);
+			// write some extra blurb
+			updateFontAndColor(gc, smallBannerFont, greenWM);
+			centerString(gc, "Congratulations!", 160);
+			// write the path length and battery level (if robot driver was used)
+			updateFontAndColor(gc, smallBannerFont, greenWM);
+			centerString(gc, "Path length: " + pathLength, 210);
+			updateFontAndColor(gc, smallBannerFont, greenWM);
+			centerString(gc, "Energy consumption: " + energyConsumption, 230);
+		} else {
+			// write the title 
+			updateFontAndColor(gc, largeBannerFont, goldWM);
+			centerString(gc, "You lost!", 100);
+			// write some extra blurb
+			updateFontAndColor(gc, smallBannerFont, greenWM);
+			centerString(gc, "Failure by energy depletion or crash!", 160);
+			// write the path length and battery level (if robot driver was used)
+			updateFontAndColor(gc, smallBannerFont, greenWM);
+			centerString(gc, "Path length: " + pathLength, 210);
+			updateFontAndColor(gc, smallBannerFont, greenWM);
+			centerString(gc, "Energy consumption: " + energyConsumption, 230);
+		}
 		// write the instructions
 		gc.setColor(blackWM);
 		centerString(gc, "Hit any key to restart", 300);

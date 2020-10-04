@@ -130,8 +130,8 @@ public class StateGenerating extends DefaultState implements Order {
         } else {
             // common case: generate maze with some algorithm
             assert null != factory : "Controller.init: factory must be present";
-            // draw the initial screen
-            draw();
+        	// draw the initial screen
+        	draw();
             // make maze factory produce a maze 
             // operates with background thread
             // method returns immediately, 
@@ -220,7 +220,7 @@ public class StateGenerating extends DefaultState implements Order {
     	// draw the content on the panel
     	view.redrawGenerating(panel, getPercentDone());
         // update the screen with the buffer graphics
-        panel.update() ;
+        panel.update();
     }
 }
 

@@ -49,14 +49,20 @@ public class Wizard implements RobotDriver {
 	public boolean drive2Exit() throws Exception {
 		// while the robot hasn't stopped
 		while (!robot.hasStopped()) {
+			int[] currPos;
 			// try to get to the exit by running drive1Step2Exit
 			try {
 				drive1Step2Exit();
+				currPos = robot.getCurrentPosition();
 			} catch (Exception e) {
 				throw new Exception();
 			}
 			// check if it has reached the exit and return true if so
-			if (robot.isAtExit()) return true;
+			if (robot.isAtExit()) {
+				// cross the exit to win the game
+				crossExit2Win(currPos);
+				return true;
+			}
 		}
 		return false;
 	}
@@ -98,11 +104,11 @@ public class Wizard implements RobotDriver {
 				else if (changeDir[1] == 1) robot.rotate(Turn.RIGHT);
 				break;
 		}
-		
+
 		// move to the cell by taking a step or jumping
 		if (maze.hasWall(currPos[0], currPos[1], currDir)) robot.jump();
 		else robot.move(1);	
-		
+
 		// if robot is stopped, then throw an exception
 		if (robot.hasStopped()) throw new Exception();
 				
@@ -129,6 +135,34 @@ public class Wizard implements RobotDriver {
 	public int getPathLength() {
 		// return distance traveled by robot from the robot's odometer
 		return robot.getOdometerReading();
+	}
+	
+	
+	protected void crossExit2Win(int[] currentPosition) {
+		// check whether the direction has a wall and the adjacent cell is outside the maze
+		while (maze.hasWall(currentPosition[0], currentPosition[1], robot.getCurrentDirection())
+			|| !neighborOutsideMaze(currentPosition, robot.getCurrentDirection())) {
+			robot.rotate(Turn.LEFT);
+		}
+		robot.move(1);
+	}
+	
+	protected boolean neighborOutsideMaze(int[] currentPosition, CardinalDirection currentDirection) {
+		switch (currentDirection) {
+			case North:
+				if (currentPosition[1]-1<0) return true;
+				break;
+			case East:
+				if (currentPosition[0]+1>=maze.getWidth()) return true;
+				break;
+			case South:
+				if (currentPosition[1]+1>=maze.getHeight()) return true;
+				break;
+			case West:
+				if (currentPosition[0]-1<0) return true;
+				break;
+		}
+		return false;
 	}
 
 }

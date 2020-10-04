@@ -22,7 +22,7 @@ public class ReliableSensor implements DistanceSensor {
 	protected Direction mountedDirection;
 	protected boolean isOperational;
 	
-	protected final float SENSE_COST = 1;
+	protected final static float SENSE_COST = 1;
 	
 	public ReliableSensor() {
 		isOperational = true;

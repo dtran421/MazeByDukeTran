@@ -298,7 +298,7 @@ public class ReliableSensorTest extends ReliableSensor {
 	@Test
 	public final void testGetEnergyConsumptionForSensing() {		
 		// call the method and check that the returned value matches the sensing cost
-		assertEquals(sensor.SENSE_COST, sensor.getEnergyConsumptionForSensing(), 0);
+		assertEquals(SENSE_COST, sensor.getEnergyConsumptionForSensing(), 0);
 	}
 	
 	/**

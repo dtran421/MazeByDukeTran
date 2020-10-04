@@ -57,7 +57,9 @@ public class StateWinning extends DefaultState {
     	}
         // otherwise show finish screen with winning message
         // draw content on panel
-        view.redrawFinish(panel);
+        RobotDriver driver = control.getDriver();
+        view.redrawFinish(panel, control.getRobot().hasStopped(),
+        	driver.getPathLength(), driver.getEnergyConsumption());
         // update screen with panel content
         panel.update();
 

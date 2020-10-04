@@ -176,10 +176,15 @@ public class Controller {
         currentState = states[2];
         currentState.setMazeConfiguration(config);
         
-        if (getDriver() != null && getRobot() != null) {
-        	getRobot().setController(this);
-        	getDriver().setRobot(getRobot());
-        	getDriver().setMaze(config);
+        if (getRobot() != null && getDriver() != null) {
+        	Robot robot = new ReliableRobot();
+        	RobotDriver driver = new Wizard();
+        	robot.setController(this);
+
+        	driver.setRobot(robot);
+        	driver.setMaze(config);
+        	
+        	setRobotAndDriver(robot, driver);
         }
         
         currentState.start(this, panel);
@@ -190,7 +195,11 @@ public class Controller {
      */
     public void switchFromPlayingToWinning(int pathLength) {
         currentState = states[3];
-        currentState.setPathLength(pathLength);
+        if (getDriver() != null && getRobot() != null) {
+        	currentState.setPathLength(getDriver().getPathLength());
+        	
+        }
+        else currentState.setPathLength(pathLength);
         currentState.start(this, panel);
     }
     /**

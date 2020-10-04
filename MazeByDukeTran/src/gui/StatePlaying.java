@@ -112,6 +112,7 @@ public class StatePlaying extends DefaultState {
         		control.getDriver().drive2Exit();
         	} catch (Exception e) {
         		System.out.println(e.toString());
+                control.switchFromPlayingToWinning(0);
         	}
     }
     /**

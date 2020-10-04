@@ -9,6 +9,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
+import generation.CardinalDirection;
 import generation.Maze;
 import generation.MazeFactory;
 import generation.StubOrder;
@@ -27,14 +28,13 @@ public class WizardTest extends Wizard {
 	public final void setUp() {
 		// set up controller and maze
 		Controller controller = new Controller();
+		controller.turnOffGraphics();
 		StubOrder order = new StubOrder();
-		MazeFactory factory = new MazeFactory(); 
+		MazeFactory factory = new MazeFactory();
 		factory.order(order);
 		factory.waitTillDelivered();
-		maze = order.getMaze();
-		
-		controller.currentState = controller.states[2];
-		controller.currentState.setMazeConfiguration(maze);
+		controller.switchFromGeneratingToPlaying(order.getMaze());
+		maze = controller.getMazeConfiguration();
 		
 		// instantiate the robot and assign the controller to the robot
 		robot = new ReliableRobot();
@@ -42,9 +42,7 @@ public class WizardTest extends Wizard {
 		// instantiate the wizard and assign the robot and maze to the wizard
 		wizard = new Wizard();
 		wizard.setRobot(robot);
-		wizard.setMaze(maze);
-		
-		controller.currentState.start(controller, null);
+		wizard.setMaze(maze);		
 	}
 	
 	/**
@@ -215,20 +213,80 @@ public class WizardTest extends Wizard {
 	}
 	
 	/**
+	 * Test case: Correctness of the crossExit2Win method
+	 * <p>
+	 * Method under test: crossExit2Win(int[] currentPosition)
+	 * <p>
+	 * Correct behavior:
+	 * assuming the robot is already at the exit, it will locate which direction
+	 * it is and cross it to win the game
+	 */
+	@Test
+	public final void testCrossExit2Win() {
+		// place the robot at the exit
+		robot.rotate(Turn.RIGHT);
+		robot.move(1);
+		robot.rotate(Turn.LEFT);
+		robot.move(1);
+		robot.jump();
+		
+		// make sure it ends up facing the exit and crossing it 
+		// (it should end up outside of the maze)
+		try {
+			wizard.crossExit2Win(robot.getCurrentPosition());
+			// an exception should be thrown since the robot is now outside of the maze
+			assertThrows(Exception.class, () -> robot.getCurrentPosition());
+		} catch (Exception e) {
+			System.out.println("Something went wrong!");
+			return;
+		}
+	}
+	
+	/**
+	 * Test case: Correctness of the neighborOutsideMaze method
+	 * <p>
+	 * Method under test: neighborOutsideMaze(int[] currentPosition, CardinalDirection currentDirection)
+	 * <p>
+	 * Correct behavior:
+	 * determines if the neighboring cell is outside of the maze
+	 */
+	@Test
+	public final void testNeighborOutsideMaze() {
+		// at the starting position, only the western neighbor should be outside of the maze
+		int[] currPos = {0, 1};
+		assertFalse(wizard.neighborOutsideMaze(currPos, CardinalDirection.North));
+		assertFalse(wizard.neighborOutsideMaze(currPos, CardinalDirection.East));
+		assertFalse(wizard.neighborOutsideMaze(currPos, CardinalDirection.South));
+		assertTrue(wizard.neighborOutsideMaze(currPos, CardinalDirection.West));
+		
+		// at a position in the middle of the maze, all neighbors should be inside of the maze
+		currPos[0] = 1; currPos[1] = 2;
+		assertFalse(wizard.neighborOutsideMaze(currPos, CardinalDirection.North));
+		assertFalse(wizard.neighborOutsideMaze(currPos, CardinalDirection.East));
+		assertFalse(wizard.neighborOutsideMaze(currPos, CardinalDirection.South));
+		assertFalse(wizard.neighborOutsideMaze(currPos, CardinalDirection.West));
+		
+		// at the corner position, there should be exactly two neighbors outside of the maze
+		currPos[0] = 3; currPos[1] = 0;
+		assertTrue(wizard.neighborOutsideMaze(currPos, CardinalDirection.North));
+		assertTrue(wizard.neighborOutsideMaze(currPos, CardinalDirection.East));
+		assertFalse(wizard.neighborOutsideMaze(currPos, CardinalDirection.South));
+		assertFalse(wizard.neighborOutsideMaze(currPos, CardinalDirection.West));
+	}
+	
+	/**
 	 * Re-instantiates the robot with the same maze and controller
 	 * (to reset the stopped field to false)
 	 */
 	private final void resetRobot() {
-		Controller controller = new Controller();			
-		controller.currentState = controller.states[2];
-		controller.currentState.setMazeConfiguration(maze);
+		Controller controller = new Controller();
+		controller.turnOffGraphics();
+		controller.switchFromGeneratingToPlaying(maze);
 		
 		robot = new ReliableRobot();
 		robot.setController(controller);
 		wizard = new Wizard();
 		wizard.setRobot(robot);
-		wizard.setMaze(maze);
-		
-		controller.currentState.start(controller, null);
-	}
+		wizard.setMaze(maze);		
+	}	
 }
