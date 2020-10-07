@@ -12,8 +12,7 @@ import gui.Robot.Direction;
  * @author Duke Tran
  * Class: ReliableSensor
  * <p>
- * Responsibilites: sense distance to obstacle (wall), obtain energy cost for sensing,
- * determine when a failure occurs and start and stop the repair process
+ * Responsibilities: sense distance to obstacle (wall), obtain energy cost for sensing
  * <p>
  * Collaborators: Maze, RobotDriver (Wall-follower and Wizard), Robot
  */
@@ -170,7 +169,6 @@ public class ReliableSensor implements DistanceSensor {
 	/**
 	 * Starts a concurrent, independent failure and repair process that fails the sensor and repairs it.
 	 * For P3, this method won't be implemented and will just throw an exception.
-	 * @param direction of a given sensor
 	 * @param meanTimeBetweenFailures is the mean time between failures in seconds, must be greater than zero
 	 * @param meanTimeToRepair is the mean time to repair in seconds, must be greater than zero
 	 * @throws UnsupportedOperationException if method not supported
