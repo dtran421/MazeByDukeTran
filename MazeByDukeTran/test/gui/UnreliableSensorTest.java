@@ -10,6 +10,8 @@ import org.junit.Test;
 
 public class UnreliableSensorTest {
 	private UnreliableSensor sensor;
+	private final int MEAN_TIME_BETWEEN_FAILURES = 400; // milliseconds
+	private final int MEAN_TIME_TO_REPAIR = 200;
 	
 	/**
 	 * Create a new unreliable sensor for each test
@@ -44,9 +46,7 @@ public class UnreliableSensorTest {
 	 */
 	@Test
 	public final void testStartFailureAndRepairProcess() {		
-		final int meanTimeBetweenFailures = 400; // milliseconds
-		final int meanTimeToRepair = 200;
-		sensor.startFailureAndRepairProcess(meanTimeBetweenFailures, meanTimeToRepair);
+		sensor.startFailureAndRepairProcess(MEAN_TIME_BETWEEN_FAILURES, MEAN_TIME_TO_REPAIR);
 		
 		// check that the repair process thread has been created (not null)
 		assertNotNull(sensor.repairProcess);
@@ -64,7 +64,12 @@ public class UnreliableSensorTest {
 	@Test
 	public final void testStopFailureAndRepairProcess() {		
 		// check that an exception if thrown if no thread is currently running
+		assertThrows(UnsupportedOperationException.class, () -> sensor.stopFailureAndRepairProcess());
 		// check that the sensor is operational after the method executes
+		sensor.startFailureAndRepairProcess(MEAN_TIME_BETWEEN_FAILURES, MEAN_TIME_TO_REPAIR);
+		sensor.stopFailureAndRepairProcess();
+		assertTrue(sensor.isOperational);
 		// check that the thread is terminated
+		assertTrue(sensor.repairProcess == null);
 	}
 }

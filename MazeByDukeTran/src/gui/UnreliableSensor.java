@@ -1,5 +1,7 @@
 package gui;
 
+import gui.Robot.Direction;
+
 /**
  * @author Duke Tran
  * Class: UnreliableSensor
@@ -14,6 +16,14 @@ public class UnreliableSensor extends ReliableSensor {
 	protected final int MEAN_TIME_TO_REPAIR = 200;
 	protected Thread repairProcess;
 	
+	public UnreliableSensor() {
+		super();
+	}
+	
+	public UnreliableSensor(Direction direction) {
+		super(direction);
+	}
+
 	/**
 	 * Starts a concurrent, independent failure and repair process that fails the sensor and repairs it.
 	 * @param meanTimeBetweenFailures is the mean time between failures in seconds, must be greater than zero
@@ -57,6 +67,8 @@ public class UnreliableSensor extends ReliableSensor {
 			setOperational(true);
 			// clean up
 			repairProcess = null;
+		} else {
+			throw new UnsupportedOperationException();
 		}
 	}
 	

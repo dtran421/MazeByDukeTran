@@ -8,7 +8,7 @@ import gui.Constants.UserInput;
  * @author Duke Tran
  * Class: ReliableRobot
  * <p>
- * Responsibilities: perform move and rotate operations, interact with its Sensors,
+ * Responsibilities: perform move and rotate operations, interact with its sensors,
  * monitor and manage its energy consumption
  * <p>
  * Collaborators: Controller, RobotDriver (Wall-follower and Wizard), DistanceSensor (ReliableSensor and UnreliableSensor)
@@ -33,6 +33,10 @@ public class ReliableRobot implements Robot {
 		setBatteryLevel(INITIAL_BATTERY);
 		distTraveled = 0;
 		stopped = false;
+		leftSensor = new ReliableSensor(Direction.LEFT);
+		rightSensor = new ReliableSensor(Direction.RIGHT);
+		forwardSensor = new ReliableSensor(Direction.FORWARD);
+		backwardSensor = new ReliableSensor(Direction.BACKWARD);
 	}
 
 	/**
@@ -54,10 +58,11 @@ public class ReliableRobot implements Robot {
 		
 		// instantiate the distance sensors now that we have the maze
 		Maze mazeConfig = controller.getMazeConfiguration();
-		leftSensor = new ReliableSensor(mazeConfig, Direction.LEFT);
-		rightSensor = new ReliableSensor(mazeConfig, Direction.RIGHT);
-		forwardSensor = new ReliableSensor(mazeConfig, Direction.FORWARD);
-		backwardSensor = new ReliableSensor(mazeConfig, Direction.BACKWARD);
+		leftSensor.setMaze(mazeConfig);
+		rightSensor.setMaze(mazeConfig);
+		forwardSensor.setMaze(mazeConfig);
+		backwardSensor.setMaze(mazeConfig);
+		
 	}
 
 	/**

@@ -50,7 +50,8 @@ public class ReliableSensorTest extends ReliableSensor {
 	@Test
 	public final void testReliableSensor() {
 		// make sure the parameterized constructor instantiates a non-null sensor
-		ReliableSensor testSensor = new ReliableSensor(maze, Direction.LEFT);
+		ReliableSensor testSensor = new ReliableSensor(Direction.LEFT);
+		testSensor.setMaze(maze);
 		assertNotNull(testSensor);
 		// make sure that the reliable sensor is not null
 		assertNotNull(sensor);

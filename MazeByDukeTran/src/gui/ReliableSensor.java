@@ -27,8 +27,7 @@ public class ReliableSensor implements DistanceSensor {
 		isOperational = true;
 	}
 	
-	public ReliableSensor(Maze maze, Direction direction) {
-		setMaze(maze);
+	public ReliableSensor(Direction direction) {
 		setSensorDirection(direction);
 		isOperational = true;
 	}
