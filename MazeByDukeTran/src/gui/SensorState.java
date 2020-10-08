@@ -11,5 +11,5 @@ import gui.Robot.Direction;
  * Implementing classes: OperationalState, RepairState
  */
 public interface SensorState {
-	public boolean nextOperationalSensor(Direction direction);
+	//public boolean nextOperationalSensor(Direction direction);
 }
