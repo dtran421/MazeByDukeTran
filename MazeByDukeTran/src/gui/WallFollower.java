@@ -37,16 +37,40 @@ public class WallFollower implements RobotDriver {
 		this.maze = maze;
 	}
 	
+	/**
+	 * Drives the robot towards the exit using the left-wall-follower algorithm.
+	 * @return true if WallFollower successfully reaches the exit
+	 * @throws Exception thrown if robot stopped (lack of energy, hit a wall, or somehow ended outside the maze
+	 * without passing the exit)
+	 */
 	@Override
 	public boolean drive2Exit() throws Exception {
-		// TODO Auto-generated method stub
+		// TODO: think about checking if you can see the exit after each rotation
+		// while the robot hasn't stopped
+			// try to get to the exit by running drive1Step2Exit using the wall-follower algorithm
+			// check if it has reached the exit and return true if so
+				// cross the exit to win the game
 		return false;
 	}
 
+	/**
+	 * Drives the robot one step towards the exit. Makes decision according to the wall-follower algorithm.
+	 * @return true if driver successfully performed one step
+	 * @throws Exception thrown if robot stopped (lack of energy, hit a wall, or somehow ended outside the maze
+	 * without passing the exit)
+	 */
 	@Override
 	public boolean drive1Step2Exit() throws Exception {
-		// TODO Auto-generated method stub
-		return false;
+		// keep track of whether the robot moved one step
+		boolean moved = false;
+		// detect if there's a wall to the left of the robot (distance to obstacle is 0)
+			// if not, then turn left and take one step forward
+		// detect if there's a wall in front of the robot
+			// if not, then take one step forward
+		// if none of the above, then turn right
+		
+		// if robot is stopped, then throw an exception
+		return moved;
 	}
 
 	/**
