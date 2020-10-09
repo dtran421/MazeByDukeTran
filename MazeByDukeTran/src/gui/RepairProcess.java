@@ -1,5 +1,13 @@
 package gui;
 
+/**
+ * @author Duke Tran
+ * Class: RepairProcess
+ * <p>
+ * Responsibilities: simulates the repair process
+ * <p>
+ * Collaborators: DistanceSensor (UnreliableSensor)
+ */
 public class RepairProcess implements Runnable {
 	private UnreliableSensor sensor;
 	private int operatingTime;

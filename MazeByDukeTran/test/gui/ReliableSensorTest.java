@@ -13,10 +13,7 @@ import generation.MazeFactory;
 import generation.StubOrder;
 import gui.Robot.Direction;
 
-public class ReliableSensorTest extends ReliableSensor {
-	private ReliableSensor sensor;
-	private Maze maze;
-	
+public class ReliableSensorTest extends SensorTest {
 	/**
 	 * Set up the maze and create a new reliable sensor to simulate a robot
 	 * inside the maze for each test 
@@ -25,17 +22,7 @@ public class ReliableSensorTest extends ReliableSensor {
 	public final void setUp() {
 		// create a reliable sensor
 		sensor = new ReliableSensor();
-		// create a maze and assign it to the sensor
-		Controller controller = new Controller();
-		controller.setDeterministic(true);
-		controller.turnOffGraphics();
-		controller.switchFromTitleToGenerating(0);
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		maze = controller.getMazeConfiguration();
+		// assign the maze to the sensor
 		sensor.setMaze(maze);
 	}
 	

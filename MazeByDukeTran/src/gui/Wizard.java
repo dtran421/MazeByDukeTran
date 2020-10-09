@@ -137,7 +137,10 @@ public class Wizard implements RobotDriver {
 		return robot.getOdometerReading();
 	}
 	
-	
+	/**
+	 * Rotates the robot to face the exit and then move one step to step past the exit and win
+	 * @param currentPosition of the robot (exit)
+	 */
 	protected void crossExit2Win(int[] currentPosition) {
 		// check whether the direction has a wall and the adjacent cell is outside the maze
 		while (maze.hasWall(currentPosition[0], currentPosition[1], robot.getCurrentDirection())
@@ -147,6 +150,13 @@ public class Wizard implements RobotDriver {
 		robot.move(1);
 	}
 	
+	/**
+	 * Determines if the neighbor of the current cell is outside of the maze.
+	 * Helper method for crossExit2Win
+	 * @param currentPosition of the robot (exit)
+	 * @param currentDirection the direction being examined
+	 * @return whether the neighbor is outside of the maze
+	 */
 	protected boolean neighborOutsideMaze(int[] currentPosition, CardinalDirection currentDirection) {
 		switch (currentDirection) {
 			case North:

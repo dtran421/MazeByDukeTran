@@ -1,7 +1,5 @@
 package gui;
 
-import gui.Robot.Direction;
-
 /**
  * @author Duke Tran
  * Interface: SensorState
@@ -11,5 +9,8 @@ import gui.Robot.Direction;
  * Implementing classes: OperationalState, RepairState
  */
 public interface SensorState {
-	//public boolean nextOperationalSensor(Direction direction);
+	/**
+	 * Decides what action to take next (move or rotate) and executes it based on sensor information
+	 */
+	public boolean performNextAction();
 }

@@ -1,6 +1,7 @@
 package gui;
 
-import generation.Maze;
+import gui.Robot.Direction;
+import gui.Robot.Turn;
 
 /**
  * @author Duke Tran
@@ -8,34 +9,18 @@ import generation.Maze;
  * <p>
  * Responsibilites: direct the robot towards the maze exit
  * <p>
- * Collaborators: Maze, Robot (ReliableRobot and UnreliableRobot)
+ * Collaborators: Maze, Robot (ReliableRobot and UnreliableRobot), RobotDriver (Wizard)
  */
-public class WallFollower implements RobotDriver {
-	protected Robot robot;
-	protected Maze maze;
-
-	protected float initialBatteryLevel;
+public class WallFollower extends Wizard {
+	// keep track of the state of the sensors (OperationalState when all sensors are operational, RepairState
+	// when at least one sensor is under repair)
+	protected SensorState sensorState;
 	
-	/**
-	 * Assigns a robot for the Wizard. 
-	 * @param r robot to assign
-	 */
-	@Override
-	public void setRobot(Robot r) {
-		// assign robot to the robot field
-		robot = r;
-		initialBatteryLevel = r.getBatteryLevel();
-	}
-
-	/**
-	 * Provides the Wizard with the maze.
-	 * @param maze represents the maze
-	 */
-	@Override
-	public void setMaze(Maze maze) {
-		// assign maze to the maze field	
-		this.maze = maze;
-	}
+	// variables to keep track of last-sensed distances 
+	protected int leftDistance;
+	protected int forwardDistance;
+	// keep track of whether the exit can be seen
+	protected boolean foundExit;
 	
 	/**
 	 * Drives the robot towards the exit using the left-wall-follower algorithm.
@@ -47,9 +32,22 @@ public class WallFollower implements RobotDriver {
 	public boolean drive2Exit() throws Exception {
 		// TODO: think about checking if you can see the exit after each rotation
 		// while the robot hasn't stopped
+		while (!robot.hasStopped()) {
+			int[] currPos;
 			// try to get to the exit by running drive1Step2Exit using the wall-follower algorithm
+			try {
+				drive1Step2Exit();
+				currPos = robot.getCurrentPosition();
+			} catch (Exception e) {
+				throw new Exception();
+			}
 			// check if it has reached the exit and return true if so
+			if (robot.isAtExit()) {
 				// cross the exit to win the game
+				crossExit2Win(currPos);
+				return true;
+			}
+		}
 		return false;
 	}
 
@@ -63,36 +61,65 @@ public class WallFollower implements RobotDriver {
 	public boolean drive1Step2Exit() throws Exception {
 		// keep track of whether the robot moved one step
 		boolean moved = false;
-		// detect if there's a wall to the left of the robot (distance to obstacle is 0)
-			// if not, then turn left and take one step forward
-		// detect if there's a wall in front of the robot
-			// if not, then take one step forward
-		// if none of the above, then turn right
+		
+		// determine if the left sensor or forward sensor is under repair and change the state to RepairState if so
+		boolean forwardStatus = isOperational(Direction.FORWARD);
+		boolean leftStatus = isOperational(Direction.LEFT);
+		if (!forwardStatus || !leftStatus)
+			setState(robot, forwardStatus, leftStatus, isOperational(Direction.RIGHT), isOperational(Direction.BACKWARD));
+		else
+			setState(robot, true, true, true, true);
+		
+		// depending on the current state, perform the next action based on the operational sensors
+		moved = sensorState.performNextAction();
 		
 		// if robot is stopped, then throw an exception
+		if (robot.hasStopped()) throw new Exception();
+
 		return moved;
 	}
-
+	
 	/**
-	 * Returns the total energy consumption of the journey (difference between the robot's
-	 * initial battery level and its battery level at the exit position). 
-	 * @return the total energy consumption of the journey
+	 * Rotates the robot to face the exit and then move one step to step past the exit and win
+	 * @param currentPosition of the robot (exit)
 	 */
-	@Override
-	public float getEnergyConsumption() {
-		// return the difference between the initial battery level and the ending battery level
-		return initialBatteryLevel - robot.getBatteryLevel();
+	protected void crossExit2Win(int[] currentPosition) {
+		// while the robot cannot see through the exit, rotate it to the left
+		while (!robot.canSeeThroughTheExitIntoEternity(Direction.FORWARD)) {
+			robot.rotate(Turn.LEFT);
+		}
+		robot.move(1);
 	}
-
+	
 	/**
-	 * Returns the total length of the journey in number of cells traversed 
-	 * (the initial position has path length 0). 
-	 * @return the total length of the journey in number of cells traversed
+	 * Sets the state of Wall-Follower to either the OperationalState or the RepairState
+	 * @param operational status (are all of the sensors operational)
+	 * @param f status of the forward sensor
+	 * @param l status of the left sensor
+	 * @param r status of the right sensor
+	 * @param b status of the backward sensor
 	 */
-	@Override
-	public int getPathLength() {
-		// return distance traveled by robot from the robot's odometer
-		return robot.getOdometerReading();
+	private void setState(Robot robot, boolean f, boolean l, boolean r, boolean b) {
+		sensorState = (f && l && r && b) ? new OperationalState(robot) : new RepairState(robot, f, l, r, b);
+	}
+	
+	/**
+	 * Determines if the sensor in the inputed direction is operational using the robot's distance to obstacle method
+	 * @param direction to check
+	 * @return whether it's operational
+	 */
+	private boolean isOperational(Direction direction) {
+		// TODO: think about making this more efficient for reliable sensors
+		try {
+			// if no exception is thrown, then the sensor is operational
+			int dist = robot.distanceToObstacle(direction);
+			if (direction == Direction.LEFT) leftDistance = dist;
+			if (direction == Direction.FORWARD) forwardDistance = dist;
+			foundExit = (dist == Integer.MAX_VALUE);
+			return true;
+		} catch (UnsupportedOperationException e) {
+			return false;
+		}
 	}
 
 }

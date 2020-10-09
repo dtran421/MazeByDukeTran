@@ -1,7 +1,5 @@
 package gui;
 
-import gui.Robot.Direction;
-
 /**
  * @author Duke Tran
  * Class: UnreliableRobot

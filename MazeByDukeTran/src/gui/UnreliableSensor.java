@@ -9,7 +9,7 @@ import gui.Robot.Direction;
  * Responsibilities: sense distance to obstacle (wall), obtain energy cost for sensing,
  * determine when a failure occurs and start and stop the repair process
  * <p>
- * Collaborators: Maze, RobotDriver (Wall-follower and Wizard), Robot
+ * Collaborators: Maze, RobotDriver (Wall-follower and Wizard), Robot, RepairProcess
  */
 public class UnreliableSensor extends ReliableSensor {
 	protected final int MEAN_TIME_BETWEEN_FAILURES = 400;
@@ -70,14 +70,6 @@ public class UnreliableSensor extends ReliableSensor {
 		} else {
 			throw new UnsupportedOperationException();
 		}
-	}
-	
-	/**
-	 * Returns whether the sensor is currently operational
-	 * @return operational status of sensor 
-	 */
-	public boolean isOperational() {
-		return isOperational;
 	}
 	
 	/**

@@ -8,7 +8,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
-public class UnreliableSensorTest {
+public class UnreliableSensorTest extends SensorTest {
 	private UnreliableSensor sensor;
 	private final int MEAN_TIME_BETWEEN_FAILURES = 400; // milliseconds
 	private final int MEAN_TIME_TO_REPAIR = 200;
@@ -31,7 +31,7 @@ public class UnreliableSensorTest {
 	 * the unreliable sensor is not null
 	 */
 	@Test
-	public final void testReliableSensor() {
+	public final void testUnreliableSensor() {
 		assertNotNull(sensor);
 		assertTrue(sensor.isOperational);
 	}

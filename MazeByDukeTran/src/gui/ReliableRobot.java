@@ -24,10 +24,10 @@ public class ReliableRobot implements Robot {
 	protected int distTraveled;
 	protected boolean stopped;
 
-	protected final static float INITIAL_BATTERY = 3500;
-	protected final static float ROTATE_COST = 3;
-	protected final static float MOVE_COST = 6;
-	protected final static float JUMP_COST = 40;
+	protected final float INITIAL_BATTERY = 3500;
+	protected final float ROTATE_COST = 3;
+	protected final float MOVE_COST = 6;
+	protected final float JUMP_COST = 40;
 	
 	public ReliableRobot() {
 		setBatteryLevel(INITIAL_BATTERY);
