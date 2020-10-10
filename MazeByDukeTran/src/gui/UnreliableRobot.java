@@ -10,11 +10,7 @@ package gui;
  * Collaborators: Controller, RobotDriver (Wall-follower), DistanceSensor (ReliableSensor and UnreliableSensor)
  */
 public class UnreliableRobot extends ReliableRobot {
-	protected DistanceSensor leftSensor;
-	protected DistanceSensor rightSensor;
-	protected DistanceSensor forwardSensor;
-	protected DistanceSensor backwardSensor;
-	
+
 	public UnreliableRobot(int f, int l, int r, int b) {
 		super();
 		leftSensor = (l == 0 ? new UnreliableSensor(Direction.LEFT) : new ReliableSensor(Direction.LEFT));

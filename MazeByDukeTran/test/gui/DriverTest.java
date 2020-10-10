@@ -19,7 +19,7 @@ public class DriverTest extends Wizard {
 	protected Robot robot;
 	
 	/**
-	 * Set up the maze, robot, and controller. 
+	 * Set up the maze, robot, and controller
 	 */
 	@Before
 	public final void setUpParent() {

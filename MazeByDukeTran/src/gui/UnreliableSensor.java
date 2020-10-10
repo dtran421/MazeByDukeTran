@@ -47,9 +47,9 @@ public class UnreliableSensor extends ReliableSensor {
 	/**
 	 * Stops a failure and repair process and restores the sensor in an operational state.
 	 * If called after starting a process, it will stop the process as soon as the sensor is operational.
-	 * If called with no running failure and repair process, it will return an UnsupportedOperationException.
+	 * If called with no running failure and repair process, it will throw an UnsupportedOperationException.
 	 * @param direction of a given sensor
-	 * @throws UnsupportedOperationException if method not supported
+	 * @throws UnsupportedOperationException if called with no running failure and repair process
 	 */
 	@Override
 	public void stopFailureAndRepairProcess() throws UnsupportedOperationException {

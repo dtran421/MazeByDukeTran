@@ -408,8 +408,10 @@ public class ReliableRobot implements Robot {
 		} catch (Exception e) {
 			String msg = e.getMessage();
 			System.out.println(msg);
-			setBatteryLevel(0);
-			stopped = true;
+			if (msg == "PowerFailure") {
+				setBatteryLevel(0);
+				stopped = true;
+			}
 			throw new UnsupportedOperationException(msg);
 		}
 		
@@ -440,7 +442,6 @@ public class ReliableRobot implements Robot {
 
 	/**
 	 * Starts a concurrent, independent failure and repair process that fails the sensor and repairs it.
-	 * For P3, this method won't be implemented and will just throw an exception.
 	 * @param direction of a given sensor
 	 * @param meanTimeBetweenFailures is the mean time between failures in seconds, must be greater than zero
 	 * @param meanTimeToRepair is the mean time to repair in seconds, must be greater than zero
@@ -474,7 +475,6 @@ public class ReliableRobot implements Robot {
 	 * Stops a failure and repair process and restores the sensor in an operational state.
 	 * If called after starting a process, it will stop the process as soon as the sensor is operational.
 	 * If called with no running failure and repair process, it will return an UnsupportedOperationException.
-	 * For P3, this method won't be implemented and will just throw an exception.
 	 * @param direction of a given sensor
 	 * @throws UnsupportedOperationException if method not supported
 	 */

@@ -1,6 +1,6 @@
 package gui;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -8,8 +8,9 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
+import gui.Robot.Direction;
+
 public class UnreliableSensorTest extends SensorTest {
-	private UnreliableSensor sensor;
 	private final int MEAN_TIME_BETWEEN_FAILURES = 400; // milliseconds
 	private final int MEAN_TIME_TO_REPAIR = 200;
 	
@@ -20,20 +21,26 @@ public class UnreliableSensorTest extends SensorTest {
 	public final void setUp() {
 		// create an unreliable sensor	
 		sensor = new UnreliableSensor();
+		// assign the maze to the sensor
+		sensor.setMaze(maze);
 	}
 	
 	/**
-	 * Test case: See if the setUp properly sets up the unreliable sensor
+	 * Test case: Correctness of the parameterized constructor 
 	 * <p>
-	 * Method under test: own set up
+	 * Method under test: UnreliableSensor(Direction direction)
 	 * <p>
 	 * Correct behavior:
-	 * the unreliable sensor is not null
+	 * the unreliable sensor is instantiated with the correct direction
 	 */
 	@Test
 	public final void testUnreliableSensor() {
-		assertNotNull(sensor);
-		assertTrue(sensor.isOperational);
+		// make sure the parameterized constructor instantiates a non-null sensor
+		ReliableSensor testSensor = new UnreliableSensor(Direction.LEFT);
+		testSensor.setMaze(maze);
+		assertNotNull(testSensor);
+		// check that the mounted direction matches the inputed direction
+		assertEquals(Direction.LEFT, testSensor.mountedDirection);
 	}
 	
 	/**
@@ -49,8 +56,7 @@ public class UnreliableSensorTest extends SensorTest {
 		sensor.startFailureAndRepairProcess(MEAN_TIME_BETWEEN_FAILURES, MEAN_TIME_TO_REPAIR);
 		
 		// check that the repair process thread has been created (not null)
-		assertNotNull(sensor.repairProcess);
-		
+		assertNotNull(((UnreliableSensor)sensor).repairProcess);
 	}
 	
 	/**
@@ -70,6 +76,6 @@ public class UnreliableSensorTest extends SensorTest {
 		sensor.stopFailureAndRepairProcess();
 		assertTrue(sensor.isOperational);
 		// check that the thread is terminated
-		assertTrue(sensor.repairProcess == null);
+		assertTrue(((UnreliableSensor)sensor).repairProcess == null);
 	}
 }
