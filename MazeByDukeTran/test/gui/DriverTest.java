@@ -32,7 +32,7 @@ public class DriverTest extends Wizard {
 		try {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 		maze = controller.getMazeConfiguration();
@@ -148,7 +148,7 @@ public class DriverTest extends Wizard {
 			// an exception should be thrown since the robot is now outside of the maze
 			assertThrows(Exception.class, () -> robot.getCurrentPosition());
 		} catch (Exception e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 	}

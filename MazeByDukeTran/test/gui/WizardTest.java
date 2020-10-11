@@ -45,7 +45,7 @@ public class WizardTest extends DriverTest {
 			// run the method and check that the robot is at the exit (should return true)
 			assertTrue(driver.drive2Exit());
 		} catch (Exception e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 	}
@@ -85,7 +85,7 @@ public class WizardTest extends DriverTest {
 				assertEquals(nextPos[0], currPos[0]);
 				assertEquals(nextPos[1], currPos[1]);
 			} catch (Exception e) {
-				System.out.println("Something went wrong!");
+				System.err.println("Something went wrong!");
 				return;
 			}
 		}

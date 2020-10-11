@@ -32,15 +32,9 @@ public class RepairState implements SensorState {
 	 */
 	@Override
 	public boolean performNextAction() {
-		// keep track of sensors that will be used to sense the distances
-		Direction workingSensorForLeft = null;
-		Direction workingSensorForForward = null;
-		// while there is no operational substitute sensor, try again until one is available
-		while (workingSensorForLeft == null || workingSensorForForward == null) {
-			// find the next operational sensor for the left and forward directions
-			workingSensorForLeft = nextOperationalSensor(Direction.LEFT);
-			workingSensorForForward = nextOperationalSensor(Direction.FORWARD);
-		}
+		// find the next operational sensor for the left and forward directions
+		Direction workingSensorForForward = nextOperationalSensor(Direction.FORWARD);
+		Direction workingSensorForLeft = nextOperationalSensor(Direction.LEFT);
 		
 		// rotate robot to accommodate the substitute sensor
 		substituteSensor(Direction.LEFT, workingSensorForLeft);

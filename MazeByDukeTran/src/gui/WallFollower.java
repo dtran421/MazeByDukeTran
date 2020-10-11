@@ -36,7 +36,7 @@ public class WallFollower extends Wizard {
 			int[] currPos;
 			// try to get to the exit by running drive1Step2Exit using the wall-follower algorithm
 			try {
-				Thread.sleep(500);
+				//Thread.sleep(500);
 				drive1Step2Exit();
 				currPos = robot.getCurrentPosition();
 			} catch (Exception e) {
@@ -62,18 +62,22 @@ public class WallFollower extends Wizard {
 	public boolean drive1Step2Exit() throws Exception {
 		// if robot is stopped, then throw an exception
 		if (robot.hasStopped()) throw new Exception();
-				
+
 		// keep track of whether the robot moved one step
 		boolean moved = false;
 		
 		// determine if the left sensor or forward sensor is under repair and change the state to RepairState if so
 		boolean forwardStatus = isOperational(Direction.FORWARD);
 		boolean leftStatus = isOperational(Direction.LEFT);
-		if (!forwardStatus || !leftStatus)
-			setState(forwardStatus, leftStatus, isOperational(Direction.RIGHT), isOperational(Direction.BACKWARD));
+		if (!forwardStatus || !leftStatus) {
+			boolean[] sensors = {forwardStatus, leftStatus, isOperational(Direction.RIGHT), isOperational(Direction.BACKWARD)};
+			if (!sensors[0] && !sensors[1] && !sensors[2] && !sensors[3])
+				waitForOperationalSensor(sensors);
+			setState(sensors[0], sensors[1], sensors[2], sensors[3]);
+		}
 		else
 			setState(true, true, true, true);
-		
+
 		// depending on the current state, perform the next action based on the operational sensors
 		moved = sensorState.performNextAction();
 		
@@ -124,6 +128,22 @@ public class WallFollower extends Wizard {
 	 */
 	protected void setState(boolean f, boolean l, boolean r, boolean b) {
 		sensorState = (f && l && r && b) ? new OperationalState(robot) : new RepairState(robot, f, l, r, b);
+	}
+	
+	/**
+	 * Waits for a sensor to become operational before proceeding
+	 */
+	protected void waitForOperationalSensor(boolean[] sensors) {
+		while (!sensors[0] && !sensors[1] && !sensors[2] && !sensors[3]) {
+			try {
+				Thread.sleep(2000);
+				sensors[0] = isOperational(Direction.FORWARD);
+				sensors[1] = isOperational(Direction.LEFT);
+			} catch (InterruptedException e) {
+				System.err.println("Something went wrong!");
+				return;
+			}
+		}
 	}
 
 }

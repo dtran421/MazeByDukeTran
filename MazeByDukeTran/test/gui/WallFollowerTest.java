@@ -51,13 +51,14 @@ public class WallFollowerTest extends DriverTest {
 			assertTrue(driver.drive2Exit());
 			
 			resetRobot("WallFollower", "Unreliable", 0, 0, 0, 0);
+			// run the method with repair process threads for the unreliable sensors
 			for (Direction direction: Direction.values()) {
-				Thread.sleep(130);
+				Thread.sleep(1300);
 				robot.startFailureAndRepairProcess(direction, MEAN_TIME_BETWEEN_FAILURES, MEAN_TIME_TO_REPAIR);
 			}
 			assertTrue(driver.drive2Exit());
 		} catch (Exception e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 	}
@@ -86,7 +87,7 @@ public class WallFollowerTest extends DriverTest {
 		try {
 			driver.drive1Step2Exit();
 		} catch (Exception e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 		assertEquals(OperationalState.class, ((WallFollower)driver).sensorState.getClass());
@@ -103,7 +104,7 @@ public class WallFollowerTest extends DriverTest {
 					tested = true;
 					driver.drive1Step2Exit();
 				} catch (Exception e) {
-					System.out.println("Something went wrong!");
+					System.err.println("Something went wrong!");
 					return;
 				}
 			}
@@ -120,7 +121,7 @@ public class WallFollowerTest extends DriverTest {
 					driver.drive1Step2Exit();
 					tested = true;
 				} catch (Exception e) {
-					System.out.println("Something went wrong!");
+					System.err.println("Something went wrong!");
 					return;
 				}
 			}
@@ -135,12 +136,12 @@ public class WallFollowerTest extends DriverTest {
 		resetRobot("WallFollower", "Unreliable", 0, 0, 0, 0);
 		// make sure the robot's first move is to turn right (since it has wallboards to its left and ahead of it)
 		boolean moved = false;
-		int[] currPos;
+		int[] currPos = new int[2];
 		try {
 			moved = driver.drive1Step2Exit();
 			currPos = driver.robot.getCurrentPosition();
 		} catch (Exception e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 		assertFalse(moved);
@@ -154,7 +155,7 @@ public class WallFollowerTest extends DriverTest {
 			moved = driver.drive1Step2Exit();
 			currPos = driver.robot.getCurrentPosition();
 		} catch (Exception e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 		assertTrue(moved);
@@ -168,7 +169,7 @@ public class WallFollowerTest extends DriverTest {
 			moved = driver.drive1Step2Exit();
 			currPos = driver.robot.getCurrentPosition();
 		} catch (Exception e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 		assertTrue(moved);
@@ -177,10 +178,44 @@ public class WallFollowerTest extends DriverTest {
 		assertEquals(correctPos[1], currPos[1]);
 		assertEquals(CardinalDirection.East, driver.robot.getCurrentDirection());
 		
-		// repeat the above tests for when the left and forward sensors are under repair
 		resetRobot("WallFollower", "Unreliable", 0, 0, 0, 0);
+		// make sure Plan B (wait for a sensor to be operational) is activated when all
+		// sensors are under repair
 		for (Direction direction: Direction.values())
 			robot.startFailureAndRepairProcess(direction, MEAN_TIME_BETWEEN_FAILURES, MEAN_TIME_TO_REPAIR);
+		moved = false;
+		tested = false;
+		while (!tested) {
+			robot.setBatteryLevel(driver.initialBatteryLevel);
+			if (!((WallFollower)driver).isOperational(Direction.LEFT) || 
+				!((WallFollower)driver).isOperational(Direction.FORWARD)) {
+				try {
+					moved = driver.drive1Step2Exit();
+					currPos = driver.robot.getCurrentPosition();
+					tested = true;
+				} catch (Exception e) {
+					System.err.println("Something went wrong!");
+					return;
+				}
+			}
+		}
+		assertFalse(moved);
+		correctPos[0] = 0; correctPos[1] = 1;
+		assertEquals(correctPos[0], currPos[0]);
+		assertEquals(correctPos[1], currPos[1]);
+		assertEquals(CardinalDirection.North, robot.getCurrentDirection());
+		
+		// repeat the above tests for when the left and forward sensors are under repair
+		resetRobot("WallFollower", "Unreliable", 0, 0, 0, 0);
+		for (Direction direction: Direction.values()) {
+			try {
+				Thread.sleep(1300);
+				robot.startFailureAndRepairProcess(direction, MEAN_TIME_BETWEEN_FAILURES, MEAN_TIME_TO_REPAIR);
+			} catch (Exception e) {
+				System.err.println("Something went wrong!");
+				return;
+			}
+		}
 		// check that an exception is thrown if the robot is stopped
 		robot.move(1);
 		assertThrows(Exception.class, () -> driver.drive1Step2Exit());
@@ -200,11 +235,10 @@ public class WallFollowerTest extends DriverTest {
 					currPos = driver.robot.getCurrentPosition();
 					tested = true;
 				} catch (Exception e) {
-					System.out.println("Something went wrong!8");
+					System.err.println("Something went wrong!");
 					return;
 				}
 			}
-			System.out.println("test 2");
 		}
 		assertFalse(moved);
 		correctPos[0] = 0; correctPos[1] = 1;
@@ -212,6 +246,7 @@ public class WallFollowerTest extends DriverTest {
 		assertEquals(correctPos[1], currPos[1]);
 		assertEquals(CardinalDirection.North, robot.getCurrentDirection());
 		
+		tested = false;
 		// the robot's next move should be to move forward 1 since it has a wallboard to its left
 		while (!tested) {
 			robot.setBatteryLevel(driver.initialBatteryLevel);
@@ -222,7 +257,7 @@ public class WallFollowerTest extends DriverTest {
 					currPos = driver.robot.getCurrentPosition();
 					tested = true;
 				} catch (Exception e) {
-					System.out.println("Something went wrong!");
+					System.err.println("Something went wrong!");
 					return;
 				}
 			}
@@ -233,6 +268,7 @@ public class WallFollowerTest extends DriverTest {
 		assertEquals(correctPos[1], currPos[1]);
 		assertEquals(CardinalDirection.North, driver.robot.getCurrentDirection());
 		
+		tested = false;
 		// the robot's next move should be to turn left and move 1 step forward since it has no wallboard there
 		while (!tested) {
 			robot.setBatteryLevel(driver.initialBatteryLevel);
@@ -243,7 +279,7 @@ public class WallFollowerTest extends DriverTest {
 					currPos = driver.robot.getCurrentPosition();
 					tested = true;
 				} catch (Exception e) {
-					System.out.println("Something went wrong!");
+					System.err.println("Something went wrong!");
 					return;
 				}
 			}
@@ -376,5 +412,36 @@ public class WallFollowerTest extends DriverTest {
 			assertEquals(RepairState.class, ((WallFollower)driver).sensorState.getClass());
 			sensors[i] = 1;
 		}
+	}
+	
+	/**
+	 * Test case: Correctness of the waitForOperationalSensor method
+	 * <p>
+	 * Method under test: waitForOperationalSensor(boolean f, boolean l, boolean r, boolean b)
+	 * <p>
+	 * Correct behavior:
+	 * waits until a sensor becomes operational before proceeding to perform an action
+	 */
+	@Test
+	public final void testWaitForOperationalSensor() {
+		// start the repair threads for all sensors at once
+		for (Direction direction: Direction.values())
+			robot.startFailureAndRepairProcess(direction, MEAN_TIME_BETWEEN_FAILURES, MEAN_TIME_TO_REPAIR);
+		
+		// wait until all sensors are under repair
+		boolean tested = false;
+		boolean[] sensors = {true, true, true, true};
+		while (!tested) {
+			robot.setBatteryLevel(driver.initialBatteryLevel);
+			sensors[0] = !((WallFollower)driver).isOperational(Direction.FORWARD);
+			sensors[1] = !((WallFollower)driver).isOperational(Direction.LEFT);
+			sensors[2] = !((WallFollower)driver).isOperational(Direction.RIGHT);
+			sensors[3] = !((WallFollower)driver).isOperational(Direction.BACKWARD);
+			if (sensors[0] && sensors[1] && sensors[2] && sensors[3]) {
+				((WallFollower)driver).waitForOperationalSensor(sensors);
+				tested = true;
+			}
+		}
+		assertTrue(sensors[0] || sensors[1] || sensors[2] || sensors[3]);
 	}
 }

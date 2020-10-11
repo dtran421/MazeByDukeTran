@@ -30,7 +30,7 @@ public class RobotTest extends ReliableRobot {
 		try {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 		maze = controller.getMazeConfiguration();
@@ -111,7 +111,7 @@ public class RobotTest extends ReliableRobot {
 			assertEquals(startPos[0], currPos[0]);
 			assertEquals(startPos[1], currPos[1]);
 		} catch (Exception e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 	}
@@ -334,7 +334,7 @@ public class RobotTest extends ReliableRobot {
 		try {
 			origPos = robot.getCurrentPosition();
 		} catch (Exception e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 		int origDistance = robot.getOdometerReading();
@@ -356,7 +356,7 @@ public class RobotTest extends ReliableRobot {
 			// check that it isn't stopped
 			assertFalse(robot.hasStopped());
 		} catch (Exception e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 		
@@ -376,7 +376,7 @@ public class RobotTest extends ReliableRobot {
 			// check that it isn't stopped
 			assertFalse(robot.hasStopped());
 		} catch (Exception e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 		
@@ -386,7 +386,7 @@ public class RobotTest extends ReliableRobot {
 		try {
 			origPos = robot.getCurrentPosition();
 		} catch (Exception e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 		origDistance = robot.getOdometerReading();
@@ -408,7 +408,7 @@ public class RobotTest extends ReliableRobot {
 			// check that it isn't stopped
 			assertFalse(robot.hasStopped());
 		} catch (Exception e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 		
@@ -430,7 +430,7 @@ public class RobotTest extends ReliableRobot {
 			// check that it is stopped
 			assertTrue(robot.hasStopped());
 		} catch (Exception e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 		
@@ -443,7 +443,7 @@ public class RobotTest extends ReliableRobot {
 		try {
 			origPos = robot.getCurrentPosition();
 		} catch (Exception e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 		origDistance = robot.getOdometerReading();
@@ -466,7 +466,7 @@ public class RobotTest extends ReliableRobot {
 			// check that it is stopped
 			assertTrue(robot.hasStopped());
 		} catch (Exception e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 		
@@ -477,7 +477,7 @@ public class RobotTest extends ReliableRobot {
 		try {
 			origPos = robot.getCurrentPosition();
 		} catch (Exception e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 		origDistance = robot.getOdometerReading();
@@ -495,7 +495,7 @@ public class RobotTest extends ReliableRobot {
 			// make sure robot stops since it's out of energy
 			assertTrue(robot.hasStopped());
 		} catch (Exception e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 		
@@ -523,7 +523,7 @@ public class RobotTest extends ReliableRobot {
 		try {
 			origPos = robot.getCurrentPosition();
 		} catch (Exception e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 		// rotate the robot so that it tries to jump over an external wall
@@ -542,7 +542,7 @@ public class RobotTest extends ReliableRobot {
 			// check that it is stopped
 			assertTrue(robot.hasStopped());
 		} catch (Exception e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 		
@@ -565,7 +565,7 @@ public class RobotTest extends ReliableRobot {
 			// check that it isn't stopped
 			assertFalse(robot.hasStopped());
 		} catch (Exception e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 		
@@ -574,7 +574,7 @@ public class RobotTest extends ReliableRobot {
 		try {
 			origPos = robot.getCurrentPosition();
 		} catch (Exception e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 		int origDistance = robot.getOdometerReading();
@@ -591,7 +591,7 @@ public class RobotTest extends ReliableRobot {
 			assertEquals(origBattery-JUMP_COST, robot.getBatteryLevel(), 0);
 			assertFalse(robot.hasStopped());
 		} catch (Exception e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 		
@@ -600,7 +600,7 @@ public class RobotTest extends ReliableRobot {
 		try {
 			origPos = robot.getCurrentPosition();
 		} catch (Exception e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 		origDistance = robot.getOdometerReading();
@@ -615,7 +615,7 @@ public class RobotTest extends ReliableRobot {
 			assertEquals(0, robot.getBatteryLevel(), 0);
 			assertTrue(robot.hasStopped());
 		} catch (Exception e) {
-			System.out.println("Something went wrong!");
+			System.err.println("Something went wrong!");
 			return;
 		}
 	}
