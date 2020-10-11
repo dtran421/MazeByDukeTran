@@ -61,6 +61,7 @@ public class RepairState implements SensorState {
 			robot.move(1);
 			return true;
 		}
+		
 		// if none of the above, then turn right
 		robot.rotate(Turn.RIGHT);
 		return false;
@@ -144,14 +145,17 @@ public class RepairState implements SensorState {
 				if (substitute == Direction.BACKWARD) robot.rotate(Turn.RIGHT);
 				else if (substitute == Direction.FORWARD) robot.rotate(Turn.LEFT);
 				else if (substitute == Direction.RIGHT) robot.rotate(Turn.AROUND);
+				break;
 			case RIGHT:
 				if (substitute == Direction.FORWARD) robot.rotate(Turn.RIGHT);
 				else if (substitute == Direction.BACKWARD) robot.rotate(Turn.LEFT);
 				else if (substitute == Direction.LEFT) robot.rotate(Turn.AROUND);
+				break;
 			case BACKWARD:
 				if (substitute == Direction.RIGHT) robot.rotate(Turn.RIGHT);
 				else if (substitute == Direction.LEFT) robot.rotate(Turn.LEFT);
 				else if (substitute == Direction.FORWARD) robot.rotate(Turn.AROUND);
+				break;
 		}
 	}
 }

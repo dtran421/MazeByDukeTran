@@ -59,6 +59,9 @@ public class WallFollower extends Wizard {
 	 */
 	@Override
 	public boolean drive1Step2Exit() throws Exception {
+		// if robot is stopped, then throw an exception
+		if (robot.hasStopped()) throw new Exception();
+				
 		// keep track of whether the robot moved one step
 		boolean moved = false;
 		
@@ -66,9 +69,9 @@ public class WallFollower extends Wizard {
 		boolean forwardStatus = isOperational(Direction.FORWARD);
 		boolean leftStatus = isOperational(Direction.LEFT);
 		if (!forwardStatus || !leftStatus)
-			setState(robot, forwardStatus, leftStatus, isOperational(Direction.RIGHT), isOperational(Direction.BACKWARD));
+			setState(forwardStatus, leftStatus, isOperational(Direction.RIGHT), isOperational(Direction.BACKWARD));
 		else
-			setState(robot, true, true, true, true);
+			setState(true, true, true, true);
 		
 		// depending on the current state, perform the next action based on the operational sensors
 		moved = sensorState.performNextAction();
@@ -92,23 +95,11 @@ public class WallFollower extends Wizard {
 	}
 	
 	/**
-	 * Sets the state of Wall-Follower to either the OperationalState or the RepairState
-	 * @param operational status (are all of the sensors operational)
-	 * @param f status of the forward sensor
-	 * @param l status of the left sensor
-	 * @param r status of the right sensor
-	 * @param b status of the backward sensor
-	 */
-	private void setState(Robot robot, boolean f, boolean l, boolean r, boolean b) {
-		sensorState = (f && l && r && b) ? new OperationalState(robot) : new RepairState(robot, f, l, r, b);
-	}
-	
-	/**
 	 * Determines if the sensor in the inputed direction is operational using the robot's distance to obstacle method
 	 * @param direction to check
 	 * @return whether it's operational
 	 */
-	private boolean isOperational(Direction direction) {
+	protected boolean isOperational(Direction direction) {
 		// TODO: think about making this more efficient for reliable sensors
 		try {
 			// if no exception is thrown, then the sensor is operational
@@ -120,6 +111,18 @@ public class WallFollower extends Wizard {
 		} catch (UnsupportedOperationException e) {
 			return false;
 		}
+	}
+	
+	/**
+	 * Sets the state of Wall-Follower to either the OperationalState or the RepairState
+	 * @param operational status (are all of the sensors operational)
+	 * @param f status of the forward sensor
+	 * @param l status of the left sensor
+	 * @param r status of the right sensor
+	 * @param b status of the backward sensor
+	 */
+	protected void setState(boolean f, boolean l, boolean r, boolean b) {
+		sensorState = (f && l && r && b) ? new OperationalState(robot) : new RepairState(robot, f, l, r, b);
 	}
 
 }

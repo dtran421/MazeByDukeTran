@@ -25,15 +25,17 @@ public class RepairProcess implements Runnable {
 	@Override
 	public void run() {
 		try {
-			// wait the time between failures
-			Thread.sleep(operatingTime);
-			// set the sensor to non-operational
-			sensor.setOperational(false);
-			
-			// wait the time necessary for repair
-			Thread.sleep(repairTime);
-			// set the sensor to operational
-			sensor.setOperational(true);
+			while (true) {
+				// wait the time between failures
+				Thread.sleep(operatingTime);
+				// set the sensor to non-operational
+				sensor.setOperational(false);
+				
+				// wait the time necessary for repair
+				Thread.sleep(repairTime);
+				// set the sensor to operational
+				sensor.setOperational(true);
+			}
 		} catch (InterruptedException e) {
 			System.out.println("Terminating repair thread...");
 			return;

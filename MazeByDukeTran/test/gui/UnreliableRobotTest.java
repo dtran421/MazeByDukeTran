@@ -118,15 +118,13 @@ public class UnreliableRobotTest extends RobotTest {
 		
 		// make an UnreliableRobot with all unreliable sensors, check that no error is thrown when running the method
 		robot = new UnreliableRobot(0, 0, 0, 0);
-		for (Direction direction: Direction.values()) {
+		for (Direction direction: Direction.values())
 			robot.startFailureAndRepairProcess(direction, MEAN_TIME_BETWEEN_FAILURES, MEAN_TIME_TO_REPAIR);
-		}
 		
 		// make an UnreliableRobot with all reliable sensors, check that all sensors throw an exception when the method is called
 		robot = new UnreliableRobot(1, 1, 1, 1);	
-		for (Direction direction: Direction.values()) {
+		for (Direction direction: Direction.values())
 			assertThrows(UnsupportedOperationException.class, () -> robot.startFailureAndRepairProcess(direction, MEAN_TIME_BETWEEN_FAILURES, MEAN_TIME_TO_REPAIR));
-		}
 		
 		// make an UnreliableRobot with one reliable sensor and all other unreliable sensors
 		robot = new UnreliableRobot(1, 0, 0, 0);
@@ -221,9 +219,8 @@ public class UnreliableRobotTest extends RobotTest {
 		
 		// make an UnreliableRobot with all reliable sensors, check that all sensors throw an exception when the method is called
 		robot = new UnreliableRobot(1, 1, 1, 1);	
-		for (Direction direction: Direction.values()) {
+		for (Direction direction: Direction.values())
 			assertThrows(UnsupportedOperationException.class, () -> robot.stopFailureAndRepairProcess(direction));
-		}
 		
 		// make an UnreliableRobot with one reliable sensor and all other unreliable sensors
 		robot = new UnreliableRobot(1, 0, 0, 0);

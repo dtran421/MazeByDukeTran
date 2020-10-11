@@ -12,8 +12,6 @@ import gui.Robot.Direction;
  * Collaborators: Maze, RobotDriver (Wall-follower and Wizard), Robot, RepairProcess
  */
 public class UnreliableSensor extends ReliableSensor {
-	protected final int MEAN_TIME_BETWEEN_FAILURES = 400;
-	protected final int MEAN_TIME_TO_REPAIR = 200;
 	protected Thread repairProcess;
 	
 	public UnreliableSensor() {
@@ -56,13 +54,7 @@ public class UnreliableSensor extends ReliableSensor {
 		// check that a thread exists and is currently running
 		if (repairProcess != null && repairProcess.isAlive()) {
 			// terminate the repair process
-			try {
-				repairProcess.join();
-			} catch (InterruptedException e) {
-				System.out.println("Thread interrupted! Cleaning up...");
-				repairProcess = null;
-				return;
-			}
+			repairProcess.interrupt();
 			// set the sensor to operational
 			setOperational(true);
 			// clean up

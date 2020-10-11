@@ -1,6 +1,7 @@
 package gui;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
@@ -11,8 +12,8 @@ import org.junit.Test;
 import gui.Robot.Direction;
 
 public class UnreliableSensorTest extends SensorTest {
-	private final int MEAN_TIME_BETWEEN_FAILURES = 400; // milliseconds
-	private final int MEAN_TIME_TO_REPAIR = 200;
+	private final int MEAN_TIME_BETWEEN_FAILURES = 4000; // milliseconds
+	private final int MEAN_TIME_TO_REPAIR = 2000;
 	
 	/**
 	 * Create a new unreliable sensor for each test
@@ -57,6 +58,29 @@ public class UnreliableSensorTest extends SensorTest {
 		
 		// check that the repair process thread has been created (not null)
 		assertNotNull(((UnreliableSensor)sensor).repairProcess);
+
+		// check that the sensor is operational at the beginning
+		assertTrue(sensor.isOperational);
+		// check that at some point, the sensor is under repair
+		boolean tested = false;
+		while (!tested) {
+			try {
+				Thread.sleep(1000);
+				if (!sensor.isOperational) tested = true;
+			} catch (InterruptedException e) {
+				System.out.println();
+			}
+		}
+		// check that at some point later, the sensor is operational again
+		tested = false;
+		while (!tested) {
+			try {
+				Thread.sleep(1000);
+				if (!sensor.isOperational) tested = true;
+			} catch (InterruptedException e) {
+				System.out.println();
+			}
+		}
 	}
 	
 	/**
@@ -73,6 +97,16 @@ public class UnreliableSensorTest extends SensorTest {
 		assertThrows(UnsupportedOperationException.class, () -> sensor.stopFailureAndRepairProcess());
 		// check that the sensor is operational after the method executes
 		sensor.startFailureAndRepairProcess(MEAN_TIME_BETWEEN_FAILURES, MEAN_TIME_TO_REPAIR);
+		boolean tested = false;
+		while (!tested) {
+			try {
+				Thread.sleep(1000);
+				if (!sensor.isOperational) tested = true;
+			} catch (InterruptedException e) {
+				System.out.println();
+			}
+		}
+		assertFalse(sensor.isOperational);
 		sensor.stopFailureAndRepairProcess();
 		assertTrue(sensor.isOperational);
 		// check that the thread is terminated

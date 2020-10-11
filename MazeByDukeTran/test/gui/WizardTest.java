@@ -15,6 +15,9 @@ public class WizardTest extends DriverTest {
 	 */
 	@Before
 	public final void setUp() {
+		// instantiate the robot and assign the controller to the robot
+		robot = new ReliableRobot();
+		robot.setController(controller);
 		// instantiate the wizard and assign the robot and maze to the wizard
 		driver = new Wizard();
 		driver.setRobot(robot);
@@ -37,7 +40,7 @@ public class WizardTest extends DriverTest {
 			// check that method returns false since it was stopped
 			assertFalse(driver.drive2Exit());
 			
-			resetRobot("Wizard");
+			resetRobot("Wizard", "Reliable", 1, 1, 1, 1);
 
 			// run the method and check that the robot is at the exit (should return true)
 			assertTrue(driver.drive2Exit());
@@ -60,12 +63,12 @@ public class WizardTest extends DriverTest {
 		// check that an exception is thrown if the robot doesn't have enough energy for a rotation
 		robot.setBatteryLevel(robot.getEnergyForFullRotation()/4-1);
 		assertThrows(Exception.class, () -> driver.drive1Step2Exit());
-		resetRobot("Wizard");
+		resetRobot("Wizard", "Reliable", 1, 1, 1, 1);
 		// check that an exception is thrown if the robot doesn't have enough energy for a move
 		robot.setBatteryLevel(robot.getEnergyForStepForward()-1);
 		// check that an exception is thrown if the robot hits a wall
 		assertThrows(Exception.class, () -> driver.drive1Step2Exit());
-		resetRobot("Wizard");
+		resetRobot("Wizard", "Reliable", 1, 1, 1, 1);
 		robot.setBatteryLevel(driver.initialBatteryLevel);
 		
 		// while robot is not at exit

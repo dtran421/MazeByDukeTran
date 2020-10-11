@@ -17,6 +17,7 @@ public class DriverTest extends Wizard {
 	protected Wizard driver;
 	protected Maze maze;
 	protected Robot robot;
+	protected Controller controller;
 	
 	/**
 	 * Set up the maze, robot, and controller
@@ -24,7 +25,7 @@ public class DriverTest extends Wizard {
 	@Before
 	public final void setUpParent() {
 		// set up controller and maze
-		Controller controller = new Controller();
+		controller = new Controller();
 		controller.setDeterministic(true);
 		controller.turnOffGraphics();
 		controller.switchFromTitleToGenerating(0);
@@ -34,9 +35,6 @@ public class DriverTest extends Wizard {
 			e.printStackTrace();
 		}
 		maze = controller.getMazeConfiguration();
-		// instantiate the robot and assign the controller to the robot
-		robot = new ReliableRobot();
-		robot.setController(controller);
 	}
 	
 	/**
@@ -190,14 +188,22 @@ public class DriverTest extends Wizard {
 	 * Re-instantiates the robot with the same maze and controller
 	 * (to reset the stopped field to false)
 	 */
-	protected final void resetRobot(String driver) {
+	protected final void resetRobot(String driver, String robot, int f, int l, int r, int b) {
 		Controller controller = new Controller();
 		controller.turnOffGraphics();
 		controller.setDeterministic(true);
 		controller.switchFromGeneratingToPlaying(maze);
 		
-		robot = new ReliableRobot();
-		robot.setController(controller);
+		switch (robot) {
+			case "Reliable":
+				this.robot = new ReliableRobot();
+				break;
+			case "Unreliable":
+				this.robot = new UnreliableRobot(f, l, r, b);
+				break;
+		}
+		this.robot.setController(controller);
+		
 		switch (driver) {
 			case "Wizard":
 				this.driver = new Wizard();
@@ -206,7 +212,7 @@ public class DriverTest extends Wizard {
 				this.driver = new WallFollower();
 				break;
 		}
-		this.driver.setRobot(robot);
+		this.driver.setRobot(this.robot);
 		this.driver.setMaze(maze);		
 	}	
 }
