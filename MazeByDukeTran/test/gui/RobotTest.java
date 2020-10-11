@@ -30,7 +30,8 @@ public class RobotTest extends ReliableRobot {
 		try {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			System.out.println("Something went wrong!");
+			return;
 		}
 		maze = controller.getMazeConfiguration();
 	}
@@ -49,10 +50,6 @@ public class RobotTest extends ReliableRobot {
 		assertNotNull(robot);
 		// check if controller is not null
 		assertNotNull(robot.controller);
-		// check that the fields of the robot are instantiated 
-		assertEquals(3500, robot.getBatteryLevel(), 0);
-		assertEquals(0, robot.getOdometerReading());
-		assertFalse(robot.hasStopped());
 	}
 	
 	/**
@@ -79,6 +76,11 @@ public class RobotTest extends ReliableRobot {
 		controller.currentState.setMazeConfiguration(maze);
 		robot.setController(controller);
 		assertNotNull(controller);
+		
+		// check that the fields of the robot are instantiated 
+		assertEquals(3500, robot.getBatteryLevel(), 0);
+		assertEquals(0, robot.getOdometerReading());
+		assertFalse(robot.hasStopped());
 		
 		// check that all 4 sensors are instantiated
 		assertNotNull(robot.leftSensor);

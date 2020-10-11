@@ -31,8 +31,6 @@ public class ReliableRobot implements Robot {
 	
 	public ReliableRobot() {
 		setBatteryLevel(INITIAL_BATTERY);
-		distTraveled = 0;
-		stopped = false;
 		leftSensor = new ReliableSensor(Direction.LEFT);
 		rightSensor = new ReliableSensor(Direction.RIGHT);
 		forwardSensor = new ReliableSensor(Direction.FORWARD);
@@ -56,6 +54,9 @@ public class ReliableRobot implements Robot {
 		// assign controller field to inputed controller
 		this.controller = controller;
 		
+		stopped = false;
+		setBatteryLevel(INITIAL_BATTERY);
+		resetOdometer();
 		// instantiate the distance sensors now that we have the maze
 		Maze mazeConfig = controller.getMazeConfiguration();
 		leftSensor.setMaze(mazeConfig);

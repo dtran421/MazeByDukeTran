@@ -32,7 +32,8 @@ public class DriverTest extends Wizard {
 		try {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			System.out.println("Something went wrong!");
+			return;
 		}
 		maze = controller.getMazeConfiguration();
 	}

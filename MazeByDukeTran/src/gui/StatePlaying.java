@@ -110,6 +110,8 @@ public class StatePlaying extends DefaultState {
         
         if (control.getDriver() != null)
         	try {
+        		mapMode = true;
+        		showSolution = true;
         		control.getDriver().drive2Exit();
         	} catch (Exception e) {
         		System.out.println(e.toString());

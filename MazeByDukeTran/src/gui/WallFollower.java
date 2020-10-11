@@ -36,6 +36,7 @@ public class WallFollower extends Wizard {
 			int[] currPos;
 			// try to get to the exit by running drive1Step2Exit using the wall-follower algorithm
 			try {
+				Thread.sleep(500);
 				drive1Step2Exit();
 				currPos = robot.getCurrentPosition();
 			} catch (Exception e) {

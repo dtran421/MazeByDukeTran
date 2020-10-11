@@ -176,15 +176,9 @@ public class Controller {
         currentState = states[2];
         currentState.setMazeConfiguration(config);
         
-        if (getRobot() != null && getDriver() != null) {
-        	Robot robot = new ReliableRobot();
-        	RobotDriver driver = new Wizard();
+        if (robot != null && driver != null) {
         	robot.setController(this);
-
-        	driver.setRobot(robot);
         	driver.setMaze(config);
-        	
-        	setRobotAndDriver(robot, driver);
         }
         
         currentState.start(this, panel);
