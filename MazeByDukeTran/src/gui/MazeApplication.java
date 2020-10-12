@@ -55,7 +55,7 @@ public class MazeApplication extends JFrame {
 	    // if mazes are different each and every time
 	    // set to true for testing purposes
 	    // set to false for playing the game
-	    result.setDeterministic(false);
+	    result.setDeterministic(true);
 	    String msg = ""; // message for feedback
 	    boolean file = false;
 	    RobotDriver driver = null; Robot robot = null;

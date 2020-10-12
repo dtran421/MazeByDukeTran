@@ -57,6 +57,30 @@ public class WallFollowerTest extends DriverTest {
 				robot.startFailureAndRepairProcess(direction, MEAN_TIME_BETWEEN_FAILURES, MEAN_TIME_TO_REPAIR);
 			}
 			assertTrue(driver.drive2Exit());
+			
+			resetRobot("WallFollower", "Unreliable", 0, 0, 0, 0);
+			// run the method on a maze with rooms
+			controller = new Controller();
+			controller.setDeterministic(true);
+			controller.turnOffGraphics();
+			controller.switchFromTitleToGenerating(2);
+			try {
+				Thread.sleep(750);
+			} catch (InterruptedException e) {
+				System.err.println("Something went wrong!");
+				return;
+			}
+			maze = controller.getMazeConfiguration();
+			controller.switchFromGeneratingToPlaying(maze);
+			
+			robot.setController(controller);
+			driver.setMaze(maze);
+			
+			for (Direction direction: Direction.values()) {
+				Thread.sleep(1300);
+				robot.startFailureAndRepairProcess(direction, MEAN_TIME_BETWEEN_FAILURES, MEAN_TIME_TO_REPAIR);
+			}
+			assertTrue(driver.drive2Exit());
 		} catch (Exception e) {
 			System.err.println("Something went wrong!");
 			return;

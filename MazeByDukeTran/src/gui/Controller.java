@@ -1,7 +1,7 @@
 package gui;
 
 import gui.Constants.UserInput;
-
+import gui.Robot.Direction;
 import generation.CardinalDirection;
 import generation.Maze;
 import generation.Order;
@@ -95,6 +95,9 @@ public class Controller {
      */
     boolean deterministic;
     
+    final int MEAN_TIME_BETWEEN_FAILURES = 4000;
+    final int MEAN_TIME_TO_REPAIR = 2000;
+    
     public Controller() {
     	states = new State[4];
         states[0] = new StateTitle();
@@ -179,6 +182,13 @@ public class Controller {
         if (robot != null && driver != null) {
         	robot.setController(this);
         	driver.setMaze(config);
+        	for (Direction direction: Direction.values())
+        		try {
+        			robot.startFailureAndRepairProcess(direction, MEAN_TIME_BETWEEN_FAILURES, MEAN_TIME_TO_REPAIR);
+        			Thread.sleep(1300);
+        		} catch (Exception e) {
+        			System.out.println("Reliable Sensor, moving on...");
+        		}
         }
         
         currentState.start(this, panel);

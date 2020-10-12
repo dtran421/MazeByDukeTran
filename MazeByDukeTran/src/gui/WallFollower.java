@@ -7,9 +7,9 @@ import gui.Robot.Turn;
  * @author Duke Tran
  * Class: WallFollower
  * <p>
- * Responsibilites: direct the robot towards the maze exit
+ * Responsibilities: direct the robot towards the maze exit
  * <p>
- * Collaborators: Maze, Robot (ReliableRobot and UnreliableRobot), RobotDriver (Wizard)
+ * Collaborators: Maze, Robot (ReliableRobot and UnreliableRobot), SensorState (RepairState, OperationalState)
  */
 public class WallFollower extends Wizard {
 	// keep track of the state of the sensors (OperationalState when all sensors are operational, RepairState
@@ -30,13 +30,12 @@ public class WallFollower extends Wizard {
 	 */
 	@Override
 	public boolean drive2Exit() throws Exception {
-		// TODO: think about checking if you can see the exit after each rotation
 		// while the robot hasn't stopped
 		while (!robot.hasStopped()) {
 			int[] currPos;
 			// try to get to the exit by running drive1Step2Exit using the wall-follower algorithm
 			try {
-				//Thread.sleep(500);
+				Thread.sleep(500);
 				drive1Step2Exit();
 				currPos = robot.getCurrentPosition();
 			} catch (Exception e) {
@@ -105,7 +104,6 @@ public class WallFollower extends Wizard {
 	 * @return whether it's operational
 	 */
 	protected boolean isOperational(Direction direction) {
-		// TODO: think about making this more efficient for reliable sensors
 		try {
 			// if no exception is thrown, then the sensor is operational
 			int dist = robot.distanceToObstacle(direction);

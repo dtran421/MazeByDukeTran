@@ -46,7 +46,7 @@ public class RepairState implements SensorState {
 			robot.rotate(Turn.LEFT);
 			robot.move(1);
 			return true;
-		}
+		} else substituteSensor(workingSensorForLeft, Direction.LEFT);
 		substituteSensor(Direction.FORWARD, workingSensorForForward);
 		// detect if there's no wall in front of the robot
 		if (robot.distanceToObstacle(workingSensorForForward) != 0) {
@@ -54,7 +54,7 @@ public class RepairState implements SensorState {
 			// take one step forward
 			robot.move(1);
 			return true;
-		}
+		} else substituteSensor(workingSensorForForward, Direction.FORWARD);
 		
 		// if none of the above, then turn right
 		robot.rotate(Turn.RIGHT);
