@@ -239,7 +239,7 @@ public class StatePlaying extends DefaultState {
     	firstPersonView.draw(px, py, walkStep, angle, 
     			getPercentageForDistanceToExit()) ;
         if (isInMapMode()) {
-			mapView.draw(panel, px, py, angle, walkStep,
+			mapView.draw(px, py, angle, walkStep,
 					isInShowMazeMode(),isInShowSolutionMode()) ;
 		}
 		// update the screen with the buffer graphics
@@ -419,7 +419,7 @@ public class StatePlaying extends DefaultState {
     	// for guidance
     	if (isFacingDeadEnd()) {
         	//System.out.println("Facing deadend, help by showing solution");
-        	mapView.draw(panel, px, py, angle, walkStep, true, true) ;
+        	mapView.draw(px, py, angle, walkStep, true, true) ;
         }
     	else {
     		// draw compass rose

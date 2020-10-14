@@ -197,13 +197,12 @@ public class MazePanel extends Panel implements P5Panel  {
 
 	@Override
 	public void addLine(int startX, int startY, int endX, int endY) {
-		// TODO Auto-generated method stub
-		
+		graphics.drawLine(startX, startY, endX, endY);		
 	}
 
 	@Override
 	public void addFilledOval(int x, int y, int width, int height) {
-        graphics.fillOval(x,y,width,height);		
+        graphics.fillOval(x, y, width, height);		
 	}
 
 	@Override
