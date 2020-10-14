@@ -139,14 +139,16 @@ public class MazePanel extends Panel implements P5Panel  {
 
 	@Override
 	public void commit() {
-		// TODO Auto-generated method stub
-		
+		update();
 	}
 
 	@Override
 	public boolean isOperational() {
-		// TODO Auto-generated method stub
-		return false;
+		if (null == getBufferGraphics()) {
+            System.out.println("Can't get graphics object to draw on, skipping draw operation") ;
+            return false;
+        }
+		return true;
 	}
 
 	@Override

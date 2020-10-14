@@ -152,10 +152,7 @@ public class FirstPersonView {
 	 */
 	public void draw(int x, int y, int walkStep, int ang, float percentToExit) {
         // viewers draw on the buffer graphics
-        if (null == mazePanel.getBufferGraphics()) {
-            System.out.println("FirstPersonDrawer.draw: can't get graphics object to draw on, skipping redraw operation") ;
-            return;
-        }
+        if (!mazePanel.isOperational()) return;
         
         // update fields angle, viewx, viewy for current position and viewing angle
         angle = ang ;

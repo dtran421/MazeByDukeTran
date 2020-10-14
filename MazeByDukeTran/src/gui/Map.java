@@ -125,10 +125,7 @@ public class Map {
 	public void draw(int x, int y, int angle, int walkStep,
 			boolean showMaze, boolean showSolution) {
         // viewers draw on the buffer graphics
-        if (null == mazePanel.getBufferGraphics()) {
-            System.out.println("MapDrawer.draw: can't get graphics object to draw on, skipping draw operation") ;
-            return;
-        }
+        if (!mazePanel.isOperational()) return;
         final int viewDX = getViewDX(angle); 
         final int viewDY = getViewDY(angle);
         drawMap(x, y, walkStep, viewDX, viewDY, showMaze, showSolution) ;
