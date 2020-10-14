@@ -3,8 +3,6 @@
  */
 package gui;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.util.ArrayList;
 
 import generation.BSPBranch;
@@ -80,7 +78,6 @@ public class FirstPersonView {
 	 * with the current buffer image is the responsibility of
 	 * the StatePlaying class.
 	 */
-	private Graphics2D gc; 
 	private MazePanel mazePanel;
 	
 	/**
@@ -159,15 +156,12 @@ public class FirstPersonView {
 	 * @param walkStep, only used to set viewX and viewY
 	 * 
 	 */
-	public void draw(MazePanel panel, int x, int y, int walkStep, int ang, float percentToExit) {
-		// obtain a Graphics2D object we can draw on
-		Graphics g = panel.getBufferGraphics();
+	public void draw(int x, int y, int walkStep, int ang, float percentToExit) {
         // viewers draw on the buffer graphics
-        if (null == g) {
+        if (null == mazePanel.getBufferGraphics()) {
             System.out.println("FirstPersonDrawer.draw: can't get graphics object to draw on, skipping redraw operation") ;
             return;
         }
-        gc = (Graphics2D) g ;
         
         // update fields angle, viewx, viewy for current position and viewing angle
         angle = ang ;
@@ -175,7 +169,7 @@ public class FirstPersonView {
         
         // update graphics
         // draw background figure: black on bottom half, grey on top half
-        drawBackground(g, percentToExit);
+        drawBackground(percentToExit);
         // set color to white and draw what ever can be seen from the current position
         //g.setColor(Color.white);
         mazePanel.setColor(WHITE);
@@ -223,18 +217,18 @@ public class FirstPersonView {
 	 * @param graphics to draw on, must be not null
 	 * @param percentToExit gives the distance to exit
 	 */
-	private void drawBackground(Graphics graphics, float percentToExit) {
+	private void drawBackground(float percentToExit) {
 		// black rectangle in upper half of screen
 		// graphics.setColor(Color.black);
 		// dynamic color setting: 
 		mazePanel.setColor(getBackgroundColor(percentToExit, true));
-		graphics.fillRect(0, 0, viewWidth, viewHeight/2);
+		mazePanel.addFilledRectangle(0, 0, viewWidth, viewHeight/2);
 		// grey rectangle in lower half of screen
 		// graphics.setColor(Color.darkGray);
 		// dynamic color setting: 
 		mazePanel.setColor(getBackgroundColor(percentToExit, false));
-		graphics.fillRect(0, viewHeight/2, viewWidth, viewHeight/2);
-	}
+		mazePanel.addFilledRectangle(0, viewHeight/2, viewWidth, viewHeight/2);
+	}	
 	
 	/**
 	 * Determine the background color for the top and bottom
@@ -568,7 +562,7 @@ public class FirstPersonView {
 			// debug
 			//System.out.println("polygon-x: " + xps[0] + ", " + xps[1] + ", " + xps[2] + ", " + xps[3]) ;
 			//System.out.println("polygon-y: " + yps[0] + ", " + yps[1] + ", " + yps[2] + ", " + yps[3]) ;
-			gc.fillPolygon(xps, yps, 4);
+			mazePanel.addFilledPolygon(xps, yps, 4);
 			// for debugging purposes, code will draw a red line around polygon
 			// this makes individual walls visible
 			/*

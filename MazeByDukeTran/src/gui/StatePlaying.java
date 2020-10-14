@@ -236,7 +236,7 @@ public class StatePlaying extends DefaultState {
     		return;
     	}
     	// draw the first person view and the map view if wanted
-    	firstPersonView.draw(panel, px, py, walkStep, angle, 
+    	firstPersonView.draw(px, py, walkStep, angle, 
     			getPercentageForDistanceToExit()) ;
         if (isInMapMode()) {
 			mapView.draw(panel, px, py, angle, walkStep,
