@@ -124,7 +124,7 @@ public class StatePlaying extends DefaultState {
      * for this state.
      */
 	protected void startDrawer() {
-		firstPersonView = new FirstPersonView(Constants.VIEW_WIDTH,
+		firstPersonView = new FirstPersonView(panel, Constants.VIEW_WIDTH,
 				Constants.VIEW_HEIGHT, Constants.MAP_UNIT,
 				Constants.STEP_SIZE, seenCells, mazeConfig.getRootnode()) ;
 		mapView = new Map(seenCells, 15, mazeConfig) ;

@@ -12,12 +12,11 @@ import generation.CardinalDirection;
  * @author Peter Kemper
  */
 public class CompassRose {
-	//private static final long serialVersionUID = 1916497172430988388L;
 	//private static final Color greenWM = Color.decode("#115740");
 	private static final int greenWM = 1136448;
 	//private static final Color goldWM = Color.decode("#916f41");
 	private static final int goldWM = 9531201;
-	private static final int WHITE = 376926741;
+	private static final int WHITE = 16777215;
 	
 
     //private static final Color MAIN_COLOR = greenWM; //new Color(0.4f, 0.4f, 1.0f);
@@ -39,7 +38,6 @@ public class CompassRose {
     private double scaler;
     
     private double markerRadius;
-    //private Font markerFont;
     private String markerFont;
     
     // (x,y) coordinates of center point on overall area
@@ -52,7 +50,6 @@ public class CompassRose {
      * Construct a compass rose with the default settings.
      */
     public CompassRose(MazePanel mazePanel) {
-        //this(0.9, 1.7, Font.decode("Serif-PLAIN-16"));
     	this(0.9, 1.7, "Serif-PLAIN-16");
         this.mazePanel = mazePanel;
         mazePanel.setFont(markerFont);
@@ -87,9 +84,7 @@ public class CompassRose {
     	currentDir = cd;
     }
 
-    public void paintComponent() {        
-        //final Graphics2D g2 = (Graphics2D) g;
-        
+    public void paintComponent() {                
         /* Original code
         Dimension dimension = this.getSize();
         int width = Math.min(dimension.width, dimension.height);
@@ -100,9 +95,7 @@ public class CompassRose {
         final int mainLength = (int) (width * MAIN_LENGTH / 2);
         final int mainWidth = (int) (width * MAIN_WIDTH / 2);
         
-        //g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         mazePanel.setRenderingHint(P5Panel.RenderingHints.KEY_RENDERING, P5Panel.RenderingHints.VALUE_RENDER_QUALITY);
-        //g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         mazePanel.setRenderingHint(P5Panel.RenderingHints.KEY_ANTIALIASING, P5Panel.RenderingHints.VALUE_ANTIALIAS_ON);
         // draw background disc
         drawBackground(width);
@@ -173,10 +166,8 @@ public class CompassRose {
 		final int x = centerX - width / 2 + CIRCLE_BORDER;
 		final int y = centerY - width / 2 + CIRCLE_BORDER;
 		final int w = width - 2 * CIRCLE_BORDER;
-		//g2.setColor(CIRCLE_SHADE);
 		mazePanel.setColor(CIRCLE_SHADE);
         mazePanel.addArc(x, y, w, w, 45, 180);
-        //g2.setColor(CIRCLE_HIGHLIGHT);
         mazePanel.setColor(CIRCLE_HIGHLIGHT);
         mazePanel.addArc(x, y, w, w, 180 + 45, 180);
 	}
@@ -187,7 +178,6 @@ public class CompassRose {
             
             int pos = (int) (width * markerRadius / 2);
             
-            //g2.setColor(MARKER_COLOR);
             mazePanel.setColor(MARKER_COLOR);
             /* original code
             drawMarker(g2, mid, mid - pos, trans.get("lbl.north"));
@@ -201,33 +191,25 @@ public class CompassRose {
             // WARNING: north south confusion
             // currendDir South is going upward on the map
             if (CardinalDirection.South == currentDir)
-            	//g2.setColor(MARKER_COLOR);
             	mazePanel.setColor(MARKER_COLOR);
             else
-            	//g2.setColor(goldWM);
             	mazePanel.setColor(goldWM);
             drawMarker(centerX, centerY - pos, "N");
             if (CardinalDirection.East == currentDir)
-            	//g2.setColor(MARKER_COLOR);
             	mazePanel.setColor(MARKER_COLOR);
             else
-            	//g2.setColor(goldWM);
             	mazePanel.setColor(goldWM);
             drawMarker(centerX + pos, centerY, "E");
             // WARNING: north south confusion
             // currendDir North is going downwards on the map
             if (CardinalDirection.North == currentDir)
-            	//g2.setColor(MARKER_COLOR);
             	mazePanel.setColor(MARKER_COLOR);
             else
-            	//g2.setColor(goldWM);
             	mazePanel.setColor(goldWM);
             drawMarker(centerX, centerY + pos, "S");
             if (CardinalDirection.West == currentDir)
-            	//g2.setColor(MARKER_COLOR);
             	mazePanel.setColor(MARKER_COLOR);
             else
-            	//g2.setColor(goldWM);
             	mazePanel.setColor(goldWM);
             drawMarker(centerX - pos, centerY, "W");
         }
