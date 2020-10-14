@@ -1,11 +1,14 @@
 package gui;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Panel;
+import java.awt.font.GlyphVector;
+import java.awt.geom.Rectangle2D;
 
 /**
  * Add functionality for double buffering to an AWT Panel class.
@@ -110,6 +113,17 @@ public class MazePanel extends Panel implements P5Panel  {
 		}
 		return graphics;
 	}
+	
+	public double[] getPreferredSize(CompassRose compass, int size) {
+		Dimension dim = new Dimension();
+        /* original code
+        int min = Math.min(dim.width, dim.height);
+        */
+        int min = size; // simply use given size
+        dim.setSize(min, min);
+        double[] dimensions = {dim.getWidth(), dim.getHeight()};
+        return dimensions;
+	}
 
 	@Override
 	public void commit() {
@@ -162,14 +176,12 @@ public class MazePanel extends Panel implements P5Panel  {
 
 	@Override
 	public void addFilledPolygon(int[] xPoints, int[] yPoints, int nPoints) {
-		// TODO Auto-generated method stub
-		
+		graphics.fillPolygon(xPoints, yPoints, nPoints);
 	}
 
 	@Override
 	public void addPolygon(int[] xPoints, int[] yPoints, int nPoints) {
-		// TODO Auto-generated method stub
-		
+        graphics.drawPolygon(xPoints, yPoints, nPoints);
 	}
 
 	@Override
@@ -185,14 +197,19 @@ public class MazePanel extends Panel implements P5Panel  {
 
 	@Override
 	public void addArc(int x, int y, int width, int height, int startAngle, int arcAngle) {
-		// TODO Auto-generated method stub
-		
+        graphics.drawArc(x, y, width, height, startAngle, arcAngle);
 	}
 
 	@Override
 	public void addMarker(float x, float y, String str) {
-		// TODO Auto-generated method stub
-		
+		//GlyphVector gv = markerFont.createGlyphVector(g2.getFontRenderContext(), str);
+        GlyphVector gv = getFont().createGlyphVector(graphics.getFontRenderContext(), str);
+        Rectangle2D rect = gv.getVisualBounds();
+        
+        x -= rect.getWidth() / 2;
+        y += rect.getHeight() / 2;
+        
+        graphics.drawGlyphVector(gv, x, y);
 	}
 
 	@Override
@@ -232,5 +249,4 @@ public class MazePanel extends Panel implements P5Panel  {
 		
 		graphics.setRenderingHint(convertedKey, convertedValue);
 	}
-
 }

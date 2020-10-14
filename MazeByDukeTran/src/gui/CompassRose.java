@@ -1,14 +1,5 @@
 package gui;
 
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.font.GlyphVector;
-import java.awt.geom.Rectangle2D;
-
-import javax.swing.JComponent;
-
 import generation.CardinalDirection;
 
 /**
@@ -20,8 +11,8 @@ import generation.CardinalDirection;
  * adjusted for Maze setting by
  * @author Peter Kemper
  */
-public class CompassRose extends JComponent {
-	private static final long serialVersionUID = 1916497172430988388L;
+public class CompassRose {
+	//private static final long serialVersionUID = 1916497172430988388L;
 	//private static final Color greenWM = Color.decode("#115740");
 	private static final int greenWM = 1136448;
 	//private static final Color goldWM = Color.decode("#916f41");
@@ -48,7 +39,8 @@ public class CompassRose extends JComponent {
     private double scaler;
     
     private double markerRadius;
-    private Font markerFont;
+    //private Font markerFont;
+    private String markerFont;
     
     // (x,y) coordinates of center point on overall area
     private int centerX; // x coordinate of center point
@@ -60,8 +52,10 @@ public class CompassRose extends JComponent {
      * Construct a compass rose with the default settings.
      */
     public CompassRose(MazePanel mazePanel) {
-        this(0.9, 1.7, Font.decode("Serif-PLAIN-16"));
+        //this(0.9, 1.7, Font.decode("Serif-PLAIN-16"));
+    	this(0.9, 1.7, "Serif-PLAIN-16");
         this.mazePanel = mazePanel;
+        mazePanel.setFont(markerFont);
     }
     
     
@@ -73,7 +67,7 @@ public class CompassRose extends JComponent {
      *                      will position the markers outside of the bordering circle.
      * @param markerFont    The font used for the markers.
      */
-    public CompassRose(double scaler, double markerRadius, Font markerFont) {
+    public CompassRose(double scaler, double markerRadius, String markerFont) {
         this.scaler = scaler;
         this.markerRadius = markerRadius;
         this.markerFont = markerFont;
@@ -93,11 +87,8 @@ public class CompassRose extends JComponent {
     	currentDir = cd;
     }
 
-    @Override
-    public void paintComponent(Graphics g) {
-        
+    public void paintComponent() {        
         //final Graphics2D g2 = (Graphics2D) g;
-        final Graphics2D g2 = (Graphics2D) mazePanel.getBufferGraphics();
         
         /* Original code
         Dimension dimension = this.getSize();
@@ -114,7 +105,7 @@ public class CompassRose extends JComponent {
         //g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         mazePanel.setRenderingHint(P5Panel.RenderingHints.KEY_ANTIALIASING, P5Panel.RenderingHints.VALUE_ANTIALIAS_ON);
         // draw background disc
-        drawBackground(g2, width);
+        drawBackground(width);
         // draw main part in all 4 directions in same color
         // x, y arrays used for drawing polygons
         // starting point is always (centerX, centerY)
@@ -124,18 +115,18 @@ public class CompassRose extends JComponent {
         final int[] y = new int[3];
         x[0] = centerX;
         y[0] = centerY;
-        drawMainNorth(g2, mainLength, mainWidth, x, y);
-        drawMainEast(g2, mainLength, mainWidth, x, y);
-        drawMainSouth(g2, mainLength, mainWidth, x, y);
-        drawMainWest(g2, mainLength, mainWidth, x, y);
+        drawMainNorth(mainLength, mainWidth, x, y);
+        drawMainEast(mainLength, mainWidth, x, y);
+        drawMainSouth(mainLength, mainWidth, x, y);
+        drawMainWest(mainLength, mainWidth, x, y);
         
-        drawBorderCircle(g2, width);
+        drawBorderCircle(width);
         
-        drawDirectionMarker(g2, width);
+        drawDirectionMarker(width);
     }
 
 
-	private void drawBackground(final Graphics2D g2, int width) {
+	private void drawBackground(int width) {
 		//g2.setColor(Color.white);
 		mazePanel.setColor(WHITE);
 		final int x = centerX - size;
@@ -145,54 +136,54 @@ public class CompassRose extends JComponent {
 	}
 
 
-	private void drawMainWest(Graphics2D g2, int length, int width, int[] x, int[] y) {
+	private void drawMainWest(int length, int width, int[] x, int[] y) {
 		x[1] = centerX - length;
         y[1] = centerY;
         x[2] = centerX - width;
         y[2] = centerY + width;
-        g2.fillPolygon(x, y, 3);
+        mazePanel.addFilledPolygon(x, y, 3);
 
         y[2] = centerY - width;
-        g2.drawPolygon(x, y, 3);
+        mazePanel.addPolygon(x, y, 3);
 	}
-	private void drawMainEast(Graphics2D g2, int length, int width, int[] x, int[] y) {
+	private void drawMainEast(int length, int width, int[] x, int[] y) {
 		// observation: the 2 triangles to the right are drawn the same
 		// way as for the left if one inverts the sign for length and width
 		// i.e. exchanges addition and subtraction
-		drawMainWest(g2, -length, -width, x, y);
+		drawMainWest(-length, -width, x, y);
 	}
-	private void drawMainSouth(Graphics2D g2, int length, int width, int[] x, int[] y) {
+	private void drawMainSouth(int length, int width, int[] x, int[] y) {
 		x[1] = centerX;
         y[1] = centerY + length;
         x[2] = centerX + width;
         y[2] = centerY + width;
-        g2.fillPolygon(x, y, 3);
+        mazePanel.addFilledPolygon(x, y, 3);
         
         x[2] = centerX - width;
-        g2.drawPolygon(x, y, 3);
+        mazePanel.addPolygon(x, y, 3);
 	}
-	private void drawMainNorth(Graphics2D g2, int length, int width, int[] x, int[] y) {
+	private void drawMainNorth(int length, int width, int[] x, int[] y) {
 		// observation: the 2 triangles to the top are drawn the same
 		// way as for the bottom if one inverts the sign for length and width
 		// i.e. exchanges addition and subtraction
-		drawMainSouth(g2, -length, -width, x, y);
+		drawMainSouth(-length, -width, x, y);
 	}
 
-	private void drawBorderCircle(Graphics2D g2, int width) {
+	private void drawBorderCircle(int width) {
 		final int x = centerX - width / 2 + CIRCLE_BORDER;
 		final int y = centerY - width / 2 + CIRCLE_BORDER;
 		final int w = width - 2 * CIRCLE_BORDER;
 		//g2.setColor(CIRCLE_SHADE);
 		mazePanel.setColor(CIRCLE_SHADE);
-        g2.drawArc(x, y, w, w, 45, 180);
+        mazePanel.addArc(x, y, w, w, 45, 180);
         //g2.setColor(CIRCLE_HIGHLIGHT);
         mazePanel.setColor(CIRCLE_HIGHLIGHT);
-        g2.drawArc(x, y, w, w, 180 + 45, 180);
+        mazePanel.addArc(x, y, w, w, 180 + 45, 180);
 	}
 
 
-	private void drawDirectionMarker(Graphics2D g2, int width) {
-		if (!Double.isNaN(markerRadius) && markerFont != null) {
+	private void drawDirectionMarker(int width) {
+		if (!Double.isNaN(markerRadius) && mazePanel.getFont() != null) {
             
             int pos = (int) (width * markerRadius / 2);
             
@@ -215,14 +206,14 @@ public class CompassRose extends JComponent {
             else
             	//g2.setColor(goldWM);
             	mazePanel.setColor(goldWM);
-            drawMarker(g2, centerX, centerY - pos, "N");
+            drawMarker(centerX, centerY - pos, "N");
             if (CardinalDirection.East == currentDir)
             	//g2.setColor(MARKER_COLOR);
             	mazePanel.setColor(MARKER_COLOR);
             else
             	//g2.setColor(goldWM);
             	mazePanel.setColor(goldWM);
-            drawMarker(g2, centerX + pos, centerY, "E");
+            drawMarker(centerX + pos, centerY, "E");
             // WARNING: north south confusion
             // currendDir North is going downwards on the map
             if (CardinalDirection.North == currentDir)
@@ -231,26 +222,19 @@ public class CompassRose extends JComponent {
             else
             	//g2.setColor(goldWM);
             	mazePanel.setColor(goldWM);
-            drawMarker(g2, centerX, centerY + pos, "S");
+            drawMarker(centerX, centerY + pos, "S");
             if (CardinalDirection.West == currentDir)
             	//g2.setColor(MARKER_COLOR);
             	mazePanel.setColor(MARKER_COLOR);
             else
             	//g2.setColor(goldWM);
             	mazePanel.setColor(goldWM);
-            drawMarker(g2, centerX - pos, centerY, "W");
+            drawMarker(centerX - pos, centerY, "W");
         }
 	}
  
-    private void drawMarker(Graphics2D g2, float x, float y, String str) {
-        GlyphVector gv = markerFont.createGlyphVector(g2.getFontRenderContext(), str);
-        Rectangle2D rect = gv.getVisualBounds();
-        
-        x -= rect.getWidth() / 2;
-        y += rect.getHeight() / 2;
-        
-        g2.drawGlyphVector(gv, x, y);
-        
+    private void drawMarker(float x, float y, String str) {
+        mazePanel.addMarker(x, y, str);
     }
  
     public double getScaler() {
@@ -259,7 +243,7 @@ public class CompassRose extends JComponent {
     
     public void setScaler(double scaler) {
         this.scaler = scaler;
-        repaint();
+        //repaint();
     }
     
     public double getMarkerRadius() {
@@ -268,28 +252,21 @@ public class CompassRose extends JComponent {
     
     public void setMarkerRadius(double markerRadius) {
         this.markerRadius = markerRadius;
-        repaint();
+        //repaint();
     }
     
-    public Font getMarkerFont() {
+    public String getMarkerFont() {
         return markerFont;
     }
     
     
-    public void setMarkerFont(Font markerFont) {
+    public void setMarkerFont(String markerFont) {
         this.markerFont = markerFont;
-        repaint();
+        mazePanel.setFont(markerFont);
+        //repaint();
     }
     
-    @Override
-    public Dimension getPreferredSize() {
-        Dimension dim = super.getPreferredSize();
-        /* original code
-        int min = Math.min(dim.width, dim.height);
-        */
-        int min = size; // simply use given size
-        dim.setSize(min, min);
-        return dim;
+    public double[] getPreferredSize() {
+        return mazePanel.getPreferredSize(this, size);
     }
-    
 }
