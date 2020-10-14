@@ -130,6 +130,7 @@ public class FirstPersonView {
 		mazePanel = panel;
 		viewWidth = width;
 		viewHeight = height;
+		mazePanel.setViewDimensions(viewWidth, viewHeight);
 		this.mapUnit = mapUnit;
 		this.stepSize = stepSize;
 		this.seenWalls = seenWalls;
@@ -208,56 +209,8 @@ public class FirstPersonView {
 	 * @param percentToExit gives the distance to exit
 	 */
 	private void drawBackground(float percentToExit) {
-		// black rectangle in upper half of screen
-		// graphics.setColor(Color.black);
-		// dynamic color setting: 
-		mazePanel.setColor(getBackgroundColor(percentToExit, true));
-		mazePanel.addFilledRectangle(0, 0, viewWidth, viewHeight/2);
-		// grey rectangle in lower half of screen
-		// graphics.setColor(Color.darkGray);
-		// dynamic color setting: 
-		mazePanel.setColor(getBackgroundColor(percentToExit, false));
-		mazePanel.addFilledRectangle(0, viewHeight/2, viewWidth, viewHeight/2);
+		mazePanel.addBackground(percentToExit);
 	}	
-	
-	/**
-	 * Determine the background color for the top and bottom
-	 * rectangle as a blend between starting color settings
-	 * of black and grey towards gold and green as final
-	 * color settings close to the exit
-	 * @param percentToExit
-	 * @param top is true for the top triangle, false for the bottom
-	 * @return the color to use for the background rectangle
-	 */
-	private int getBackgroundColor(float percentToExit, boolean top) {
-		return top? blend(MazePanel.yellowWM, MazePanel.goldWM, percentToExit) : 
-			blend(MazePanel.LIGHT_GRAY, MazePanel.greenWM, percentToExit);
-	}
-	/**
-	 * Calculates the weighted average of the two given colors
-	 * @param c0 the one color
-	 * @param c1 the other color
-	 * @param weight0 of c0
-	 * @return blend of colors c0 and c1 as weighted average
-	 */
-	private int blend(int c0, int c1, double weight0) {
-		if (weight0 < 0.1)
-			return c1;
-		if (weight0 > 0.95)
-			return c0;
-		String hex0 = String.format("%06X", c0);
-		String hex1 = String.format("%06X", c1);
-
-		int r = (int) (weight0 * ((int)Long.parseLong(hex0.substring(0, 2), 16)) +
-    		(1-weight0) * ((int)Long.parseLong(hex1.substring(0, 2), 16)));
-	    int g = (int) (weight0 * ((int)Long.parseLong(hex0.substring(2, 4), 16)) + 
-	    	(1-weight0) * ((int)Long.parseLong(hex1.substring(2, 4), 16)));
-	    int b = (int) (weight0 * ((int)Long.parseLong(hex0.substring(4, 6), 16)) + 
-	    	(1-weight0) * ((int)Long.parseLong(hex1.substring(4, 6), 16)));
-
-	    String newHex = String.format("%02X%02X%02X", r, g, b);  
-	    return Integer.parseInt(newHex,16);
-	  }
 	/**
 	 * Recursive method to explore tree of BSP nodes and draw all walls in leaf nodes 
 	 * where the bounding box is visible

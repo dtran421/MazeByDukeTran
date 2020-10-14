@@ -244,6 +244,6 @@ public class CompassRose {
     }
     
     public double[] getPreferredSize() {
-        return mazePanel.getPreferredSize(this, size);
+        return mazePanel.getPreferredSize(size);
     }
 }
