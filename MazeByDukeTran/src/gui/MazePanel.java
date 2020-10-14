@@ -1,5 +1,7 @@
 package gui;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -25,6 +27,9 @@ public class MazePanel extends Panel implements P5Panel  {
 	private Graphics2D graphics; // obtained from bufferImage, 
 	// graphics is stored to allow clients to draw on the same graphics object repeatedly
 	// has benefits if color settings should be remembered for subsequent drawing operations
+	
+	private int currentColor;
+	private Font currentFont;
 	
 	/**
 	 * Constructor. Object is not focusable.
@@ -92,7 +97,7 @@ public class MazePanel extends Panel implements P5Panel  {
 				System.out.println("Error: creation of graphics for buffered image failed, presumedly container not displayable");
 			}
 			else {
-				// System.out.println("MazePanel: Using Rendering Hint");
+				System.out.println("MazePanel: Using Rendering Hint");
 				// For drawing in FirstPersonDrawer, setting rendering hint
 				// became necessary when lines of polygons 
 				// that were not horizontal or vertical looked ragged
@@ -120,14 +125,21 @@ public class MazePanel extends Panel implements P5Panel  {
 
 	@Override
 	public void setColor(int rgb) {
-		// TODO Auto-generated method stub
-		
+		currentColor = rgb;
+		graphics.setColor(new Color(rgb));
 	}
 
 	@Override
 	public int getColor() {
-		// TODO Auto-generated method stub
-		return 0;
+		return currentColor;
+	}
+	
+	public void setFont(String font) {
+		currentFont = Font.decode(font);
+	}
+
+	public Font getFont() {
+		return currentFont;
 	}
 
 	@Override
@@ -168,8 +180,7 @@ public class MazePanel extends Panel implements P5Panel  {
 
 	@Override
 	public void addFilledOval(int x, int y, int width, int height) {
-		// TODO Auto-generated method stub
-		
+        graphics.fillOval(x,y,width,height);		
 	}
 
 	@Override
@@ -196,6 +207,9 @@ public class MazePanel extends Panel implements P5Panel  {
 		case KEY_INTERPOLATION:
 			convertedKey = java.awt.RenderingHints.KEY_INTERPOLATION;
 			break;
+		case KEY_RENDERING:
+			convertedKey = java.awt.RenderingHints.KEY_RENDERING;
+			break;
 		default:
 			convertedKey = null;
 			break;
@@ -207,6 +221,9 @@ public class MazePanel extends Panel implements P5Panel  {
 			break;
 		case VALUE_INTERPOLATION_BILINEAR:
 			convertedValue = java.awt.RenderingHints.VALUE_INTERPOLATION_BILINEAR;
+			break;
+		case VALUE_RENDER_QUALITY:
+			convertedValue = java.awt.RenderingHints.VALUE_RENDER_QUALITY;
 			break;
 		default:
 			convertedValue = null;

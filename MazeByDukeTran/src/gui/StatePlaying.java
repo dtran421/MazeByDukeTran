@@ -37,7 +37,7 @@ public class StatePlaying extends DefaultState {
     MazePanel panel;
     Controller control;
     
-    Maze mazeConfig ; 
+    Maze mazeConfig; 
     
     private boolean showMaze;           // toggle switch to show overall maze on screen
     private boolean showSolution;       // toggle switch to show solution in overall maze on screen
@@ -96,7 +96,7 @@ public class StatePlaying extends DefaultState {
         walkStep = 0; // counts incremental steps during move/rotate operation
         
         // configure compass rose
-        cr = new CompassRose();
+        cr = new CompassRose(panel);
         cr.setPositionAndSize(Constants.VIEW_WIDTH/2,
         		(int)(0.1*Constants.VIEW_HEIGHT),35);
 

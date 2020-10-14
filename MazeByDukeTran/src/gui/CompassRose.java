@@ -1,11 +1,9 @@
 package gui;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.font.GlyphVector;
 import java.awt.geom.Rectangle2D;
 
@@ -24,21 +22,29 @@ import generation.CardinalDirection;
  */
 public class CompassRose extends JComponent {
 	private static final long serialVersionUID = 1916497172430988388L;
-	private static final Color greenWM = Color.decode("#115740");
-	private static final Color goldWM = Color.decode("#916f41");
+	//private static final Color greenWM = Color.decode("#115740");
+	private static final int greenWM = 1136448;
+	//private static final Color goldWM = Color.decode("#916f41");
+	private static final int goldWM = 9531201;
+	private static final int WHITE = 376926741;
 	
 
-    private static final Color MAIN_COLOR = greenWM; //new Color(0.4f, 0.4f, 1.0f);
+    //private static final Color MAIN_COLOR = greenWM; //new Color(0.4f, 0.4f, 1.0f);
+	private static final int MAIN_COLOR = greenWM;
     private static final float MAIN_LENGTH = 0.95f;
     private static final float MAIN_WIDTH = 0.15f;
     
     private static final int CIRCLE_BORDER = 2;
-    private static final Color CIRCLE_HIGHLIGHT = new Color(1.0f, 1.0f, 1.0f, 0.8f); 
-    private static final Color CIRCLE_SHADE = new Color(1.0f, 1.0f, 1.0f, 0.3f); //new Color(0.0f, 0.0f, 0.0f, 0.2f); 
-    
-    private static final Color MARKER_COLOR = Color.black; //Color.WHITE; //Color.BLACK;
-    
+    //private static final Color CIRCLE_HIGHLIGHT = new Color(1.0f, 1.0f, 1.0f, 0.8f);
+    private static final int CIRCLE_HIGHLIGHT = WHITE;
+    //private static final Color CIRCLE_SHADE = new Color(1.0f, 1.0f, 1.0f, 0.3f); //new Color(0.0f, 0.0f, 0.0f, 0.2f); 
+    private static final int CIRCLE_SHADE = WHITE;
+    		
+    //private static final Color MARKER_COLOR = Color.black; //Color.WHITE; //Color.BLACK;
+    private static final int MARKER_COLOR = 0;
 
+	private MazePanel mazePanel;
+    
     private double scaler;
     
     private double markerRadius;
@@ -53,8 +59,9 @@ public class CompassRose extends JComponent {
     /**
      * Construct a compass rose with the default settings.
      */
-    public CompassRose() {
+    public CompassRose(MazePanel mazePanel) {
         this(0.9, 1.7, Font.decode("Serif-PLAIN-16"));
+        this.mazePanel = mazePanel;
     }
     
     
@@ -89,8 +96,8 @@ public class CompassRose extends JComponent {
     @Override
     public void paintComponent(Graphics g) {
         
-        final Graphics2D g2 = (Graphics2D) g;
-        
+        //final Graphics2D g2 = (Graphics2D) g;
+        final Graphics2D g2 = (Graphics2D) mazePanel.getBufferGraphics();
         
         /* Original code
         Dimension dimension = this.getSize();
@@ -102,14 +109,17 @@ public class CompassRose extends JComponent {
         final int mainLength = (int) (width * MAIN_LENGTH / 2);
         final int mainWidth = (int) (width * MAIN_WIDTH / 2);
         
-        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        //g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        mazePanel.setRenderingHint(P5Panel.RenderingHints.KEY_RENDERING, P5Panel.RenderingHints.VALUE_RENDER_QUALITY);
+        //g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        mazePanel.setRenderingHint(P5Panel.RenderingHints.KEY_ANTIALIASING, P5Panel.RenderingHints.VALUE_ANTIALIAS_ON);
         // draw background disc
         drawBackground(g2, width);
         // draw main part in all 4 directions in same color
         // x, y arrays used for drawing polygons
         // starting point is always (centerX, centerY)
-        g2.setColor(MAIN_COLOR);
+        //g2.setColor(MAIN_COLOR);
+        mazePanel.setColor(MAIN_COLOR);
         final int[] x = new int[3];
         final int[] y = new int[3];
         x[0] = centerX;
@@ -126,11 +136,12 @@ public class CompassRose extends JComponent {
 
 
 	private void drawBackground(final Graphics2D g2, int width) {
-		g2.setColor(Color.white);
+		//g2.setColor(Color.white);
+		mazePanel.setColor(WHITE);
 		final int x = centerX - size;
 		final int y = centerY - size;
 		final int w = 2 * size;// - 2 * CIRCLE_BORDER;
-        g2.fillOval(x,y,w,w);
+        mazePanel.addFilledOval(x,y,w,w);
 	}
 
 
@@ -171,9 +182,11 @@ public class CompassRose extends JComponent {
 		final int x = centerX - width / 2 + CIRCLE_BORDER;
 		final int y = centerY - width / 2 + CIRCLE_BORDER;
 		final int w = width - 2 * CIRCLE_BORDER;
-		g2.setColor(CIRCLE_SHADE);
+		//g2.setColor(CIRCLE_SHADE);
+		mazePanel.setColor(CIRCLE_SHADE);
         g2.drawArc(x, y, w, w, 45, 180);
-        g2.setColor(CIRCLE_HIGHLIGHT);
+        //g2.setColor(CIRCLE_HIGHLIGHT);
+        mazePanel.setColor(CIRCLE_HIGHLIGHT);
         g2.drawArc(x, y, w, w, 180 + 45, 180);
 	}
 
@@ -183,7 +196,8 @@ public class CompassRose extends JComponent {
             
             int pos = (int) (width * markerRadius / 2);
             
-            g2.setColor(MARKER_COLOR);
+            //g2.setColor(MARKER_COLOR);
+            mazePanel.setColor(MARKER_COLOR);
             /* original code
             drawMarker(g2, mid, mid - pos, trans.get("lbl.north"));
             drawMarker(g2, mid + pos, mid, trans.get("lbl.east"));
@@ -196,26 +210,34 @@ public class CompassRose extends JComponent {
             // WARNING: north south confusion
             // currendDir South is going upward on the map
             if (CardinalDirection.South == currentDir)
-            	g2.setColor(MARKER_COLOR);
+            	//g2.setColor(MARKER_COLOR);
+            	mazePanel.setColor(MARKER_COLOR);
             else
-            	g2.setColor(goldWM);
+            	//g2.setColor(goldWM);
+            	mazePanel.setColor(goldWM);
             drawMarker(g2, centerX, centerY - pos, "N");
             if (CardinalDirection.East == currentDir)
-            	g2.setColor(MARKER_COLOR);
+            	//g2.setColor(MARKER_COLOR);
+            	mazePanel.setColor(MARKER_COLOR);
             else
-            	g2.setColor(goldWM);
+            	//g2.setColor(goldWM);
+            	mazePanel.setColor(goldWM);
             drawMarker(g2, centerX + pos, centerY, "E");
             // WARNING: north south confusion
             // currendDir North is going downwards on the map
             if (CardinalDirection.North == currentDir)
-            	g2.setColor(MARKER_COLOR);
+            	//g2.setColor(MARKER_COLOR);
+            	mazePanel.setColor(MARKER_COLOR);
             else
-            	g2.setColor(goldWM);
+            	//g2.setColor(goldWM);
+            	mazePanel.setColor(goldWM);
             drawMarker(g2, centerX, centerY + pos, "S");
             if (CardinalDirection.West == currentDir)
-            	g2.setColor(MARKER_COLOR);
+            	//g2.setColor(MARKER_COLOR);
+            	mazePanel.setColor(MARKER_COLOR);
             else
-            	g2.setColor(goldWM);
+            	//g2.setColor(goldWM);
+            	mazePanel.setColor(goldWM);
             drawMarker(g2, centerX - pos, centerY, "W");
         }
 	}
