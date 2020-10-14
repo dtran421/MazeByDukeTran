@@ -474,8 +474,7 @@ public class FirstPersonView {
 		// moved code for drawing bits and pieces into yet another method to 
 		// gain more clarity on what information is actually needed
 		//gc.setColor(wall.getColor());
-		String newHex = String.format("%02X%02X%02X", wall.getColor().getRed(), wall.getColor().getGreen(), wall.getColor().getBlue());  
-	    int newColor = Integer.parseInt(newHex,16);
+	    int newColor = wall.getColor();
 		mazePanel.setColor(newColor);
 		boolean drawn = drawPolygons(x1, x2, y11, y12, y21, y22);
 		

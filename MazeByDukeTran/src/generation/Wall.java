@@ -1,6 +1,5 @@
 package generation;
 
-import java.awt.Color;
 import java.util.ArrayList;
 
 import org.w3c.dom.Document;
@@ -59,7 +58,8 @@ public class Wall {
     /**
      * color of wall, only set by constructor and file reader.
      */
-    private Color col;
+    //private Color col;
+    private int color;
     /**
      * partition flag, initially set to false. 
      * BSPBuilder code sets it to true for border case
@@ -150,27 +150,35 @@ public class Wall {
         // mod used to limit the number of colors to 6
         final int rgbValue = calculateRGBValue(d);
         //System.out.println("Initcolor rgb: " + rgbValue);
+        String newHex;
         switch (((d >> 3) ^ cc) % 6) {
         case 0:
-            setColor(new Color(rgbValue, RGB_DEF, RGB_DEF));
+        	newHex = String.format("%02X%02X%02X", rgbValue, RGB_DEF, RGB_DEF);  
+            setColor(Integer.parseInt(newHex,16));
             break;
         case 1:
-            setColor(new Color(RGB_DEF, RGB_DEF_GREEN, RGB_DEF));
+        	newHex = String.format("%02X%02X%02X", RGB_DEF, RGB_DEF_GREEN, RGB_DEF);  
+            setColor(Integer.parseInt(newHex,16));
             break;
         case 2:
-            setColor(new Color(RGB_DEF, RGB_DEF, rgbValue));
+        	newHex = String.format("%02X%02X%02X", RGB_DEF, RGB_DEF, rgbValue);  
+            setColor(Integer.parseInt(newHex,16));
             break;
         case 3:
-            setColor(new Color(rgbValue, RGB_DEF_GREEN, RGB_DEF));
+        	newHex = String.format("%02X%02X%02X", rgbValue, RGB_DEF_GREEN, RGB_DEF);  
+            setColor(Integer.parseInt(newHex,16));
             break;
         case 4:
-            setColor(new Color(RGB_DEF, RGB_DEF_GREEN, rgbValue));
+        	newHex = String.format("%02X%02X%02X", RGB_DEF, RGB_DEF_GREEN, rgbValue);  
+            setColor(Integer.parseInt(newHex,16));
             break;
         case 5:
-            setColor(new Color(rgbValue, RGB_DEF, rgbValue));
+        	newHex = String.format("%02X%02X%02X", rgbValue, RGB_DEF, rgbValue);  
+            setColor(Integer.parseInt(newHex,16));
             break;
         default:
-            setColor(new Color(RGB_DEF, RGB_DEF, RGB_DEF));
+        	newHex = String.format("%02X%02X%02X", RGB_DEF, RGB_DEF, RGB_DEF);  
+            setColor(Integer.parseInt(newHex,16));
             break;
         }
     }
@@ -266,7 +274,7 @@ public class Wall {
         MazeFileWriter.appendChild(doc, mazeXML, "ySeg_" + number + "_" + i,
                 getStartPositionY());
         MazeFileWriter.appendChild(doc, mazeXML, "colSeg_" + number + "_" + i,
-                getColor().getRGB());
+                getColor());
     }
 
     /**
@@ -296,7 +304,7 @@ public class Wall {
             return false;
         }
         if ((dist != o.dist) || (partition != o.partition) || (seen != o.seen)
-                || (col.getRGB() != o.col.getRGB())) {
+                || (color != o.color)) {
             return false;
         }
         // all fields are equal, so both objects are equal
@@ -367,15 +375,15 @@ public class Wall {
     /**
      * @return the color
      */
-    public Color getColor() {
-        return col;
+    public int getColor() {
+        return color;
     }
 
     /**
      * @param color
      *            the color to set
      */
-    public void setColor(final Color color) {
+    public void setColor(final int color) {
         /*
          * for debugging: use random color settings such that all walls look
          * different
@@ -384,7 +392,7 @@ public class Wall {
          * int b = SingleRandom.getRandom().nextIntWithinInterval(20,240) ;
          * this.col = new Color(r,g,b); return ;
          */
-        col = color;
+        this.color = color;
     }
 
     /**

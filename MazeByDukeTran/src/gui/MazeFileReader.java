@@ -12,7 +12,6 @@ import generation.Maze;
 import generation.MazeContainer;
 import generation.Wall;
 
-import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -215,7 +214,7 @@ public class MazeFileReader {
 		Wall result = new Wall(x,y,dx,dy,dist,cc) ;
 		// get a few more attributes and set those explicitly
 		int col = getElementIntValue("colSeg_" + number+ "_" + i, eElement);
-		result.setColor(new Color(col)); 
+		result.setColor(col); 
 		result.setSeen(getElementBooleanValue("seenSeg_" + number+ "_" + i, eElement));
 		result.setPartition(getElementBooleanValue("partitionSeg_" + number+ "_" + i, eElement));
 		return result;
