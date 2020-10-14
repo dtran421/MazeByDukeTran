@@ -93,7 +93,7 @@ public class StateTitle extends DefaultState {
         // if given a filename, show a message and move to the loading screen
         // otherwise, show message that we wait for the skill level for input
         view.redrawTitle(panel,filename);
-        panel.update(); // as drawing is complete, make screen update happen
+        panel.commit(); // as drawing is complete, make screen update happen
         
         if (filename != null) {
             // wait 3 sec to give user

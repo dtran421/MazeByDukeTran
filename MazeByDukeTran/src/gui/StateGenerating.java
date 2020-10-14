@@ -221,7 +221,7 @@ public class StateGenerating extends DefaultState implements Order {
 	    	// draw the content on the panel
 	    	view.redrawGenerating(panel, getPercentDone());
 	        // update the screen with the buffer graphics
-	        panel.update();
+	        panel.commit();
     	}
     }
 }

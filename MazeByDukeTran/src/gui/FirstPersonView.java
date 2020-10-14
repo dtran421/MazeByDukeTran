@@ -205,7 +205,6 @@ public class FirstPersonView {
 	 * The color setting adjusts to the distance to the exit to 
 	 * provide an additional clue for the user.
 	 * Colors transition from black to gold and from grey to green.
-	 * @param graphics to draw on, must be not null
 	 * @param percentToExit gives the distance to exit
 	 */
 	private void drawBackground(float percentToExit) {
@@ -436,7 +435,7 @@ public class FirstPersonView {
 	}
 
 	/**
-	 * Draws wall on screen via graphics attribute gc.
+	 * Draws wall on screen.
 	 * Helper method for drawAllWallsOfASector.
 	 * @param wall whose seen attribute may be set to true
 	 */

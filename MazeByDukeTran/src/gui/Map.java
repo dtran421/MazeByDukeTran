@@ -146,7 +146,6 @@ public class Map {
 	 * The map is drawn only on a small rectangle inside the maze area such that only a part of the map is actually shown.
 	 * Of course a part covering the current location needs to be displayed.
 	 * The current cell is (px,py). There is a viewing direction (view_dx, view_dy).
-	 * @param g graphics handler to manipulate screen
 	 * @param px current position, x index
 	 * @param py current position, y index 
 	 */

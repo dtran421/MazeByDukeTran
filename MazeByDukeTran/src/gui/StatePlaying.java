@@ -243,7 +243,7 @@ public class StatePlaying extends DefaultState {
 					isInShowMazeMode(),isInShowSolutionMode()) ;
 		}
 		// update the screen with the buffer graphics
-        panel.update() ;
+        panel.commit() ;
     }
     /**
      * Calculates a distance to exit as a percentage. 
@@ -426,7 +426,7 @@ public class StatePlaying extends DefaultState {
     		cr.setCurrentDirection(getCurrentDirection());
     		cr.paintComponent();
     	}
-    	panel.update();
+    	panel.commit();
     }
     /**
      * Checks if the current position and direction

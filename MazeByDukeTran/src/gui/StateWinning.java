@@ -65,7 +65,7 @@ public class StateWinning extends DefaultState {
         	view.redrawFinish(panel, false, pathLength, 0);
         
         // update screen with panel content
-        panel.update();
+        panel.commit();
 
     }
     

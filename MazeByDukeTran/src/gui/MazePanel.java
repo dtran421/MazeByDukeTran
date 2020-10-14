@@ -59,6 +59,7 @@ public class MazePanel extends Panel implements P5Panel  {
 	public void update(Graphics g) {
 		paint(g);
 	}
+	
 	/**
 	 * Method to draw the buffer image on a graphics object that is
 	 * obtained from the superclass. 
