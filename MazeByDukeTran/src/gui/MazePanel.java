@@ -31,6 +31,18 @@ public class MazePanel extends Panel implements P5Panel  {
 	// graphics is stored to allow clients to draw on the same graphics object repeatedly
 	// has benefits if color settings should be remembered for subsequent drawing operations
 	
+	//private static final Color greenWM = Color.decode("#115740");
+	static final int greenWM = 1136448;
+	//private static final Color goldWM = Color.decode("#916f41");
+	static final int goldWM = 9531201;
+	static final int yellowWM = 16777113;
+	
+	static final int WHITE = 16777215;
+	static final int LIGHT_GRAY = 13421772;
+	static final int GRAY = 10066329;
+	static final int RED = 16711680;
+	static final int YELLOW = 16776960;
+	
 	private int currentColor;
 	private Font currentFont;
 	
@@ -100,7 +112,7 @@ public class MazePanel extends Panel implements P5Panel  {
 				System.out.println("Error: creation of graphics for buffered image failed, presumedly container not displayable");
 			}
 			else {
-				System.out.println("MazePanel: Using Rendering Hint");
+				// System.out.println("MazePanel: Using Rendering Hint");
 				// For drawing in FirstPersonDrawer, setting rendering hint
 				// became necessary when lines of polygons 
 				// that were not horizontal or vertical looked ragged

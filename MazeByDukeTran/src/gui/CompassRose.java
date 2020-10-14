@@ -12,23 +12,18 @@ import generation.CardinalDirection;
  * @author Peter Kemper
  */
 public class CompassRose {
-	//private static final Color greenWM = Color.decode("#115740");
-	private static final int greenWM = 1136448;
-	//private static final Color goldWM = Color.decode("#916f41");
-	private static final int goldWM = 9531201;
-	private static final int WHITE = 16777215;
 	
 
     //private static final Color MAIN_COLOR = greenWM; //new Color(0.4f, 0.4f, 1.0f);
-	private static final int MAIN_COLOR = greenWM;
+	private static final int MAIN_COLOR = MazePanel.greenWM;
     private static final float MAIN_LENGTH = 0.95f;
     private static final float MAIN_WIDTH = 0.15f;
     
     private static final int CIRCLE_BORDER = 2;
     //private static final Color CIRCLE_HIGHLIGHT = new Color(1.0f, 1.0f, 1.0f, 0.8f);
-    private static final int CIRCLE_HIGHLIGHT = WHITE;
+    private static final int CIRCLE_HIGHLIGHT = MazePanel.WHITE;
     //private static final Color CIRCLE_SHADE = new Color(1.0f, 1.0f, 1.0f, 0.3f); //new Color(0.0f, 0.0f, 0.0f, 0.2f); 
-    private static final int CIRCLE_SHADE = WHITE;
+    private static final int CIRCLE_SHADE = MazePanel.WHITE;
     		
     //private static final Color MARKER_COLOR = Color.black; //Color.WHITE; //Color.BLACK;
     private static final int MARKER_COLOR = 0;
@@ -121,7 +116,7 @@ public class CompassRose {
 
 	private void drawBackground(int width) {
 		//g2.setColor(Color.white);
-		mazePanel.setColor(WHITE);
+		mazePanel.setColor(MazePanel.WHITE);
 		final int x = centerX - size;
 		final int y = centerY - size;
 		final int w = 2 * size;// - 2 * CIRCLE_BORDER;
@@ -193,24 +188,24 @@ public class CompassRose {
             if (CardinalDirection.South == currentDir)
             	mazePanel.setColor(MARKER_COLOR);
             else
-            	mazePanel.setColor(goldWM);
+            	mazePanel.setColor(MazePanel.goldWM);
             drawMarker(centerX, centerY - pos, "N");
             if (CardinalDirection.East == currentDir)
             	mazePanel.setColor(MARKER_COLOR);
             else
-            	mazePanel.setColor(goldWM);
+            	mazePanel.setColor(MazePanel.goldWM);
             drawMarker(centerX + pos, centerY, "E");
             // WARNING: north south confusion
             // currendDir North is going downwards on the map
             if (CardinalDirection.North == currentDir)
             	mazePanel.setColor(MARKER_COLOR);
             else
-            	mazePanel.setColor(goldWM);
+            	mazePanel.setColor(MazePanel.goldWM);
             drawMarker(centerX, centerY + pos, "S");
             if (CardinalDirection.West == currentDir)
             	mazePanel.setColor(MARKER_COLOR);
             else
-            	mazePanel.setColor(goldWM);
+            	mazePanel.setColor(MazePanel.goldWM);
             drawMarker(centerX - pos, centerY, "W");
         }
 	}

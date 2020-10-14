@@ -37,12 +37,6 @@ public class FirstPersonView {
 	final private int stepSize;   // = map_unit/4;
 	// map scale may be adjusted by user input, controlled in StatePlaying
 	// colors for background
-	static final int greenWM = 1136448;
-	static final int goldWM = 9531201;
-	static final int yellowWM = 16777113;
-	static final int WHITE = 16777215;
-	static final int LIGHT_GRAY = 13421772;
-
 	
 	/**
 	 * A data structure to store which wallboards have been visible during
@@ -172,7 +166,7 @@ public class FirstPersonView {
         drawBackground(percentToExit);
         // set color to white and draw what ever can be seen from the current position
         //g.setColor(Color.white);
-        mazePanel.setColor(WHITE);
+        mazePanel.setColor(MazePanel.WHITE);
         // reset the set of ranges to a single new element (0,width-1)
         // to cover the full width of the view 
         // as we have not drawn any polygons (walls) yet.
@@ -240,8 +234,8 @@ public class FirstPersonView {
 	 * @return the color to use for the background rectangle
 	 */
 	private int getBackgroundColor(float percentToExit, boolean top) {
-		return top? blend(yellowWM, goldWM, percentToExit) : 
-			blend(LIGHT_GRAY, greenWM, percentToExit);
+		return top? blend(MazePanel.yellowWM, MazePanel.goldWM, percentToExit) : 
+			blend(MazePanel.LIGHT_GRAY, MazePanel.greenWM, percentToExit);
 	}
 	/**
 	 * Calculates the weighted average of the two given colors
