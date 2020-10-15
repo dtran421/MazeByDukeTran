@@ -32,7 +32,7 @@ import gui.Constants.UserInput;
  */
 public class StateGenerating extends DefaultState implements Order {
     SimpleScreens view;
-    MazePanel panel;
+    public static MazePanel panel;
     Controller control;
     // Filename if maze is loaded from file, can be null
     private String filename;
@@ -100,7 +100,7 @@ public class StateGenerating extends DefaultState implements Order {
      */
     private Maze loadMazeConfigurationFromFile(String filename) {
         // load maze from file
-        MazeFileReader mfr = new MazeFileReader(filename) ;
+        MazeFileReader mfr = new MazeFileReader(filename);
         // obtain MazeConfiguration
         return mfr.getMazeConfiguration();
     }
@@ -114,7 +114,7 @@ public class StateGenerating extends DefaultState implements Order {
         // keep the reference to the controller to be able to call method to switch the state
         control = controller;
         // keep the reference to the panel for drawing
-        this.panel = panel;
+        StateGenerating.panel = panel;
         // init mazeview, controller is needed for generating screen to update progress bar
         view = new SimpleScreens();
         // reset percentage for progress

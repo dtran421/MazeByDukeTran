@@ -43,6 +43,15 @@ public class MazePanel extends Panel implements P5Panel  {
 	static final int RED = 16711680;
 	static final int YELLOW = 16776960;
 	
+	/**
+     * Default minimum value for RGB values.
+     */
+    private static final int RGB_DEF = 20;
+    private static final int RGB_DEF_GREEN = 60;
+	
+    /**
+     * Dimensions for the FirstPersonView
+     */
 	private int viewWidth;
 	private int viewHeight;
 	
@@ -210,7 +219,7 @@ public class MazePanel extends Panel implements P5Panel  {
 	public Font getFont() {
 		return currentFont;
 	}
-
+	
 	/**
      * Determines the color for a wall.
      * Supports color determination for the Wall.initColor method.
@@ -221,9 +230,52 @@ public class MazePanel extends Panel implements P5Panel  {
      */
 	@Override
 	public int getWallColor(int distance, int cc, int extensionX) {
-		// TODO Auto-generated method stub
-		return 0;
+		final int d = distance / 4;
+        // mod used to limit the number of colors to 6
+        final int rgbValue = calculateRGBValue(d, extensionX);
+        //System.out.println("Initcolor rgb: " + rgbValue);
+        String newHex;
+        switch (((d >> 3) ^ cc) % 6) {
+        case 0:
+        	newHex = String.format("%02X%02X%02X", rgbValue, RGB_DEF, RGB_DEF);  
+            return Integer.parseInt(newHex,16);
+        case 1:
+        	newHex = String.format("%02X%02X%02X", RGB_DEF, RGB_DEF_GREEN, RGB_DEF);  
+            return Integer.parseInt(newHex,16);
+        case 2:
+        	newHex = String.format("%02X%02X%02X", RGB_DEF, RGB_DEF, rgbValue);  
+            return Integer.parseInt(newHex,16);
+        case 3:
+        	newHex = String.format("%02X%02X%02X", rgbValue, RGB_DEF_GREEN, RGB_DEF);  
+            return Integer.parseInt(newHex,16);
+        case 4:
+        	newHex = String.format("%02X%02X%02X", RGB_DEF, RGB_DEF_GREEN, rgbValue);  
+            return Integer.parseInt(newHex,16);
+        case 5:
+        	newHex = String.format("%02X%02X%02X", rgbValue, RGB_DEF, rgbValue);  
+            return Integer.parseInt(newHex,16);
+        default:
+        	newHex = String.format("%02X%02X%02X", RGB_DEF, RGB_DEF, RGB_DEF);  
+            return Integer.parseInt(newHex,16);
+        }
 	}
+	
+	/**
+     * Computes an RGB value based on the given numerical value.
+     *
+     * @param distance
+     *            value to select color
+     * @return the calculated RGB value
+     */
+    private int calculateRGBValue(final int distance, final int extensionX) {
+        // compute rgb value, depends on distance and x direction
+        // 7 in binary is 0...0111
+        // use AND to get last 3 digits of distance
+        final int part1 = distance & 7;
+        final int add = (extensionX != 0) ? 1 : 0;
+        final int rgbValue = ((part1 + 2 + add) * 70) / 8 + 80;
+        return rgbValue;
+    }
 	
 	/**
 	 * Sets the view dimensions for the FirstPersonView

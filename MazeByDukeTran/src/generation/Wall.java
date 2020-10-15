@@ -6,6 +6,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import gui.MazeFileWriter;
+import gui.StateGenerating;
 
 /**
  * A wall is a continuous sequence of wallboards in the maze.
@@ -16,7 +17,6 @@ import gui.MazeFileWriter;
  * Refactored by Peter Kemper
  */
 public class Wall {
-
     // The following fields are all read-only and set by constructor
     // considering updatePartitionIfBorderCase() values can be one off
     // for width and height limit
@@ -133,11 +133,6 @@ public class Wall {
                 (int) Math.signum(pdy));
     }
     /**
-     * Default minimum value for RGB values.
-     */
-    private static final int RGB_DEF = 20;
-    private static final int RGB_DEF_GREEN = 60;
-    /**
      * Determine and set the color for this wall.
      *
      * @param distance
@@ -146,58 +141,7 @@ public class Wall {
      *            obscure
      */
     private void initColor(final int distance, final int cc) {
-        final int d = distance / 4;
-        // mod used to limit the number of colors to 6
-        final int rgbValue = calculateRGBValue(d);
-        //System.out.println("Initcolor rgb: " + rgbValue);
-        String newHex;
-        switch (((d >> 3) ^ cc) % 6) {
-        case 0:
-        	newHex = String.format("%02X%02X%02X", rgbValue, RGB_DEF, RGB_DEF);  
-            setColor(Integer.parseInt(newHex,16));
-            break;
-        case 1:
-        	newHex = String.format("%02X%02X%02X", RGB_DEF, RGB_DEF_GREEN, RGB_DEF);  
-            setColor(Integer.parseInt(newHex,16));
-            break;
-        case 2:
-        	newHex = String.format("%02X%02X%02X", RGB_DEF, RGB_DEF, rgbValue);  
-            setColor(Integer.parseInt(newHex,16));
-            break;
-        case 3:
-        	newHex = String.format("%02X%02X%02X", rgbValue, RGB_DEF_GREEN, RGB_DEF);  
-            setColor(Integer.parseInt(newHex,16));
-            break;
-        case 4:
-        	newHex = String.format("%02X%02X%02X", RGB_DEF, RGB_DEF_GREEN, rgbValue);  
-            setColor(Integer.parseInt(newHex,16));
-            break;
-        case 5:
-        	newHex = String.format("%02X%02X%02X", rgbValue, RGB_DEF, rgbValue);  
-            setColor(Integer.parseInt(newHex,16));
-            break;
-        default:
-        	newHex = String.format("%02X%02X%02X", RGB_DEF, RGB_DEF, RGB_DEF);  
-            setColor(Integer.parseInt(newHex,16));
-            break;
-        }
-    }
-
-    /**
-     * Computes an RGB value based on the given numerical value.
-     *
-     * @param distance
-     *            value to select color
-     * @return the calculated RGB value
-     */
-    private int calculateRGBValue(final int distance) {
-        // compute rgb value, depends on distance and x direction
-        // 7 in binary is 0...0111
-        // use AND to get last 3 digits of distance
-        final int part1 = distance & 7;
-        final int add = (getExtensionX() != 0) ? 1 : 0;
-        final int rgbValue = ((part1 + 2 + add) * 70) / 8 + 80;
-        return rgbValue;
+        setColor(StateGenerating.panel.getWallColor(distance, cc, getExtensionX()));
     }
 
     /**

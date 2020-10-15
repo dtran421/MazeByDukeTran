@@ -33,7 +33,7 @@ import org.w3c.dom.NodeList;
  *
  */
 public class MazeFileReader {
-
+	
 	// fields of maze configuration object
 	private int width ;
 	private int height ;
@@ -51,7 +51,7 @@ public class MazeFileReader {
 	 * @param filename with data of a Maze object
 	 */
 	public MazeFileReader(String filename) {
-		load(filename) ;
+		load(filename);
 	}
 
 	/**
