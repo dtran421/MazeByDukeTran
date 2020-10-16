@@ -1,7 +1,6 @@
 package gui;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -134,22 +133,6 @@ public class MazePanel extends Panel implements P5Panel  {
 			}
 		}
 		return graphics;
-	}
-	
-	/**
-	 * Provides the preferred dimensions for the CompassRose
-	 * @param size preferred for the Compass
-	 * @return an array of doubles containing the preferred dimensions
-	 */
-	public double[] getPreferredSize(int size) {
-		Dimension dim = new Dimension();
-        /* original code
-        int min = Math.min(dim.width, dim.height);
-        */
-        int min = size; // simply use given size
-        dim.setSize(min, min);
-        double[] dimensions = {dim.getWidth(), dim.getHeight()};
-        return dimensions;
 	}
 
 	/**

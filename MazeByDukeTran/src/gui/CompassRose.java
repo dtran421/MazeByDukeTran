@@ -1,5 +1,10 @@
 package gui;
 
+import java.awt.Dimension;
+import java.awt.Graphics;
+
+import javax.swing.JComponent;
+
 import generation.CardinalDirection;
 
 /**
@@ -11,10 +16,9 @@ import generation.CardinalDirection;
  * adjusted for Maze setting by
  * @author Peter Kemper
  */
-public class CompassRose {
-	
-
-    //private static final Color MAIN_COLOR = greenWM; //new Color(0.4f, 0.4f, 1.0f);
+public class CompassRose extends JComponent{
+	private static final long serialVersionUID = 1916497172430988388L;
+	//private static final Color MAIN_COLOR = greenWM; //new Color(0.4f, 0.4f, 1.0f);
 	private static final int MAIN_COLOR = MazePanel.greenWM;
     private static final float MAIN_LENGTH = 0.95f;
     private static final float MAIN_WIDTH = 0.15f;
@@ -50,7 +54,6 @@ public class CompassRose {
         if (mazePanel != null) mazePanel.setFont(markerFont);
     }
     
-    
     /**
      * Construct a compass rose with the specified settings.
      * 
@@ -79,7 +82,8 @@ public class CompassRose {
     	currentDir = cd;
     }
 
-    public void paintComponent() {                
+    @Override
+    public void paintComponent(Graphics g) {                
         /* Original code
         Dimension dimension = this.getSize();
         int width = Math.min(dimension.width, dimension.height);
@@ -243,7 +247,19 @@ public class CompassRose {
         //repaint();
     }
     
-    public double[] getPreferredSize() {
-        return mazePanel.getPreferredSize(size);
-    }
+    /**
+	 * Provides the preferred dimensions for the CompassRose
+	 * @param size preferred for the Compass
+	 * @return an array of doubles containing the preferred dimensions
+	 */
+    @Override
+	public Dimension getPreferredSize() {
+		Dimension dim = new Dimension();
+        /* original code
+        int min = Math.min(dim.width, dim.height);
+        */
+        int min = size; // simply use given size
+        dim.setSize(min, min);
+        return dim;
+	}
 }
