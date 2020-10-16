@@ -46,6 +46,8 @@ public class SensorTest extends ReliableSensor {
 	public final void testSetUp() {
 		// make sure that the reliable sensor is not null
 		assertNotNull(sensor);
+		assertNotNull(sensor.coordsMap);
+		assertNotNull(sensor.dirsMap);
 		// make sure that it has a maze that is not null
 		assertNotNull(maze);
 		assertNotNull(sensor.maze);

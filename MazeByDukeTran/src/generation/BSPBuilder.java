@@ -220,8 +220,9 @@ public class BSPBuilder {
 		if (null != order) {
 			order.updateProgress(percentage) ;
 			if (percentage < 100) {
+				Thread.currentThread();
 				// give main thread a chance to process keyboard events
-				Thread.currentThread().sleep(10);
+				Thread.sleep(10);
 			}
 		}
 	}

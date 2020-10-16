@@ -47,7 +47,7 @@ public class CompassRose {
     public CompassRose(MazePanel mazePanel) {
     	this(0.9, 1.7, "Serif-PLAIN-16");
         this.mazePanel = mazePanel;
-        mazePanel.setFont(markerFont);
+        if (mazePanel != null) mazePanel.setFont(markerFont);
     }
     
     
