@@ -6,7 +6,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import gui.MazeFileWriter;
-import gui.StateGenerating;
+import gui.P5Panel;
 
 /**
  * A wall is a continuous sequence of wallboards in the maze.
@@ -141,7 +141,7 @@ public class Wall {
      *            obscure
      */
     private void initColor(final int distance, final int cc) {
-        setColor(StateGenerating.panel.getWallColor(distance, cc, getExtensionX()));
+        setColor(P5Panel.getWallColor(distance, cc, getExtensionX()));
     }
 
     /**

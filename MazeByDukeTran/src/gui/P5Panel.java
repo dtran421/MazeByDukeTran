@@ -26,6 +26,11 @@ package gui;
  *
  */
 public interface P5Panel {
+	/**
+     * Default minimum value for RGB values.
+     */
+    static final int RGB_DEF = 20;
+    static final int RGB_DEF_GREEN = 60;
 	
 	/**
 	 * Commits all accumulated drawings to the UI.
@@ -65,7 +70,53 @@ public interface P5Panel {
      * @param extensionX is the wall's length and direction (sign), horizontal dimension
      * @return the rgb value for the color of the wall
      */
-    public int getWallColor(int distance, int cc, int extensionX);
+	public static int getWallColor(int distance, int cc, int extensionX) {
+		final int d = distance / 4;
+        // mod used to limit the number of colors to 6
+        final int rgbValue = calculateRGBValue(d, extensionX);
+        //System.out.println("Initcolor rgb: " + rgbValue);
+        String newHex;
+        switch (((d >> 3) ^ cc) % 6) {
+        case 0:
+        	newHex = String.format("%02X%02X%02X", rgbValue, RGB_DEF, RGB_DEF);  
+            return Integer.parseInt(newHex,16);
+        case 1:
+        	newHex = String.format("%02X%02X%02X", RGB_DEF, RGB_DEF_GREEN, RGB_DEF);  
+            return Integer.parseInt(newHex,16);
+        case 2:
+        	newHex = String.format("%02X%02X%02X", RGB_DEF, RGB_DEF, rgbValue);  
+            return Integer.parseInt(newHex,16);
+        case 3:
+        	newHex = String.format("%02X%02X%02X", rgbValue, RGB_DEF_GREEN, RGB_DEF);  
+            return Integer.parseInt(newHex,16);
+        case 4:
+        	newHex = String.format("%02X%02X%02X", RGB_DEF, RGB_DEF_GREEN, rgbValue);  
+            return Integer.parseInt(newHex,16);
+        case 5:
+        	newHex = String.format("%02X%02X%02X", rgbValue, RGB_DEF, rgbValue);  
+            return Integer.parseInt(newHex,16);
+        default:
+        	newHex = String.format("%02X%02X%02X", RGB_DEF, RGB_DEF, RGB_DEF);  
+            return Integer.parseInt(newHex,16);
+        }
+	}
+	
+	/**
+     * Computes an RGB value based on the given numerical value.
+     *
+     * @param distance
+     *            value to select color
+     * @return the calculated RGB value
+     */
+     static int calculateRGBValue(final int distance, final int extensionX) {
+        // compute rgb value, depends on distance and x direction
+        // 7 in binary is 0...0111
+        // use AND to get last 3 digits of distance
+        final int part1 = distance & 7;
+        final int add = (extensionX != 0) ? 1 : 0;
+        final int rgbValue = ((part1 + 2 + add) * 70) / 8 + 80;
+        return rgbValue;
+    }
     
 	/**
 	 * Draws two solid rectangles to provide a background.
