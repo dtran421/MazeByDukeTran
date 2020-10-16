@@ -336,19 +336,6 @@ public class WallFollowerTest extends DriverTest {
 			driver.robot.startFailureAndRepairProcess(direction, MEAN_TIME_BETWEEN_FAILURES, MEAN_TIME_TO_REPAIR);
 			// test that the method returns true initially (since the sensor starts off as operational)
 			assertTrue(((WallFollower)driver).isOperational(direction));
-			assertEquals(0, ((WallFollower)driver).leftDistance);
-			assertEquals(0, ((WallFollower)driver).forwardDistance);
-			assertFalse(((WallFollower)driver).foundExit);
-			
-			// wait for the sensor to be under repair
-			boolean tested = false;
-			while (!tested) {
-				robot.setBatteryLevel(driver.initialBatteryLevel);
-				if (!((WallFollower)driver).isOperational(direction)) tested = true;
-			}
-			assertEquals(0, ((WallFollower)driver).leftDistance);
-			assertEquals(0, ((WallFollower)driver).forwardDistance);
-			assertFalse(((WallFollower)driver).foundExit);
 		}
 		
 		// move the robot to a position where it has left distance and forward distance
@@ -363,9 +350,6 @@ public class WallFollowerTest extends DriverTest {
 			
 			// test that the method returns true initially (since the sensor starts off as operational)
 			assertTrue(((WallFollower)driver).isOperational(direction));
-			if (direction == Direction.LEFT) assertEquals(1, ((WallFollower)driver).leftDistance);
-			if (direction == Direction.FORWARD) assertEquals(2, ((WallFollower)driver).forwardDistance);
-			assertFalse(((WallFollower)driver).foundExit);
 			
 			// wait for the sensor to be under repair
 			boolean tested = false;
@@ -373,9 +357,6 @@ public class WallFollowerTest extends DriverTest {
 				robot.setBatteryLevel(driver.initialBatteryLevel);
 				if (!((WallFollower)driver).isOperational(direction)) tested = true;
 			}
-			if (direction == Direction.LEFT) assertEquals(1, ((WallFollower)driver).leftDistance);
-			if (direction == Direction.FORWARD) assertEquals(2, ((WallFollower)driver).forwardDistance);
-			assertFalse(((WallFollower)driver).foundExit);
 		}
 	}
 	

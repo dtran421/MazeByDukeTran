@@ -28,18 +28,17 @@ public class OperationalState implements SensorState {
 			// turn left and take one step forward
 			robot.rotate(Turn.LEFT);
 			robot.move(1);
-			return true;
 		}
 		// detect if there's no wall in front of the robot
 		else if (robot.distanceToObstacle(Direction.FORWARD) != 0) {
 			// take one step forward
 			robot.move(1);
-			return true;
 		}
 		// if none of the above, then turn right
 		else {
 			robot.rotate(Turn.RIGHT);
 			return false;
 		}
+		return true;
 	}
 }

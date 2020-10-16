@@ -78,40 +78,36 @@ public class Wizard implements RobotDriver {
 		// get the next neighbor closest to the exit
 		int[] currPos = robot.getCurrentPosition();
 		int[] neighbor = maze.getNeighborCloserToExit(currPos[0], currPos[1]);
-		
 		// rotate robot in that direction
 		CardinalDirection currDir = robot.getCurrentDirection();
 		int[] changeDir = {neighbor[0]-currPos[0], neighbor[1]-currPos[1]};
 		switch (currDir) {
-			case North:
-				if (changeDir[0] == -1) robot.rotate(Turn.RIGHT);
-				else if (changeDir[0] == 1) robot.rotate(Turn.LEFT);
-				else if (changeDir[1] == 1) robot.rotate(Turn.AROUND);
-				break;
-			case East:
-				if (changeDir[0] == -1) robot.rotate(Turn.AROUND);
-				else if (changeDir[1] == -1) robot.rotate(Turn.RIGHT);
-				else if (changeDir[1] == 1) robot.rotate(Turn.LEFT);
-				break;
-			case South:
-				if (changeDir[0] == -1) robot.rotate(Turn.LEFT);
-				else if (changeDir[0] == 1) robot.rotate(Turn.RIGHT);
-				else if (changeDir[1] == -1) robot.rotate(Turn.AROUND);
-				break;
-			case West:
-				if (changeDir[0] == 1) robot.rotate(Turn.AROUND);
-				else if (changeDir[1] == -1) robot.rotate(Turn.LEFT);
-				else if (changeDir[1] == 1) robot.rotate(Turn.RIGHT);
-				break;
+		case North:
+			if (changeDir[0] == -1) robot.rotate(Turn.RIGHT);
+			else if (changeDir[0] == 1) robot.rotate(Turn.LEFT);
+			else if (changeDir[1] == 1) robot.rotate(Turn.AROUND);
+			break;
+		case East:
+			if (changeDir[0] == -1) robot.rotate(Turn.AROUND);
+			else if (changeDir[1] == -1) robot.rotate(Turn.RIGHT);
+			else if (changeDir[1] == 1) robot.rotate(Turn.LEFT);
+			break;
+		case South:
+			if (changeDir[0] == -1) robot.rotate(Turn.LEFT);
+			else if (changeDir[0] == 1) robot.rotate(Turn.RIGHT);
+			else if (changeDir[1] == -1) robot.rotate(Turn.AROUND);
+			break;
+		case West:
+			if (changeDir[0] == 1) robot.rotate(Turn.AROUND);
+			else if (changeDir[1] == -1) robot.rotate(Turn.LEFT);
+			else if (changeDir[1] == 1) robot.rotate(Turn.RIGHT);
+			break;
 		}
-
 		// move to the cell by taking a step or jumping
 		if (maze.hasWall(currPos[0], currPos[1], currDir)) robot.jump();
 		else robot.move(1);	
-
 		// if robot is stopped, then throw an exception
-		if (robot.hasStopped()) throw new Exception();
-				
+		if (robot.hasStopped()) throw new Exception();		
 		return true;
 	}
 
@@ -143,7 +139,7 @@ public class Wizard implements RobotDriver {
 	 */
 	protected void crossExit2Win(int[] currentPosition) {
 		// check whether the direction has a wall and the adjacent cell is outside the maze
-		while (maze.hasWall(currentPosition[0], currentPosition[1], robot.getCurrentDirection())
+		while (maze.hasWall(currentPosition[0], currentPosition[1], robot.getCurrentDirection()) 
 			|| !neighborOutsideMaze(currentPosition, robot.getCurrentDirection())) {
 			robot.rotate(Turn.LEFT);
 		}
@@ -159,18 +155,18 @@ public class Wizard implements RobotDriver {
 	 */
 	protected boolean neighborOutsideMaze(int[] currentPosition, CardinalDirection currentDirection) {
 		switch (currentDirection) {
-			case North:
-				if (currentPosition[1]-1<0) return true;
-				break;
-			case East:
-				if (currentPosition[0]+1>=maze.getWidth()) return true;
-				break;
-			case South:
-				if (currentPosition[1]+1>=maze.getHeight()) return true;
-				break;
-			case West:
-				if (currentPosition[0]-1<0) return true;
-				break;
+		case North:
+			if (currentPosition[1]-1<0) return true;
+			break;
+		case East:
+			if (currentPosition[0]+1>=maze.getWidth()) return true;
+			break;
+		case South:
+			if (currentPosition[1]+1>=maze.getHeight()) return true;
+			break;
+		case West:
+			if (currentPosition[0]-1<0) return true;
+			break;
 		}
 		return false;
 	}

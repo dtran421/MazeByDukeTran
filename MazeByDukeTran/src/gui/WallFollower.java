@@ -16,12 +16,6 @@ public class WallFollower extends Wizard {
 	// when at least one sensor is under repair)
 	protected SensorState sensorState;
 	
-	// variables to keep track of last-sensed distances 
-	protected int leftDistance;
-	protected int forwardDistance;
-	// keep track of whether the exit can be seen
-	protected boolean foundExit;
-	
 	/**
 	 * Drives the robot towards the exit using the left-wall-follower algorithm.
 	 * @return true if WallFollower successfully reaches the exit
@@ -61,10 +55,9 @@ public class WallFollower extends Wizard {
 	public boolean drive1Step2Exit() throws Exception {
 		// if robot is stopped, then throw an exception
 		if (robot.hasStopped()) throw new Exception();
-
+		
 		// keep track of whether the robot moved one step
 		boolean moved = false;
-		
 		// determine if the left sensor or forward sensor is under repair and change the state to RepairState if so
 		boolean forwardStatus = isOperational(Direction.FORWARD);
 		boolean leftStatus = isOperational(Direction.LEFT);
@@ -79,10 +72,8 @@ public class WallFollower extends Wizard {
 
 		// depending on the current state, perform the next action based on the operational sensors
 		moved = sensorState.performNextAction();
-		
 		// if robot is stopped, then throw an exception
 		if (robot.hasStopped()) throw new Exception();
-
 		return moved;
 	}
 	
@@ -106,10 +97,7 @@ public class WallFollower extends Wizard {
 	protected boolean isOperational(Direction direction) {
 		try {
 			// if no exception is thrown, then the sensor is operational
-			int dist = robot.distanceToObstacle(direction);
-			if (direction == Direction.LEFT) leftDistance = dist;
-			if (direction == Direction.FORWARD) forwardDistance = dist;
-			foundExit = (dist == Integer.MAX_VALUE);
+			robot.distanceToObstacle(direction);
 			return true;
 		} catch (UnsupportedOperationException e) {
 			return false;
