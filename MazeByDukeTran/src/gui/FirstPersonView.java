@@ -65,16 +65,6 @@ public class FirstPersonView {
 	private int angle;  
 	
 	/**
-	 * The drawing is performed on a Graphics object. Storing it makes
-	 * its access easier for code that traverses the tree of BSP nodes
-	 * to draw walls. Drawing is performed in a piecemeal manner on
-	 * a buffer image, such that updating the panel that is on screen 
-	 * with the current buffer image is the responsibility of
-	 * the StatePlaying class.
-	 */
-	private MazePanel mazePanel;
-	
-	/**
 	 * The current position (x,y) scaled by map_unit and 
 	 * modified by the view direction is stored in fields (viewX, viewY).
 	 * Values are set in the draw method. viewX gives the x coordinate,
@@ -127,10 +117,9 @@ public class FirstPersonView {
 	 */
 	public FirstPersonView(MazePanel panel, int width, int height, int mapUnit, int stepSize, Floorplan seenWalls, BSPNode bspRoot) {
 		// store given parameter values
-		mazePanel = panel;
 		viewWidth = width;
 		viewHeight = height;
-		mazePanel.setViewDimensions(viewWidth, viewHeight);
+		panel.setViewDimensions(viewWidth, viewHeight);
 		this.mapUnit = mapUnit;
 		this.stepSize = stepSize;
 		this.seenWalls = seenWalls;
@@ -151,7 +140,7 @@ public class FirstPersonView {
 	 * @param walkStep, only used to set viewX and viewY
 	 * 
 	 */
-	public void draw(int x, int y, int walkStep, int ang, float percentToExit) {
+	public void draw(MazePanel mazePanel, int x, int y, int walkStep, int ang, float percentToExit) {
         // viewers draw on the buffer graphics
         if (!mazePanel.isOperational()) return;
         
@@ -161,7 +150,7 @@ public class FirstPersonView {
         
         // update graphics
         // draw background figure: black on bottom half, grey on top half
-        drawBackground(percentToExit);
+        drawBackground(mazePanel, percentToExit);
         // set color to white and draw what ever can be seen from the current position
         //g.setColor(Color.white);
         mazePanel.setColor(MazePanel.WHITE);
@@ -174,7 +163,7 @@ public class FirstPersonView {
         traverseNodeCounter = traverseWallSectorCounter =
         		drawRectCounter = drawRectLateCounter = drawRectWallCounter = 0;
         //
-        drawAllVisibleSectors(bspRoot);
+        drawAllVisibleSectors(mazePanel, bspRoot);
 	}
 
 
@@ -208,7 +197,7 @@ public class FirstPersonView {
 	 * Colors transition from black to gold and from grey to green.
 	 * @param percentToExit gives the distance to exit
 	 */
-	private void drawBackground(float percentToExit) {
+	private void drawBackground(MazePanel mazePanel, float percentToExit) {
 		mazePanel.addBackground(percentToExit);
 	}	
 	/**
@@ -216,12 +205,12 @@ public class FirstPersonView {
 	 * where the bounding box is visible
 	 * @param node is the current node of interest
 	 */
-	private void drawAllVisibleSectors(BSPNode node) {
+	private void drawAllVisibleSectors(MazePanel mazePanel, BSPNode node) {
 		traverseNodeCounter++; // debug
 		
 		// Anchor, stop recursion at leaf nodes
 		if (node.isIsleaf()) {
-			drawAllWallsOfASector((BSPLeaf) node);
+			drawAllWallsOfASector(mazePanel, (BSPLeaf) node);
 			return;
 		}
 		
@@ -244,15 +233,15 @@ public class FirstPersonView {
 		// if dot >= 0 consider right node before left node
 		BSPNode right = n.getRightBranch();
 		if ((dot >= 0) && (boundingBoxIsVisible(right))) {
-			drawAllVisibleSectors(right);
+			drawAllVisibleSectors(mazePanel, right);
 		}
 		// consider left node
 		BSPNode left = n.getLeftBranch();
 		if (boundingBoxIsVisible(left))
-			drawAllVisibleSectors(left);
+			drawAllVisibleSectors(mazePanel, left);
 		// if dot < 0 consider right node now (after left node)
 		if ((dot < 0) && (boundingBoxIsVisible(right))) {
-			drawAllVisibleSectors(right);
+			drawAllVisibleSectors(mazePanel, right);
 		}
 		nesting--; // debug
 	}
@@ -362,7 +351,7 @@ public class FirstPersonView {
 	 * Traverses all walls of this leaf and draws corresponding rectangles on screen
 	 * @param node is the leaf node
 	 */
-	private void drawAllWallsOfASector(BSPLeaf node) {
+	private void drawAllWallsOfASector(MazePanel mazePanel, BSPLeaf node) {
 		ArrayList<Wall> sl = node.getSlist();
 		// debug
 		traverseWallSectorCounter++;
@@ -375,7 +364,7 @@ public class FirstPersonView {
 		for (int i = 0; i != sl.size(); i++) {
 			Wall w = (Wall) sl.get(i);
 			// draw rectangle
-			drawWall(w);
+			drawWall(mazePanel, w);
 			// debug
 			if (deepDebug) {
 				dbg("                               ".substring(0, nesting) +
@@ -392,7 +381,7 @@ public class FirstPersonView {
 	 * Helper method for drawAllWallsOfASector.
 	 * @param wall whose seen attribute may be set to true
 	 */
-	private void drawWall(Wall wall) {
+	private void drawWall(MazePanel mazePanel, Wall wall) {
 		drawRectCounter++; // debug, counter
 		
 		// some notes: 
@@ -425,7 +414,7 @@ public class FirstPersonView {
 		//gc.setColor(wall.getColor());
 	    int newColor = wall.getColor();
 		mazePanel.setColor(newColor);
-		boolean drawn = drawPolygons(x1, x2, y11, y12, y21, y22);
+		boolean drawn = drawPolygons(mazePanel, x1, x2, y11, y12, y21, y22);
 		
 		if (drawn && !wall.isSeen()) {
 			wall.setSeen(true); // updates the wall
@@ -449,7 +438,7 @@ public class FirstPersonView {
 	 * @param y22
 	 * @return true if at least one polygon has been drawn, false otherwise
 	 */
-	private boolean drawPolygons(int x1, int x2, int y11, int y12, int y21, int y22) {
+	private boolean drawPolygons(MazePanel mazePanel, int x1, int x2, int y11, int y12, int y21, int y22) {
 		// debugging
 		//System.out.println(drawrect_late_ct + " drawPieces: " + x1 + ", " + x2 
 		//		+ ", " + y11 + ", " + y12 + ", " + y21 + ", " + y22 );

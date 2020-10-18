@@ -1,7 +1,6 @@
 package gui;
 
 import java.awt.Dimension;
-import java.awt.Graphics;
 
 import javax.swing.JComponent;
 
@@ -31,8 +30,6 @@ public class CompassRose extends JComponent{
     		
     //private static final Color MARKER_COLOR = Color.black; //Color.WHITE; //Color.BLACK;
     private static final int MARKER_COLOR = 0;
-
-	private MazePanel mazePanel;
     
     private double scaler;
     
@@ -49,9 +46,7 @@ public class CompassRose extends JComponent{
      * Construct a compass rose with the default settings.
      */
     public CompassRose(MazePanel mazePanel) {
-    	this(0.9, 1.7, "Serif-PLAIN-16");
-        this.mazePanel = mazePanel;
-        if (mazePanel != null) mazePanel.setFont(markerFont);
+    	this(mazePanel, 0.9, 1.7, "Serif-PLAIN-16");
     }
     
     /**
@@ -62,10 +57,10 @@ public class CompassRose extends JComponent{
      *                      will position the markers outside of the bordering circle.
      * @param markerFont    The font used for the markers.
      */
-    public CompassRose(double scaler, double markerRadius, String markerFont) {
+    public CompassRose(MazePanel mazePanel, double scaler, double markerRadius, String markerFont) {
         this.scaler = scaler;
         this.markerRadius = markerRadius;
-        this.markerFont = markerFont;
+        setMarkerFont(mazePanel, markerFont);
     }
     
     public void setPositionAndSize(int x, int y, int size) {
@@ -82,8 +77,7 @@ public class CompassRose extends JComponent{
     	currentDir = cd;
     }
 
-    @Override
-    public void paintComponent(Graphics g) {                
+    public void paintComponent(MazePanel mazePanel) {                
         /* Original code
         Dimension dimension = this.getSize();
         int width = Math.min(dimension.width, dimension.height);
@@ -97,7 +91,7 @@ public class CompassRose extends JComponent{
         mazePanel.setRenderingHint(P5Panel.RenderingHints.KEY_RENDERING, P5Panel.RenderingHints.VALUE_RENDER_QUALITY);
         mazePanel.setRenderingHint(P5Panel.RenderingHints.KEY_ANTIALIASING, P5Panel.RenderingHints.VALUE_ANTIALIAS_ON);
         // draw background disc
-        drawBackground(width);
+        drawBackground(mazePanel, width);
         // draw main part in all 4 directions in same color
         // x, y arrays used for drawing polygons
         // starting point is always (centerX, centerY)
@@ -107,19 +101,18 @@ public class CompassRose extends JComponent{
         final int[] y = new int[3];
         x[0] = centerX;
         y[0] = centerY;
-        drawMainNorth(mainLength, mainWidth, x, y);
-        drawMainEast(mainLength, mainWidth, x, y);
-        drawMainSouth(mainLength, mainWidth, x, y);
-        drawMainWest(mainLength, mainWidth, x, y);
+        drawMainNorth(mazePanel, mainLength, mainWidth, x, y);
+        drawMainEast(mazePanel, mainLength, mainWidth, x, y);
+        drawMainSouth(mazePanel, mainLength, mainWidth, x, y);
+        drawMainWest(mazePanel, mainLength, mainWidth, x, y);
         
-        drawBorderCircle(width);
+        drawBorderCircle(mazePanel, width);
         
-        drawDirectionMarker(width);
+        drawDirectionMarker(mazePanel, width);
     }
 
 
-	private void drawBackground(int width) {
-		//g2.setColor(Color.white);
+	private void drawBackground(MazePanel mazePanel, int width) {
 		mazePanel.setColor(MazePanel.WHITE);
 		final int x = centerX - size;
 		final int y = centerY - size;
@@ -128,7 +121,7 @@ public class CompassRose extends JComponent{
 	}
 
 
-	private void drawMainWest(int length, int width, int[] x, int[] y) {
+	private void drawMainWest(MazePanel mazePanel, int length, int width, int[] x, int[] y) {
 		x[1] = centerX - length;
         y[1] = centerY;
         x[2] = centerX - width;
@@ -138,13 +131,13 @@ public class CompassRose extends JComponent{
         y[2] = centerY - width;
         mazePanel.addPolygon(x, y, 3);
 	}
-	private void drawMainEast(int length, int width, int[] x, int[] y) {
+	private void drawMainEast(MazePanel mazePanel, int length, int width, int[] x, int[] y) {
 		// observation: the 2 triangles to the right are drawn the same
 		// way as for the left if one inverts the sign for length and width
 		// i.e. exchanges addition and subtraction
-		drawMainWest(-length, -width, x, y);
+		drawMainWest(mazePanel, -length, -width, x, y);
 	}
-	private void drawMainSouth(int length, int width, int[] x, int[] y) {
+	private void drawMainSouth(MazePanel mazePanel, int length, int width, int[] x, int[] y) {
 		x[1] = centerX;
         y[1] = centerY + length;
         x[2] = centerX + width;
@@ -154,14 +147,14 @@ public class CompassRose extends JComponent{
         x[2] = centerX - width;
         mazePanel.addPolygon(x, y, 3);
 	}
-	private void drawMainNorth(int length, int width, int[] x, int[] y) {
+	private void drawMainNorth(MazePanel mazePanel, int length, int width, int[] x, int[] y) {
 		// observation: the 2 triangles to the top are drawn the same
 		// way as for the bottom if one inverts the sign for length and width
 		// i.e. exchanges addition and subtraction
-		drawMainSouth(-length, -width, x, y);
+		drawMainSouth(mazePanel, -length, -width, x, y);
 	}
 
-	private void drawBorderCircle(int width) {
+	private void drawBorderCircle(MazePanel mazePanel, int width) {
 		final int x = centerX - width / 2 + CIRCLE_BORDER;
 		final int y = centerY - width / 2 + CIRCLE_BORDER;
 		final int w = width - 2 * CIRCLE_BORDER;
@@ -172,7 +165,7 @@ public class CompassRose extends JComponent{
 	}
 
 
-	private void drawDirectionMarker(int width) {
+	private void drawDirectionMarker(MazePanel mazePanel, int width) {
 		if (!Double.isNaN(markerRadius) && mazePanel.getFont() != null) {
             
             int pos = (int) (width * markerRadius / 2);
@@ -193,28 +186,28 @@ public class CompassRose extends JComponent{
             	mazePanel.setColor(MARKER_COLOR);
             else
             	mazePanel.setColor(MazePanel.goldWM);
-            drawMarker(centerX, centerY - pos, "N");
+            drawMarker(mazePanel, centerX, centerY - pos, "N");
             if (CardinalDirection.East == currentDir)
             	mazePanel.setColor(MARKER_COLOR);
             else
             	mazePanel.setColor(MazePanel.goldWM);
-            drawMarker(centerX + pos, centerY, "E");
+            drawMarker(mazePanel, centerX + pos, centerY, "E");
             // WARNING: north south confusion
             // currendDir North is going downwards on the map
             if (CardinalDirection.North == currentDir)
             	mazePanel.setColor(MARKER_COLOR);
             else
             	mazePanel.setColor(MazePanel.goldWM);
-            drawMarker(centerX, centerY + pos, "S");
+            drawMarker(mazePanel, centerX, centerY + pos, "S");
             if (CardinalDirection.West == currentDir)
             	mazePanel.setColor(MARKER_COLOR);
             else
             	mazePanel.setColor(MazePanel.goldWM);
-            drawMarker(centerX - pos, centerY, "W");
+            drawMarker(mazePanel, centerX - pos, centerY, "W");
         }
 	}
  
-    private void drawMarker(float x, float y, String str) {
+    private void drawMarker(MazePanel mazePanel, float x, float y, String str) {
         mazePanel.addMarker(x, y, str);
     }
  
@@ -241,10 +234,10 @@ public class CompassRose extends JComponent{
     }
     
     
-    public void setMarkerFont(String markerFont) {
+    public void setMarkerFont(MazePanel mazePanel, String markerFont) {
         this.markerFont = markerFont;
         mazePanel.setFont(markerFont);
-        //repaint();
+        repaint();
     }
     
     /**

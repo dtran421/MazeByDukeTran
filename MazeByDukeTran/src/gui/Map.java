@@ -57,8 +57,6 @@ public class Map {
 	 * width and height of the maze
 	 */
 	final Maze maze;
-
-	MazePanel mazePanel;
 	
 	/**
 	 * Constructor 
@@ -91,10 +89,9 @@ public class Map {
 	 * @param mapScale
 	 * @param maze
 	 */
-	public Map(MazePanel mazePanel, Floorplan seenCells, int mapScale, Maze maze){
+	public Map(Floorplan seenCells, int mapScale, Maze maze){
 		this(Constants.VIEW_WIDTH,Constants.VIEW_HEIGHT,Constants.MAP_UNIT,
     			Constants.STEP_SIZE, seenCells, mapScale, maze);
-		this.mazePanel = mazePanel;
 	}
 	
 	public void incrementMapScale() {
@@ -122,14 +119,14 @@ public class Map {
 	 * @param showSolution if true shows a path to the exit as a yellow line,
 	 * otherwise path is not shown.
 	 */
-	public void draw(int x, int y, int angle, int walkStep,
+	public void draw(MazePanel mazePanel, int x, int y, int angle, int walkStep,
 			boolean showMaze, boolean showSolution) {
         // viewers draw on the buffer graphics
         if (!mazePanel.isOperational()) return;
         final int viewDX = getViewDX(angle); 
         final int viewDY = getViewDY(angle);
-        drawMap(x, y, walkStep, viewDX, viewDY, showMaze, showSolution) ;
-        drawCurrentLocation(viewDX, viewDY) ;
+        drawMap(mazePanel, x, y, walkStep, viewDX, viewDY, showMaze, showSolution) ;
+        drawCurrentLocation(mazePanel, viewDX, viewDY);
 	}
 	//////////////////////////////// private, internal methods //////////////////////////////
 	private int getViewDX(int angle) {
@@ -149,7 +146,7 @@ public class Map {
 	 * @param px current position, x index
 	 * @param py current position, y index 
 	 */
-	private void drawMap(int px, int py, int walkStep, 
+	private void drawMap(MazePanel mazePanel, int px, int py, int walkStep, 
 			int viewDX, int viewDY, boolean showMaze, boolean showSolution) {
 		// dimensions of the maze in terms of cell ids
 		final int mazeWidth = maze.getWidth() ;
@@ -201,7 +198,7 @@ public class Map {
 			}
 		
 		if (showSolution) {
-			drawSolution(offsetX, offsetY, px, py) ;
+			drawSolution(mazePanel, offsetX, offsetY, px, py) ;
 		}
 	}
 	/**
@@ -312,7 +309,7 @@ public class Map {
 	 * map visualization. 
 	 * @param gc to draw on
 	 */
-	private void drawCurrentLocation(int viewDX, int viewDY) {
+	private void drawCurrentLocation(MazePanel mazePanel, int viewDX, int viewDY) {
 		mazePanel.setColor(MazePanel.RED);
 		// draw oval of appropriate size at the center of the screen
 		int centerX = viewWidth/2; // center x
@@ -324,7 +321,7 @@ public class Map {
 		// width and height is simply the diameter
 		mazePanel.addFilledOval(centerX-diameter/2, centerY-diameter/2, diameter, diameter);
 		// draw a red arrow with the oval to show current direction
-		drawArrow(viewDX, viewDY, centerX, centerY);
+		drawArrow(mazePanel, viewDX, viewDY, centerX, centerY);
 	}
 
 	/**
@@ -335,7 +332,7 @@ public class Map {
 	 * @param startX is the x coordinate of the starting point
 	 * @param startY is the y coordinate of the starting point
 	 */
-	private void drawArrow(int viewDX, int viewDY, 
+	private void drawArrow(MazePanel mazePanel, int viewDX, int viewDY, 
 			final int startX, final int startY) {
 		// calculate length and coordinates for main line
 		final int arrowLength = mapScale*7/16; // arrow length, about 1/2 map_scale
@@ -376,7 +373,7 @@ public class Map {
 	 * @param px is the current position, an index x for a cell
 	 * @param py is the current position, an index y for a cell
 	 */
-	private void drawSolution(int offsetX, int offsetY, int px, int py) {
+	private void drawSolution(MazePanel mazePanel, int offsetX, int offsetY, int px, int py) {
 
 		if (!maze.isValidPosition(px, py)) {
 			dbg(" Parameter error: position out of bounds: (" + px + "," + 
